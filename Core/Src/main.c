@@ -21,6 +21,7 @@
 #include "can.h"
 #include "fatfs.h"
 #include "sdio.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -60,8 +61,12 @@ float total_time = 1000;
 float angle[4][2];
 float pos[4][2];
 float t = 0;
-int flag1 = 0, flag2 = 0, flag3 = 0, flag4 = 0;
 float speed = 0.01;
+
+union {
+  float real_motor_data[4];
+  uint8_t send_motor_data[16];
+} usart_motor_data;
 
 float CubicSpline(float init_position, float goal_position, float init_velocity, float goal_velocity, float now_time, float total_time) {
   float a, b, c, d;
@@ -121,6 +126,9 @@ int main(void)
   MX_CAN2_Init();
   MX_SDIO_SD_Init();
   MX_FATFS_Init();
+  MX_USART6_UART_Init();
+  MX_UART7_Init();
+  MX_UART8_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_Delay(4000);
@@ -161,44 +169,35 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // HAL_Delay(20);
-    // RunJ60Motor(&J60Motor_CAN1[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
-    // HAL_Delay(20);
-    // RunJ60Motor(&J60Motor_CAN1[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
-    // HAL_Delay(20);
-    // RunJ60Motor(&J60Motor_CAN2[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
-    // HAL_Delay(20);
-    // RunJ60Motor(&J60Motor_CAN2[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
-
-    // HAL_Delay(20);
-    // RunJ60Motor(&J60Motor_CAN1[2], 0, 0, 0, 0, 0, ZeroTorqueMode);
-    // HAL_Delay(20);
-    // RunJ60Motor(&J60Motor_CAN1[3], 0, 0, 0, 0, 0, ZeroTorqueMode);
-    // HAL_Delay(20);
-    // RunJ60Motor(&J60Motor_CAN2[2], 0, 0, 0, 0, 0, ZeroTorqueMode);
-    // HAL_Delay(20);
-    // RunJ60Motor(&J60Motor_CAN2[3], 0, 0, 0, 0, 0, ZeroTorqueMode);
-
     if (MoveEnable == 1) {
-      Leg_cyloid(&t, &angle[0][0], &angle[0][1], 0);
+      Leg_cyloid(&t, &angle[0][0], &angle[0][1], 0, forward, 0.4, 0.16, 0.04);  // lf
+      Leg_cyloid(&t, &angle[2][0], &angle[2][1], 0, forward, 0.4, 0.16, 0.04);  // rb
+      Leg_cyloid(&t, &angle[1][0], &angle[1][1], 1, forward, 0.4, 0.16, 0.04);  // rf
+      Leg_cyloid(&t, &angle[3][0], &angle[3][1], 1, forward, 0.4, 0.16, 0.04);  // lb
+
+      usart_motor_data.real_motor_data[0] = angle[1][0];
+      usart_motor_data.real_motor_data[1] = angle[1][1];
+      usart_motor_data.real_motor_data[2] = angle[3][0];
+      usart_motor_data.real_motor_data[3] = angle[3][1];
+
+      HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
+      while(__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+
+      // Only send the command of lf and rb
       RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
       HAL_Delay(1);
       RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
       HAL_Delay(1);
-
-      Leg_cyloid(&t, &angle[2][0], &angle[2][1], 0);
       RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
       HAL_Delay(1);
       RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
       HAL_Delay(1);
 
-      // Leg_cyloid(&t, &angle[1][0], &angle[1][1], 1);
+      // On another control-board
       // RunJ60Motor(&J60Motor_CAN1[2], J60Motor_StandUpData_CAN1[2] + angle[1][1], 0, 0, 100, 5, PositionMode);
       // HAL_Delay(1);
       // RunJ60Motor(&J60Motor_CAN1[3], J60Motor_StandUpData_CAN1[3] - angle[1][0], 0, 0, 100, 5, PositionMode);
       // HAL_Delay(1);
-
-      // Leg_cyloid(&t, &angle[3][0], &angle[3][1], 1);
       // RunJ60Motor(&J60Motor_CAN2[2], J60Motor_StandUpData_CAN2[2] - angle[3][1], 0, 0, 100, 5, PositionMode);
       // HAL_Delay(1);
       // RunJ60Motor(&J60Motor_CAN2[3], J60Motor_StandUpData_CAN2[3] + angle[3][0], 0, 0, 100, 5, PositionMode);

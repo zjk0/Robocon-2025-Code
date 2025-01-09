@@ -1012,7 +1012,7 @@
         </option>
         <option>
           <name>IlinkTrustzoneImportLibraryOut</name>
-          <state></state>
+          <state>Quadruped_Robot_20241025_import_lib.o</state>
         </option>
         <option>
           <name>OILinkExtraOption</name>
@@ -1075,6 +1075,9 @@
         </file>
         <file>
           <name>$PROJ_DIR$\..\Core\Src\sdio.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Core\Src\usart.c</name>
         </file>
         <file>
           <name>$PROJ_DIR$\..\Core\Src\stm32f4xx_it.c</name>
@@ -1169,6 +1172,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_tim_ex.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_uart.c</name>
       </file>
     </group>
   </group>

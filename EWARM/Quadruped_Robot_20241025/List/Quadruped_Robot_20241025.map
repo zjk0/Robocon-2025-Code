@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ELF Linker V8.32.1.169/W32 for ARM                  17/Dec/2024  23:57:03
+# IAR ELF Linker V8.32.1.169/W32 for ARM                  04/Jan/2025  00:31:04
 # Copyright 2007-2018 IAR Systems AB.
 #
 #    Output file  =  
@@ -10,7 +10,7 @@
 #        F:\none\Study\Other\Robot\RTS
 #        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\List\Quadruped_Robot_20241025.map
 #    Command line =  
-#        -f C:\Users\86136\AppData\Local\Temp\EWD13C.tmp
+#        -f C:\Users\86136\AppData\Local\Temp\EWF053.tmp
 #        ("F:\none\Study\Other\Robot\RTS
 #        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj\bsp_driver_sd.o"
 #        "F:\none\Study\Other\Robot\RTS
@@ -82,6 +82,8 @@
 #        "F:\none\Study\Other\Robot\RTS
 #        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj\stm32f4xx_hal_tim_ex.o"
 #        "F:\none\Study\Other\Robot\RTS
+#        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj\stm32f4xx_hal_uart.o"
+#        "F:\none\Study\Other\Robot\RTS
 #        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj\stm32f4xx_it.o"
 #        "F:\none\Study\Other\Robot\RTS
 #        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj\stm32f4xx_ll_sdmmc.o"
@@ -89,6 +91,8 @@
 #        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj\syscall.o"
 #        "F:\none\Study\Other\Robot\RTS
 #        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj\system_stm32f4xx.o"
+#        "F:\none\Study\Other\Robot\RTS
+#        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj\usart.o"
 #        "F:\none\Study\Other\Robot\RTS
 #        team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj\user_diskio.o"
 #        --no_out_extension -o "F:\none\Study\Other\Robot\RTS
@@ -107,6 +111,7 @@
 ***
 
 CppFlavor       = *
+__Heap_Handler  = Basic
 __SystemLibrary = DLib
 __dlib_version  = 6
 
@@ -139,7 +144,7 @@ initialize by copy { rw };
   .intvec            ro code   0x800'0000   0x1ac  startup_stm32f427xx.o [1]
                              - 0x800'01ac   0x1ac
 
-"P1":                                      0x5b1c
+"P1":                                      0x6a58
   .text              ro code   0x800'01ac   0xe32  stm32f4xx_hal_sd.o [1]
   .text              ro code   0x800'0fde    0x3a  zero_init3.o [4]
   .text              ro code   0x800'1018    0xe4  sdio.o [1]
@@ -149,218 +154,228 @@ initialize by copy { rw };
   .text              ro code   0x800'1884     0xc  stm32f4xx_hal.o [1]
   .text              ro code   0x800'1890     0x2  stm32f4xx_hal_sd.o [1]
   .text              ro code   0x800'1892    0x20  bsp_driver_sd.o [1]
-  .text              ro code   0x800'18b4    0x28  stm32f4xx_hal_dma.o [1]
-  .text              ro code   0x800'18dc     0x6  ABImemclr4.o [4]
-  .text              ro code   0x800'18e4   0x2c0  stm32f4xx_hal_gpio.o [1]
-  .text              ro code   0x800'1ba4   0x15c  stm32f4xx_hal_cortex.o [1]
-  .text              ro code   0x800'1d00     0x2  bsp_driver_sd.o [1]
-  .text              ro code   0x800'1d02     0x2  bsp_driver_sd.o [1]
-  .text              ro code   0x800'1d04    0x32  ABImemset48.o [4]
-  .text              ro code   0x800'1d38    0x64  Callback.o [1]
-  .text              ro code   0x800'1d9c   0x138  DeepJ60_can.o [1]
-  .text              ro code   0x800'1ed4   0x91c  DeepJ60_Motor.o [1]
-  .text              ro code   0x800'27f0   0x7e2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'2fd4   0x27c  can.o [1]
-  .text              ro code   0x800'3250     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'3252     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'3254     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'3256     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'3258     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'325a     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'325c     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'325e     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'3260     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'3262     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'3264     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'3266     0x2  stm32f4xx_hal_can.o [1]
-  .text              ro code   0x800'3268   0x2d0  main.o [1]
-  .text              ro code   0x800'3538    0x34  stm32f4xx_hal.o [1]
-  .text              ro code   0x800'356c    0xe8  gpio.o [1]
-  .text              ro code   0x800'3654    0x34  fatfs.o [1]
-  .text              ro code   0x800'3688   0x6dc  leg_control.o [1]
-  .text              ro code   0x800'3d64   0x3ec  stm32f4xx_hal_rcc.o [1]
-  .text              ro code   0x800'4150    0x7c  stm32f4xx_hal_pwr_ex.o [1]
-  .text              ro code   0x800'41cc   0x1f4  stm32f4xx_hal_rcc.o [1]
-  .text              ro code   0x800'43c0    0x4c  stm32f4xx_hal.o [1]
-  .text              ro code   0x800'440c    0x40  stm32f4xx_hal_msp.o [1]
-  .text              ro code   0x800'444c    0x60  ff_gen_drv.o [1]
-  .text              ro code   0x800'44ac    0x48  FltToDbl.o [3]
-  .text              ro code   0x800'44f4    0x2a  math_wrappers64.o [3]
-  .text              ro code   0x800'4520    0x68  DblToFlt.o [3]
-  .text              ro code   0x800'4588   0x102  sqrt.o [3]
-  .text              ro code   0x800'468c   0x246  DblDiv.o [3]
-  .text              ro code   0x800'48d4   0x1a2  DblMul.o [3]
-  .text              ro code   0x800'4a78    0xe2  DblSub.o [3]
-  .text              ro code   0x800'4b5c    0x62  round.o [3]
-  .text              ro code   0x800'4bc0   0x17a  DblAdd.o [3]
-  .text              ro code   0x800'4d3c   0x230  I64DivMod.o [4]
-  .text              ro code   0x800'4f6c    0xc8  acos64.o [3]
-  .text              ro code   0x800'5034   0x444  cos_sin64.o [3]
-  .text              ro code   0x800'5478     0x2  I64DivZer.o [4]
-  .text              ro code   0x800'547c    0x2e  DblCmpLe.o [3]
-  .text              ro code   0x800'54ac   0x1d0  iar_Atan64.o [3]
-  .text              ro code   0x800'567c    0x3a  DblToS32.o [3]
-  .text              ro code   0x800'56b8    0x22  S32ToDbl.o [3]
-  .text              ro code   0x800'56dc    0x20  DblCmpEq.o [3]
-  .text              ro code   0x800'56fc    0x2e  DblCmpGe.o [3]
-  .text              ro code   0x800'572c   0x120  sd_diskio.o [1]
-  .text              ro code   0x800'584c    0x1c  bsp_driver_sd.o [1]
-  .text              ro code   0x800'5868    0x20  bsp_driver_sd.o [1]
-  .text              ro code   0x800'5888    0x34  bsp_driver_sd.o [1]
-  .text              ro code   0x800'58bc    0x34  bsp_driver_sd.o [1]
-  .text              ro code   0x800'58f0    0x14  bsp_driver_sd.o [1]
-  .text              ro code   0x800'5904    0x10  bsp_driver_sd.o [1]
-  .text              ro code   0x800'5914    0x60  stm32f4xx_it.o [1]
-  .text              ro code   0x800'5974    0x18  stm32f4xx_hal.o [1]
-  Initializer bytes  const     0x800'598c    0x44  <for P2-1>
-  .text              ro code   0x800'59d0    0x2c  copy_init3.o [4]
-  .rodata            const     0x800'5a00    0x40  iar_Atan64.o [3]
-  .text              ro code   0x800'5a40    0x38  user_diskio.o [1]
-  .text              ro code   0x800'5a78    0x28  data_init.o [4]
-  .text              ro code   0x800'5aa0    0x22  fpinit_M.o [3]
-  .iar.init_table    const     0x800'5ac4    0x24  - Linker created -
-  .text              ro code   0x800'5ae8    0x1e  cmain.o [4]
-  .text              ro code   0x800'5b06     0x4  low_level_init.o [2]
-  .text              ro code   0x800'5b0a     0x4  exit.o [2]
-  .text              ro code   0x800'5b10     0xa  cexit.o [4]
-  .text              ro code   0x800'5b1c    0x14  exit.o [5]
-  .rodata            const     0x800'5b30    0x14  sd_diskio.o [1]
-  .rodata            const     0x800'5b44    0x10  system_stm32f4xx.o [1]
-  .text              ro code   0x800'5b54    0x10  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5b64    0x10  system_stm32f4xx.o [1]
-  .text              ro code   0x800'5b74     0xc  cstartup_M.o [4]
-  .text              ro code   0x800'5b80     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5b84     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5b88     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5b8c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5b90     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5b94     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5b98     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5b9c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5ba0     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5ba4     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5ba8     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bac     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bb0     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bb4     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bb8     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bbc     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bc0     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bc4     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bc8     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bcc     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bd0     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bd4     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bd8     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bdc     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5be0     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5be4     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5be8     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bec     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bf0     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bf4     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bf8     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5bfc     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c00     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c04     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c08     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c0c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c10     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c14     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c18     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c1c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c20     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c24     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c28     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c2c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c30     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c34     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c38     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c3c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c40     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c44     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c48     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c4c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c50     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c54     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c58     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c5c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c60     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c64     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c68     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c6c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c70     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c74     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c78     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c7c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c80     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c84     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c88     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c8c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c90     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c94     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c98     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5c9c     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5ca0     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5ca4     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5ca8     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5cac     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5cb0     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5cb4     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5cb8     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5cbc     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5cc0     0x4  startup_stm32f427xx.o [1]
-  .text              ro code   0x800'5cc4     0x4  startup_stm32f427xx.o [1]
-  .rodata            const     0x800'5cc8     0x0  zero_init3.o [4]
-  .rodata            const     0x800'5cc8     0x0  copy_init3.o [4]
-                             - 0x800'5cc8  0x5b1c
+  .text              ro code   0x800'18b4    0xc4  stm32f4xx_hal_dma.o [1]
+  .text              ro code   0x800'1978     0x6  ABImemclr4.o [4]
+  .text              ro code   0x800'1980   0x2c0  stm32f4xx_hal_gpio.o [1]
+  .text              ro code   0x800'1c40   0x15c  stm32f4xx_hal_cortex.o [1]
+  .text              ro code   0x800'1d9c     0x2  bsp_driver_sd.o [1]
+  .text              ro code   0x800'1d9e     0x2  bsp_driver_sd.o [1]
+  .text              ro code   0x800'1da0    0x32  ABImemset48.o [4]
+  .text              ro code   0x800'1dd4    0xbc  Callback.o [1]
+  .text              ro code   0x800'1e90   0x138  DeepJ60_can.o [1]
+  .text              ro code   0x800'1fc8   0x91c  DeepJ60_Motor.o [1]
+  .text              ro code   0x800'28e4   0xa1c  stm32f4xx_hal_uart.o [1]
+  .text              ro code   0x800'3300   0x7e2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'3ae4   0x220  usart.o [1]
+  .text              ro code   0x800'3d04     0x2  stm32f4xx_hal_uart.o [1]
+  .text              ro code   0x800'3d06     0x2  stm32f4xx_hal_uart.o [1]
+  .text              ro code   0x800'3d08     0x2  stm32f4xx_hal_uart.o [1]
+  .text              ro code   0x800'3d0c   0x22c  stm32f4xx_hal_rcc.o [1]
+  .text              ro code   0x800'3f38   0x230  I64DivMod.o [4]
+  .text              ro code   0x800'4168   0x27c  can.o [1]
+  .text              ro code   0x800'43e4     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43e6     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43e8     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43ea     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43ec     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43ee     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43f0     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43f2     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43f4     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43f6     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43f8     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43fa     0x2  stm32f4xx_hal_can.o [1]
+  .text              ro code   0x800'43fc   0x394  main.o [1]
+  .text              ro code   0x800'4790    0x4c  stm32f4xx_hal.o [1]
+  .text              ro code   0x800'47dc     0x2  I64DivZer.o [4]
+  .text              ro code   0x800'47e0    0x34  stm32f4xx_hal.o [1]
+  .text              ro code   0x800'4814   0x114  gpio.o [1]
+  .text              ro code   0x800'4928    0x34  fatfs.o [1]
+  .text              ro code   0x800'495c   0x74c  leg_control.o [1]
+  .text              ro code   0x800'50a8   0x3ec  stm32f4xx_hal_rcc.o [1]
+  .text              ro code   0x800'5494    0x7c  stm32f4xx_hal_pwr_ex.o [1]
+  .text              ro code   0x800'5510    0x40  stm32f4xx_hal_msp.o [1]
+  .text              ro code   0x800'5550    0x60  ff_gen_drv.o [1]
+  .text              ro code   0x800'55b0    0x48  FltToDbl.o [3]
+  .text              ro code   0x800'55f8    0x2a  math_wrappers64.o [3]
+  .text              ro code   0x800'5624    0x68  DblToFlt.o [3]
+  .text              ro code   0x800'568c   0x102  sqrt.o [3]
+  .text              ro code   0x800'5790   0x246  DblDiv.o [3]
+  .text              ro code   0x800'59d8   0x1a2  DblMul.o [3]
+  .text              ro code   0x800'5b7c    0xe2  DblSub.o [3]
+  .text              ro code   0x800'5c60    0x62  round.o [3]
+  .text              ro code   0x800'5cc4   0x17a  DblAdd.o [3]
+  .text              ro code   0x800'5e40    0xc8  acos64.o [3]
+  .text              ro code   0x800'5f08   0x444  cos_sin64.o [3]
+  .text              ro code   0x800'634c    0x2e  DblCmpLe.o [3]
+  .text              ro code   0x800'637c   0x1d0  iar_Atan64.o [3]
+  .text              ro code   0x800'654c    0x3a  DblToS32.o [3]
+  .text              ro code   0x800'6588    0x22  S32ToDbl.o [3]
+  .text              ro code   0x800'65ac    0x20  DblCmpEq.o [3]
+  .text              ro code   0x800'65cc    0x2e  DblCmpGe.o [3]
+  .text              ro code   0x800'65fc   0x120  sd_diskio.o [1]
+  .text              ro code   0x800'671c    0x1c  bsp_driver_sd.o [1]
+  .text              ro code   0x800'6738    0x20  bsp_driver_sd.o [1]
+  .text              ro code   0x800'6758    0x34  bsp_driver_sd.o [1]
+  .text              ro code   0x800'678c    0x34  bsp_driver_sd.o [1]
+  .text              ro code   0x800'67c0    0x14  bsp_driver_sd.o [1]
+  .text              ro code   0x800'67d4    0x10  bsp_driver_sd.o [1]
+  .text              ro code   0x800'67e4    0x8c  stm32f4xx_it.o [1]
+  .text              ro code   0x800'6870    0x18  stm32f4xx_hal.o [1]
+  Initializer bytes  const     0x800'6888    0x4c  <for P2-1>
+  .rodata            const     0x800'68d8    0x40  iar_Atan64.o [3]
+  .text              ro code   0x800'6918    0x38  user_diskio.o [1]
+  .text              ro code   0x800'6950    0x30  iarttio.o [5]
+  .text              ro code   0x800'6980     0xc  XShttio.o [2]
+  .text              ro code   0x800'698c    0x2c  copy_init3.o [4]
+  .text              ro code   0x800'69b8    0x28  data_init.o [4]
+  .text              ro code   0x800'69e0    0x22  fpinit_M.o [3]
+  .iar.init_table    const     0x800'6a04    0x24  - Linker created -
+  .text              ro code   0x800'6a28    0x1e  cmain.o [4]
+  .text              ro code   0x800'6a46     0x4  low_level_init.o [2]
+  .text              ro code   0x800'6a4a     0x4  exit.o [2]
+  .text              ro code   0x800'6a50     0xa  cexit.o [4]
+  .text              ro code   0x800'6a5c    0x14  exit.o [5]
+  .rodata            const     0x800'6a70    0x14  sd_diskio.o [1]
+  .rodata            const     0x800'6a84    0x10  system_stm32f4xx.o [1]
+  .text              ro code   0x800'6a94    0x10  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6aa4    0x10  system_stm32f4xx.o [1]
+  .text              ro code   0x800'6ab4     0xc  cstartup_M.o [4]
+  .rodata            const     0x800'6ac0     0x8  system_stm32f4xx.o [1]
+  .text              ro code   0x800'6ac8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6acc     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6ad0     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6ad4     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6ad8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6adc     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6ae0     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6ae4     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6ae8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6aec     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6af0     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6af4     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6af8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6afc     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b00     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b04     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b08     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b0c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b10     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b14     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b18     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b1c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b20     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b24     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b28     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b2c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b30     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b34     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b38     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b3c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b40     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b44     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b48     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b4c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b50     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b54     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b58     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b5c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b60     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b64     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b68     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b6c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b70     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b74     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b78     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b7c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b80     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b84     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b88     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b8c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b90     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b94     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b98     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6b9c     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6ba0     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6ba4     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6ba8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bac     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bb0     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bb4     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bb8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bbc     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bc0     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bc4     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bc8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bcc     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bd0     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bd4     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bd8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bdc     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6be0     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6be4     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6be8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bec     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bf0     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bf4     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bf8     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6bfc     0x4  startup_stm32f427xx.o [1]
+  .text              ro code   0x800'6c00     0x4  startup_stm32f427xx.o [1]
+  .rodata            const     0x800'6c04     0x0  zero_init3.o [4]
+  .rodata            const     0x800'6c04     0x0  copy_init3.o [4]
+                             - 0x800'6c04  0x6a58
 
-"P2", part 1 of 3:                           0x44
-  P2-1                        0x2000'0000    0x43  <Init block>
+"P2", part 1 of 3:                           0x4c
+  P2-1                        0x2000'0000    0x4b  <Init block>
     .data            inited   0x2000'0000    0x10  main.o [1]
     .data            inited   0x2000'0010    0x10  main.o [1]
     .data            inited   0x2000'0020     0x4  main.o [1]
     .data            inited   0x2000'0024     0x4  stm32f4xx_hal.o [1]
     .data            inited   0x2000'0028     0x4  system_stm32f4xx.o [1]
     .data            inited   0x2000'002c    0x14  user_diskio.o [1]
-    .data            inited   0x2000'0040     0x1  sd_diskio.o [1]
-    .data            inited   0x2000'0041     0x1  stm32f4xx_hal.o [1]
-    .data            inited   0x2000'0042     0x1  user_diskio.o [1]
-                            - 0x2000'0043    0x43
+    .data            inited   0x2000'0040     0x8  XShttio.o [2]
+    .data            inited   0x2000'0048     0x1  sd_diskio.o [1]
+    .data            inited   0x2000'0049     0x1  stm32f4xx_hal.o [1]
+    .data            inited   0x2000'004a     0x1  user_diskio.o [1]
+                            - 0x2000'004b    0x4b
 
-"P2", part 2 of 3:                          0x618
-  .bss               zero     0x2000'0044   0x240  DeepJ60_Motor.o [1]
-  .bss               zero     0x2000'0284   0x240  DeepJ60_Motor.o [1]
-  .bss               zero     0x2000'04c4    0x84  sdio.o [1]
-  .bss               zero     0x2000'0548    0x5c  DeepJ60_can.o [1]
-  .bss               zero     0x2000'05a4    0x28  can.o [1]
-  .bss               zero     0x2000'05cc    0x28  can.o [1]
-  .bss               zero     0x2000'05f4    0x20  main.o [1]
-  .bss               zero     0x2000'0614    0x1c  DeepJ60_can.o [1]
-  .bss               zero     0x2000'0630    0x10  ff_gen_drv.o [1]
-  .bss               zero     0x2000'0640     0x4  can.o [1]
-  .bss               zero     0x2000'0644     0x4  DeepJ60_can.o [1]
-  .bss               zero     0x2000'0648     0x4  fatfs.o [1]
-  .bss               zero     0x2000'064c     0x4  fatfs.o [1]
-  .bss               zero     0x2000'0650     0x4  main.o [1]
-  .bss               zero     0x2000'0654     0x4  stm32f4xx_hal.o [1]
-  .bss               zero     0x2000'0658     0x1  fatfs.o [1]
-  .bss               zero     0x2000'0659     0x1  fatfs.o [1]
-  .bss               zero     0x2000'065a     0x1  main.o [1]
-                            - 0x2000'065b   0x617
+"P2", part 2 of 3:                          0x704
+  .bss               zero     0x2000'004c   0x240  DeepJ60_Motor.o [1]
+  .bss               zero     0x2000'028c   0x240  DeepJ60_Motor.o [1]
+  .bss               zero     0x2000'04cc    0x84  sdio.o [1]
+  .bss               zero     0x2000'0550    0x5c  DeepJ60_can.o [1]
+  .bss               zero     0x2000'05ac    0x48  usart.o [1]
+  .bss               zero     0x2000'05f4    0x48  usart.o [1]
+  .bss               zero     0x2000'063c    0x48  usart.o [1]
+  .bss               zero     0x2000'0684    0x28  can.o [1]
+  .bss               zero     0x2000'06ac    0x28  can.o [1]
+  .bss               zero     0x2000'06d4    0x20  main.o [1]
+  .bss               zero     0x2000'06f4    0x1c  DeepJ60_can.o [1]
+  .bss               zero     0x2000'0710    0x10  ff_gen_drv.o [1]
+  .bss               zero     0x2000'0720    0x10  main.o [1]
+  .bss               zero     0x2000'0730     0x4  can.o [1]
+  .bss               zero     0x2000'0734     0x4  DeepJ60_can.o [1]
+  .bss               zero     0x2000'0738     0x4  fatfs.o [1]
+  .bss               zero     0x2000'073c     0x4  fatfs.o [1]
+  .bss               zero     0x2000'0740     0x4  main.o [1]
+  .bss               zero     0x2000'0744     0x4  stm32f4xx_hal.o [1]
+  .bss               zero     0x2000'0748     0x4  usart.o [1]
+  .bss               zero     0x2000'074c     0x1  fatfs.o [1]
+  .bss               zero     0x2000'074d     0x1  fatfs.o [1]
+  .bss               zero     0x2000'074e     0x1  main.o [1]
+                            - 0x2000'074f   0x703
 
 "P2", part 3 of 3:                          0x400
-  CSTACK                      0x2000'0660   0x400  <Block>
-    CSTACK           uninit   0x2000'0660   0x400  <Block tail>
-                            - 0x2000'0a60   0x400
+  CSTACK                      0x2000'0750   0x400  <Block>
+    CSTACK           uninit   0x2000'0750   0x400  <Block tail>
+                            - 0x2000'0b50   0x400
 
 Unused ranges:
 
          From           To       Size
          ----           --       ----
-   0x800'5cc8   0x81f'ffff  0x1f'a338
-  0x2000'065c  0x2000'065f        0x4
-  0x2000'0a60  0x2002'ffff   0x2'f5a0
+   0x800'6c04   0x81f'ffff  0x1f'93fc
+  0x2000'0b50  0x2002'ffff   0x2'f4b0
 
 
 *******************************************************************************
@@ -370,14 +385,14 @@ Unused ranges:
           Address      Size
           -------      ----
 Zero (__iar_zero_init3)
-    1 destination range, total size 0x617:
-          0x2000'0044  0x617
+    1 destination range, total size 0x703:
+          0x2000'004c  0x703
 
 Copy (__iar_copy_init3)
-    1 source range, total size 0x44 (101% of destination):
-           0x800'598c   0x44
-    1 destination range, total size 0x43:
-          0x2000'0000   0x43
+    1 source range, total size 0x4c (101% of destination):
+           0x800'6888   0x4c
+    1 destination range, total size 0x4b:
+          0x2000'0000   0x4b
 
 
 
@@ -392,40 +407,43 @@ command line/config:
     Total:
 
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\Quadruped_Robot_20241025\Obj: [1]
-    Callback.o                  100
+    Callback.o                  188
     DeepJ60_Motor.o           2 332             1 152
     DeepJ60_can.o               312               124
     bsp_driver_sd.o             236
     can.o                       636                84
     fatfs.o                      52                10
     ff_gen_drv.o                 96                16
-    gpio.o                      232
-    leg_control.o             1 756
-    main.o                      720       36       73
+    gpio.o                      276
+    leg_control.o             1 868
+    main.o                      916       36       89
     sd_diskio.o                 288       21        1
     sdio.o                      228               132
-    startup_stm32f427xx.o       772
+    startup_stm32f427xx.o       760
     stm32f4xx_hal.o             204        5        9
     stm32f4xx_hal_can.o       2 042
     stm32f4xx_hal_cortex.o      348
-    stm32f4xx_hal_dma.o          40
+    stm32f4xx_hal_dma.o         196
     stm32f4xx_hal_gpio.o        704
     stm32f4xx_hal_msp.o          64
     stm32f4xx_hal_pwr_ex.o      124
-    stm32f4xx_hal_rcc.o       1 504
+    stm32f4xx_hal_rcc.o       1 560
     stm32f4xx_hal_sd.o        3 636
-    stm32f4xx_it.o               96
+    stm32f4xx_hal_uart.o      2 594
+    stm32f4xx_it.o              140
     stm32f4xx_ll_sdmmc.o      1 752
-    system_stm32f4xx.o           16       20        4
+    system_stm32f4xx.o           16       28        4
+    usart.o                     544               220
     user_diskio.o                56       21       21
     -------------------------------------------------
-    Total:                   18 346      103    1 626
+    Total:                   22 168      111    1 862
 
 dl7M_tlf.a: [2]
+    XShttio.o                    12        8        8
     exit.o                        4
     low_level_init.o              4
     -------------------------------------------------
-    Total:                        8
+    Total:                       20        8        8
 
 m7M_tls.a: [3]
     DblAdd.o                    378
@@ -466,13 +484,14 @@ rt7M_tl.a: [4]
 
 shb_l.a: [5]
     exit.o                       20
+    iarttio.o                    48
     -------------------------------------------------
-    Total:                       20
+    Total:                       68
 
-    Gaps                         38        6
+    Gaps                         40        6
     Linker created                        37    1 024
 -----------------------------------------------------
-    Grand Total:             23 542      210    2 650
+    Grand Total:             27 426      226    2 894
 
 
 *******************************************************************************
@@ -481,71 +500,76 @@ shb_l.a: [5]
 
 Entry                       Address   Size  Type      Object
 -----                       -------   ----  ----      ------
-.iar.init_table$$Base    0x800'5ac4          --   Gb  - Linker created -
-.iar.init_table$$Limit   0x800'5ae8          --   Gb  - Linker created -
-?main                    0x800'5ae9         Code  Gb  cmain.o [4]
-AHBPrescTable            0x800'5b44   0x10  Data  Gb  system_stm32f4xx.o [1]
+.iar.init_table$$Base    0x800'6a04          --   Gb  - Linker created -
+.iar.init_table$$Limit   0x800'6a28          --   Gb  - Linker created -
+?main                    0x800'6a29         Code  Gb  cmain.o [4]
+AHBPrescTable            0x800'6a84   0x10  Data  Gb  system_stm32f4xx.o [1]
+APBPrescTable            0x800'6ac0    0x8  Data  Gb  system_stm32f4xx.o [1]
 AnalyseJ60MotorReceiveData_new
-                         0x800'27ad   0x30  Code  Gb  DeepJ60_Motor.o [1]
-BSP_SD_GetCardInfo       0x800'58f1   0x14  Code  Wk  bsp_driver_sd.o [1]
-BSP_SD_GetCardState      0x800'584d   0x1c  Code  Wk  bsp_driver_sd.o [1]
-BSP_SD_Init              0x800'5869   0x20  Code  Wk  bsp_driver_sd.o [1]
-BSP_SD_ReadBlocks        0x800'5889   0x34  Code  Wk  bsp_driver_sd.o [1]
-BSP_SD_WriteBlocks       0x800'58bd   0x34  Code  Wk  bsp_driver_sd.o [1]
-BusFault_Handler         0x800'591b    0x2  Code  Gb  stm32f4xx_it.o [1]
-CAN1_FilterConfig        0x800'31b9   0x38  Code  Gb  can.o [1]
-CAN1_RX0_IRQHandler      0x800'5937    0xa  Code  Gb  stm32f4xx_it.o [1]
-CAN1_RX1_IRQHandler      0x800'5941    0xa  Code  Gb  stm32f4xx_it.o [1]
-CAN2_FilterConfig        0x800'31f1   0x38  Code  Gb  can.o [1]
-CAN2_RX0_IRQHandler      0x800'5955    0xa  Code  Gb  stm32f4xx_it.o [1]
-CAN2_RX1_IRQHandler      0x800'595f    0xa  Code  Gb  stm32f4xx_it.o [1]
-CSTACK$$Base            0x2000'0660          --   Gb  - Linker created -
-CSTACK$$Limit           0x2000'0a60          --   Gb  - Linker created -
-Can                     0x2000'0548   0x5c  Data  Gb  DeepJ60_can.o [1]
-CanDataToRealData        0x800'1dc7   0x2a  Code  Gb  DeepJ60_can.o [1]
-CanRxInformation        0x2000'0614   0x1c  Data  Gb  DeepJ60_can.o [1]
-Can_Receive_new          0x800'1ea3   0x20  Code  Gb  DeepJ60_can.o [1]
-Can_Send                 0x800'1df1   0xb2  Code  Gb  DeepJ60_can.o [1]
-DebugMon_Handler         0x800'5921    0x2  Code  Gb  stm32f4xx_it.o [1]
-EXTI1_IRQHandler         0x800'592d    0xa  Code  Gb  stm32f4xx_it.o [1]
-EnableJ60Motor           0x800'2185   0x3c  Code  Gb  DeepJ60_Motor.o [1]
-Error_Handler            0x800'3535    0x4  Code  Gb  main.o [1]
-FATFS_LinkDriver         0x800'4495   0x12  Code  Gb  ff_gen_drv.o [1]
-FATFS_LinkDriverEx       0x800'444d   0x48  Code  Gb  ff_gen_drv.o [1]
-GetJ60MotorCanID         0x800'2171    0xe  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'28a1   0x30  Code  Gb  DeepJ60_Motor.o [1]
+BSP_SD_GetCardInfo       0x800'67c1   0x14  Code  Wk  bsp_driver_sd.o [1]
+BSP_SD_GetCardState      0x800'671d   0x1c  Code  Wk  bsp_driver_sd.o [1]
+BSP_SD_Init              0x800'6739   0x20  Code  Wk  bsp_driver_sd.o [1]
+BSP_SD_ReadBlocks        0x800'6759   0x34  Code  Wk  bsp_driver_sd.o [1]
+BSP_SD_WriteBlocks       0x800'678d   0x34  Code  Wk  bsp_driver_sd.o [1]
+BusFault_Handler         0x800'67eb    0x2  Code  Gb  stm32f4xx_it.o [1]
+CAN1_FilterConfig        0x800'434d   0x38  Code  Gb  can.o [1]
+CAN1_RX0_IRQHandler      0x800'6807    0xa  Code  Gb  stm32f4xx_it.o [1]
+CAN1_RX1_IRQHandler      0x800'6811    0xa  Code  Gb  stm32f4xx_it.o [1]
+CAN2_FilterConfig        0x800'4385   0x38  Code  Gb  can.o [1]
+CAN2_RX0_IRQHandler      0x800'6825    0xa  Code  Gb  stm32f4xx_it.o [1]
+CAN2_RX1_IRQHandler      0x800'682f    0xa  Code  Gb  stm32f4xx_it.o [1]
+CSTACK$$Base            0x2000'0750          --   Gb  - Linker created -
+CSTACK$$Limit           0x2000'0b50          --   Gb  - Linker created -
+Can                     0x2000'0550   0x5c  Data  Gb  DeepJ60_can.o [1]
+CanDataToRealData        0x800'1ebb   0x2a  Code  Gb  DeepJ60_can.o [1]
+CanRxInformation        0x2000'06f4   0x1c  Data  Gb  DeepJ60_can.o [1]
+Can_Receive_new          0x800'1f97   0x20  Code  Gb  DeepJ60_can.o [1]
+Can_Send                 0x800'1ee5   0xb2  Code  Gb  DeepJ60_can.o [1]
+DebugMon_Handler         0x800'67f1    0x2  Code  Gb  stm32f4xx_it.o [1]
+EXTI1_IRQHandler         0x800'67fd    0xa  Code  Gb  stm32f4xx_it.o [1]
+EnableJ60Motor           0x800'2279   0x3c  Code  Gb  DeepJ60_Motor.o [1]
+Error_Handler            0x800'478d    0x4  Code  Gb  main.o [1]
+FATFS_LinkDriver         0x800'5599   0x12  Code  Gb  ff_gen_drv.o [1]
+FATFS_LinkDriverEx       0x800'5551   0x48  Code  Gb  ff_gen_drv.o [1]
+GetJ60MotorCanID         0x800'2265    0xe  Code  Gb  DeepJ60_Motor.o [1]
 HAL_CAN_ActivateNotification
-                         0x800'2d7b   0x34  Code  Gb  stm32f4xx_hal_can.o [1]
-HAL_CAN_AddTxMessage     0x800'2ae5  0x126  Code  Gb  stm32f4xx_hal_can.o [1]
-HAL_CAN_ConfigFilter     0x800'295d  0x128  Code  Gb  stm32f4xx_hal_can.o [1]
-HAL_CAN_GetRxMessage     0x800'2c0b  0x170  Code  Gb  stm32f4xx_hal_can.o [1]
-HAL_CAN_IRQHandler       0x800'2daf  0x224  Code  Gb  stm32f4xx_hal_can.o [1]
-HAL_CAN_Init             0x800'27f1  0x16c  Code  Gb  stm32f4xx_hal_can.o [1]
-HAL_CAN_MspInit          0x800'3089  0x130  Code  Gb  can.o [1]
+                         0x800'388b   0x34  Code  Gb  stm32f4xx_hal_can.o [1]
+HAL_CAN_AddTxMessage     0x800'35f5  0x126  Code  Gb  stm32f4xx_hal_can.o [1]
+HAL_CAN_ConfigFilter     0x800'346d  0x128  Code  Gb  stm32f4xx_hal_can.o [1]
+HAL_CAN_GetRxMessage     0x800'371b  0x170  Code  Gb  stm32f4xx_hal_can.o [1]
+HAL_CAN_IRQHandler       0x800'38bf  0x224  Code  Gb  stm32f4xx_hal_can.o [1]
+HAL_CAN_Init             0x800'3301  0x16c  Code  Gb  stm32f4xx_hal_can.o [1]
+HAL_CAN_MspInit          0x800'421d  0x130  Code  Gb  can.o [1]
 HAL_CAN_RxFifo0MsgPendingCallback
-                         0x800'1d39   0x34  Code  Gb  Callback.o [1]
-HAL_CAN_Start            0x800'2a85   0x5c  Code  Gb  stm32f4xx_hal_can.o [1]
-HAL_DMA_Abort_IT         0x800'18b5   0x28  Code  Gb  stm32f4xx_hal_dma.o [1]
+                         0x800'1dd5   0x34  Code  Gb  Callback.o [1]
+HAL_CAN_Start            0x800'3595   0x5c  Code  Gb  stm32f4xx_hal_can.o [1]
+HAL_DMA_Abort            0x800'18b5   0x9c  Code  Gb  stm32f4xx_hal_dma.o [1]
+HAL_DMA_Abort_IT         0x800'1951   0x28  Code  Gb  stm32f4xx_hal_dma.o [1]
 HAL_Delay                0x800'185d   0x28  Code  Wk  stm32f4xx_hal.o [1]
-HAL_GPIO_EXTI_Callback   0x800'1d6d   0x10  Code  Gb  Callback.o [1]
+HAL_GPIO_EXTI_Callback   0x800'1e09   0x10  Code  Gb  Callback.o [1]
 HAL_GPIO_EXTI_IRQHandler
-                         0x800'1b3f   0x20  Code  Gb  stm32f4xx_hal_gpio.o [1]
-HAL_GPIO_Init            0x800'18e5  0x240  Code  Gb  stm32f4xx_hal_gpio.o [1]
-HAL_GPIO_WritePin        0x800'1b25   0x1a  Code  Gb  stm32f4xx_hal_gpio.o [1]
+                         0x800'1bdb   0x20  Code  Gb  stm32f4xx_hal_gpio.o [1]
+HAL_GPIO_Init            0x800'1981  0x240  Code  Gb  stm32f4xx_hal_gpio.o [1]
+HAL_GPIO_WritePin        0x800'1bc1   0x1a  Code  Gb  stm32f4xx_hal_gpio.o [1]
 HAL_GetTick              0x800'1885    0xc  Code  Wk  stm32f4xx_hal.o [1]
-HAL_IncTick              0x800'5975   0x18  Code  Wk  stm32f4xx_hal.o [1]
-HAL_Init                 0x800'3539   0x30  Code  Gb  stm32f4xx_hal.o [1]
-HAL_InitTick             0x800'43c1   0x4c  Code  Wk  stm32f4xx_hal.o [1]
-HAL_MspInit              0x800'440d   0x40  Code  Gb  stm32f4xx_hal_msp.o [1]
-HAL_NVIC_EnableIRQ       0x800'1cc7    0xe  Code  Gb  stm32f4xx_hal_cortex.o [1]
-HAL_NVIC_SetPriority     0x800'1c9d   0x2a  Code  Gb  stm32f4xx_hal_cortex.o [1]
+HAL_IncTick              0x800'6871   0x18  Code  Wk  stm32f4xx_hal.o [1]
+HAL_Init                 0x800'47e1   0x30  Code  Gb  stm32f4xx_hal.o [1]
+HAL_InitTick             0x800'4791   0x4c  Code  Wk  stm32f4xx_hal.o [1]
+HAL_MspInit              0x800'5511   0x40  Code  Gb  stm32f4xx_hal_msp.o [1]
+HAL_NVIC_EnableIRQ       0x800'1d63    0xe  Code  Gb  stm32f4xx_hal_cortex.o [1]
+HAL_NVIC_SetPriority     0x800'1d39   0x2a  Code  Gb  stm32f4xx_hal_cortex.o [1]
 HAL_NVIC_SetPriorityGrouping
-                         0x800'1c91    0xc  Code  Gb  stm32f4xx_hal_cortex.o [1]
+                         0x800'1d2d    0xc  Code  Gb  stm32f4xx_hal_cortex.o [1]
 HAL_PWREx_EnableOverDrive
-                         0x800'4151   0x6a  Code  Gb  stm32f4xx_hal_pwr_ex.o [1]
+                         0x800'5495   0x6a  Code  Gb  stm32f4xx_hal_pwr_ex.o [1]
 HAL_RCC_CAN1_CLK_ENABLED
-                        0x2000'0640    0x4  Data  Lc  can.o [1]
-HAL_RCC_ClockConfig      0x800'41cd  0x140  Code  Gb  stm32f4xx_hal_rcc.o [1]
-HAL_RCC_OscConfig        0x800'3d65  0x3ec  Code  Wk  stm32f4xx_hal_rcc.o [1]
+                        0x2000'0730    0x4  Data  Lc  can.o [1]
+HAL_RCC_ClockConfig      0x800'3d0d  0x140  Code  Gb  stm32f4xx_hal_rcc.o [1]
+HAL_RCC_GetHCLKFreq      0x800'3e4d    0x6  Code  Gb  stm32f4xx_hal_rcc.o [1]
+HAL_RCC_GetPCLK1Freq     0x800'3e53   0x16  Code  Gb  stm32f4xx_hal_rcc.o [1]
+HAL_RCC_GetPCLK2Freq     0x800'3e69   0x16  Code  Gb  stm32f4xx_hal_rcc.o [1]
+HAL_RCC_OscConfig        0x800'50a9  0x3ec  Code  Wk  stm32f4xx_hal_rcc.o [1]
 HAL_SD_AbortCallback     0x800'1893    0xa  Code  Gb  bsp_driver_sd.o [1]
 HAL_SD_GetCardCSD        0x800'0a41  0x1f4  Code  Gb  stm32f4xx_hal_sd.o [1]
 HAL_SD_GetCardInfo       0x800'0c35   0x26  Code  Gb  stm32f4xx_hal_sd.o [1]
@@ -558,66 +582,76 @@ HAL_SD_ReadBlocks        0x800'02af  0x310  Code  Gb  stm32f4xx_hal_sd.o [1]
 HAL_SD_RxCpltCallback    0x800'18a7    0xa  Code  Gb  bsp_driver_sd.o [1]
 HAL_SD_TxCpltCallback    0x800'189d    0xa  Code  Gb  bsp_driver_sd.o [1]
 HAL_SD_WriteBlocks       0x800'05bf  0x2a4  Code  Gb  stm32f4xx_hal_sd.o [1]
-HAL_SYSTICK_Config       0x800'1cd5    0xc  Code  Gb  stm32f4xx_hal_cortex.o [1]
-HardFault_Handler        0x800'5917    0x2  Code  Gb  stm32f4xx_it.o [1]
-IK_leg                   0x800'3689  0x24e  Code  Gb  leg_control.o [1]
+HAL_SYSTICK_Config       0x800'1d71    0xc  Code  Gb  stm32f4xx_hal_cortex.o [1]
+HAL_UART_IRQHandler      0x800'2a61  0x2d4  Code  Gb  stm32f4xx_hal_uart.o [1]
+HAL_UART_Init            0x800'28e5   0x7a  Code  Gb  stm32f4xx_hal_uart.o [1]
+HAL_UART_MspInit         0x800'3b8d  0x144  Code  Gb  usart.o [1]
+HAL_UART_Receive_IT      0x800'2a2b   0x36  Code  Gb  stm32f4xx_hal_uart.o [1]
+HAL_UART_RxCpltCallback
+                         0x800'1e19   0x42  Code  Gb  Callback.o [1]
+HAL_UART_Transmit        0x800'295f   0xcc  Code  Gb  stm32f4xx_hal_uart.o [1]
+HardFault_Handler        0x800'67e7    0x2  Code  Gb  stm32f4xx_it.o [1]
+IK_leg                   0x800'495d  0x24e  Code  Gb  leg_control.o [1]
 J60MotorConfigToSendCanData
-                         0x800'208d   0x28  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'2181   0x28  Code  Gb  DeepJ60_Motor.o [1]
 J60MotorDataToSendCanData
-                         0x800'213d   0x34  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'2231   0x34  Code  Gb  DeepJ60_Motor.o [1]
 J60MotorMotionDataToSendCanData
-                         0x800'1fcd   0xae  Code  Gb  DeepJ60_Motor.o [1]
-J60Motor_CAN1           0x2000'0044  0x240  Data  Gb  DeepJ60_Motor.o [1]
-J60Motor_CAN2           0x2000'0284  0x240  Data  Gb  DeepJ60_Motor.o [1]
+                         0x800'20c1   0xae  Code  Gb  DeepJ60_Motor.o [1]
+J60Motor_CAN1           0x2000'004c  0x240  Data  Gb  DeepJ60_Motor.o [1]
+J60Motor_CAN2           0x2000'028c  0x240  Data  Gb  DeepJ60_Motor.o [1]
 J60Motor_StandUpData_CAN1
                         0x2000'0000   0x10  Data  Gb  main.o [1]
 J60Motor_StandUpData_CAN2
                         0x2000'0010   0x10  Data  Gb  main.o [1]
-Leg_cyloid               0x800'38e9  0x46a  Code  Gb  leg_control.o [1]
-MX_CAN1_Init             0x800'2fd5   0x5a  Code  Gb  can.o [1]
-MX_CAN2_Init             0x800'302f   0x5a  Code  Gb  can.o [1]
-MX_FATFS_Init            0x800'3655   0x1c  Code  Gb  fatfs.o [1]
-MX_GPIO_Init             0x800'356d   0xe8  Code  Gb  gpio.o [1]
+Leg_cyloid               0x800'4bbd  0x4da  Code  Gb  leg_control.o [1]
+MX_CAN1_Init             0x800'4169   0x5a  Code  Gb  can.o [1]
+MX_CAN2_Init             0x800'41c3   0x5a  Code  Gb  can.o [1]
+MX_FATFS_Init            0x800'4929   0x1c  Code  Gb  fatfs.o [1]
+MX_GPIO_Init             0x800'4815  0x114  Code  Gb  gpio.o [1]
 MX_SDIO_SD_Init          0x800'1019   0x20  Code  Gb  sdio.o [1]
-MemManage_Handler        0x800'5919    0x2  Code  Gb  stm32f4xx_it.o [1]
-MoveEnable              0x2000'065a    0x1  Data  Gb  main.o [1]
-NMI_Handler              0x800'5915    0x2  Code  Gb  stm32f4xx_it.o [1]
-NVIC_EncodePriority      0x800'1c21   0x40  Code  Lc  stm32f4xx_hal_cortex.o [1]
-PendSV_Handler           0x800'5923    0x2  Code  Gb  stm32f4xx_it.o [1]
-RealDataToCanData        0x800'1d9d   0x2a  Code  Gb  DeepJ60_can.o [1]
+MX_UART7_Init            0x800'3ae5   0x34  Code  Gb  usart.o [1]
+MX_UART8_Init            0x800'3b19   0x40  Code  Gb  usart.o [1]
+MX_USART6_UART_Init      0x800'3b59   0x34  Code  Gb  usart.o [1]
+MemManage_Handler        0x800'67e9    0x2  Code  Gb  stm32f4xx_it.o [1]
+MoveEnable              0x2000'074e    0x1  Data  Gb  main.o [1]
+NMI_Handler              0x800'67e5    0x2  Code  Gb  stm32f4xx_it.o [1]
+NVIC_EncodePriority      0x800'1cbd   0x40  Code  Lc  stm32f4xx_hal_cortex.o [1]
+PendSV_Handler           0x800'67f3    0x2  Code  Gb  stm32f4xx_it.o [1]
+RealDataToCanData        0x800'1e91   0x2a  Code  Gb  DeepJ60_can.o [1]
 ReceiveCanDataToJ60MotorConfig
-                         0x800'20b5   0x28  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'21a9   0x28  Code  Gb  DeepJ60_Motor.o [1]
 ReceiveCanDataToJ60MotorData_new
-                         0x800'2755   0x58  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'2849   0x58  Code  Gb  DeepJ60_Motor.o [1]
 ReceiveCanDataToJ60MotorMotionData_new
-                         0x800'2651   0xfe  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'2745   0xfe  Code  Gb  DeepJ60_Motor.o [1]
 ReceiveCommandStatusToJ60MotorCommandStatus
-                         0x800'20dd    0x6  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'21d1    0x6  Code  Gb  DeepJ60_Motor.o [1]
 ReceiveStatusWordToJ60MotorStatusWord
-                         0x800'20e3   0x5a  Code  Gb  DeepJ60_Motor.o [1]
-Region$$Table$$Base      0x800'5ac4          --   Gb  - Linker created -
-Region$$Table$$Limit     0x800'5ae8          --   Gb  - Linker created -
-RunJ60Motor              0x800'2515  0x13a  Code  Gb  DeepJ60_Motor.o [1]
-RunJ60MotorKdMode        0x800'2305   0x62  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'21d7   0x5a  Code  Gb  DeepJ60_Motor.o [1]
+Region$$Table$$Base      0x800'6a04          --   Gb  - Linker created -
+Region$$Table$$Limit     0x800'6a28          --   Gb  - Linker created -
+RunJ60Motor              0x800'2609  0x13a  Code  Gb  DeepJ60_Motor.o [1]
+RunJ60MotorKdMode        0x800'23f9   0x62  Code  Gb  DeepJ60_Motor.o [1]
 RunJ60MotorPositionMode
-                         0x800'21cd   0x6a  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'22c1   0x6a  Code  Gb  DeepJ60_Motor.o [1]
 RunJ60MotorPositionTorqueMode
-                         0x800'23c1   0x6e  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'24b5   0x6e  Code  Gb  DeepJ60_Motor.o [1]
 RunJ60MotorPositonVelocityTorqueMode
-                         0x800'24a1   0x72  Code  Gb  DeepJ60_Motor.o [1]
-RunJ60MotorTorqueMode    0x800'22a1   0x62  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'2595   0x72  Code  Gb  DeepJ60_Motor.o [1]
+RunJ60MotorTorqueMode    0x800'2395   0x62  Code  Gb  DeepJ60_Motor.o [1]
 RunJ60MotorVelocityMode
-                         0x800'2239   0x66  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'232d   0x66  Code  Gb  DeepJ60_Motor.o [1]
 RunJ60MotorVelocityTorqueMode
-                         0x800'2431   0x6a  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'2525   0x6a  Code  Gb  DeepJ60_Motor.o [1]
 RunJ60MotorZeroTorqueMode
-                         0x800'2369   0x56  Code  Gb  DeepJ60_Motor.o [1]
+                         0x800'245d   0x56  Code  Gb  DeepJ60_Motor.o [1]
 SDIO_ConfigData          0x800'1215   0x2e  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
 SDIO_GetCommandResponse
                          0x800'1203    0x6  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
 SDIO_GetPowerState       0x800'11d1    0x8  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
 SDIO_GetResponse         0x800'1209    0xc  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
-SDIO_IRQHandler          0x800'594b    0xa  Code  Gb  stm32f4xx_it.o [1]
+SDIO_IRQHandler          0x800'681b    0xa  Code  Gb  stm32f4xx_it.o [1]
 SDIO_Init                0x800'1185   0x30  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
 SDIO_PowerState_ON       0x800'11c7    0xa  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
 SDIO_ReadFIFO            0x800'11b5    0x6  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
@@ -649,127 +683,147 @@ SDMMC_GetCmdResp2        0x800'1675   0x56  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
 SDMMC_GetCmdResp3        0x800'16cb   0x48  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
 SDMMC_GetCmdResp6        0x800'1713   0xa6  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
 SDMMC_GetCmdResp7        0x800'17b9   0x5c  Code  Gb  stm32f4xx_ll_sdmmc.o [1]
-SDPath                  0x2000'0648    0x4  Data  Gb  fatfs.o [1]
-SD_CheckStatus           0x800'572d   0x1e  Code  Lc  sd_diskio.o [1]
+SDPath                  0x2000'0738    0x4  Data  Gb  fatfs.o [1]
+SD_CheckStatus           0x800'65fd   0x1e  Code  Lc  sd_diskio.o [1]
 SD_DMARxAbort            0x800'0ccd   0x4a  Code  Lc  stm32f4xx_hal_sd.o [1]
 SD_DMATxAbort            0x800'0c81   0x4a  Code  Lc  stm32f4xx_hal_sd.o [1]
-SD_Driver                0x800'5b30   0x14  Data  Gb  sd_diskio.o [1]
+SD_Driver                0x800'6a70   0x14  Data  Gb  sd_diskio.o [1]
 SD_InitCard              0x800'0d17  0x10a  Code  Lc  stm32f4xx_hal_sd.o [1]
 SD_PowerON               0x800'0e21   0xcc  Code  Lc  stm32f4xx_hal_sd.o [1]
 SD_Read_IT               0x800'0f2f   0x58  Code  Lc  stm32f4xx_hal_sd.o [1]
 SD_SendStatus            0x800'0efd   0x32  Code  Lc  stm32f4xx_hal_sd.o [1]
 SD_Write_IT              0x800'0f87   0x58  Code  Lc  stm32f4xx_hal_sd.o [1]
-SD_initialize            0x800'574b   0x20  Code  Gb  sd_diskio.o [1]
-SD_ioctl                 0x800'57e5   0x64  Code  Gb  sd_diskio.o [1]
-SD_read                  0x800'5779   0x36  Code  Gb  sd_diskio.o [1]
-SD_status                0x800'576b    0xe  Code  Gb  sd_diskio.o [1]
-SD_write                 0x800'57af   0x36  Code  Gb  sd_diskio.o [1]
-SVC_Handler              0x800'591f    0x2  Code  Gb  stm32f4xx_it.o [1]
-SetMotionCommand         0x800'1f77   0x4e  Code  Gb  DeepJ60_Motor.o [1]
-SetMotionParameters      0x800'1ed5   0xa2  Code  Gb  DeepJ60_Motor.o [1]
-SetNormalCommand         0x800'1fc5    0x8  Code  Gb  DeepJ60_Motor.o [1]
-Stat                    0x2000'0040    0x1  Data  Lc  sd_diskio.o [1]
-Stat                    0x2000'0042    0x1  Data  Lc  user_diskio.o [1]
-SysTick_Config           0x800'1c61   0x30  Code  Lc  stm32f4xx_hal_cortex.o [1]
-SysTick_Handler          0x800'5925    0x8  Code  Gb  stm32f4xx_it.o [1]
-SystemClock_Config       0x800'3457   0xae  Code  Gb  main.o [1]
+SD_initialize            0x800'661b   0x20  Code  Gb  sd_diskio.o [1]
+SD_ioctl                 0x800'66b5   0x64  Code  Gb  sd_diskio.o [1]
+SD_read                  0x800'6649   0x36  Code  Gb  sd_diskio.o [1]
+SD_status                0x800'663b    0xe  Code  Gb  sd_diskio.o [1]
+SD_write                 0x800'667f   0x36  Code  Gb  sd_diskio.o [1]
+SVC_Handler              0x800'67ef    0x2  Code  Gb  stm32f4xx_it.o [1]
+SetMotionCommand         0x800'206b   0x4e  Code  Gb  DeepJ60_Motor.o [1]
+SetMotionParameters      0x800'1fc9   0xa2  Code  Gb  DeepJ60_Motor.o [1]
+SetNormalCommand         0x800'20b9    0x8  Code  Gb  DeepJ60_Motor.o [1]
+Stat                    0x2000'0048    0x1  Data  Lc  sd_diskio.o [1]
+Stat                    0x2000'004a    0x1  Data  Lc  user_diskio.o [1]
+SysTick_Config           0x800'1cfd   0x30  Code  Lc  stm32f4xx_hal_cortex.o [1]
+SysTick_Handler          0x800'67f5    0x8  Code  Gb  stm32f4xx_it.o [1]
+SystemClock_Config       0x800'4697   0xae  Code  Gb  main.o [1]
 SystemCoreClock         0x2000'0028    0x4  Data  Gb  system_stm32f4xx.o [1]
-SystemInit               0x800'5b65    0xc  Code  Gb  system_stm32f4xx.o [1]
-TxMailBox               0x2000'0644    0x4  Data  Gb  DeepJ60_can.o [1]
-USERPath                0x2000'064c    0x4  Data  Gb  fatfs.o [1]
+SystemInit               0x800'6aa5    0xc  Code  Gb  system_stm32f4xx.o [1]
+TxMailBox               0x2000'0734    0x4  Data  Gb  DeepJ60_can.o [1]
+UART7_IRQHandler         0x800'6843    0xa  Code  Gb  stm32f4xx_it.o [1]
+UART8_IRQHandler         0x800'684d    0xa  Code  Gb  stm32f4xx_it.o [1]
+UART_DMAAbortOnError     0x800'2e65   0x16  Code  Lc  stm32f4xx_hal_uart.o [1]
+UART_EndRxTransfer       0x800'2dfd   0x66  Code  Lc  stm32f4xx_hal_uart.o [1]
+UART_EndTransmit_IT      0x800'2ee3   0x20  Code  Lc  stm32f4xx_hal_uart.o [1]
+UART_Receive_IT          0x800'2f03   0xf6  Code  Lc  stm32f4xx_hal_uart.o [1]
+UART_SetConfig           0x800'2ff9  0x2fc  Code  Lc  stm32f4xx_hal_uart.o [1]
+UART_Start_Receive_IT    0x800'2db9   0x44  Code  Gb  stm32f4xx_hal_uart.o [1]
+UART_Transmit_IT         0x800'2e7d   0x66  Code  Lc  stm32f4xx_hal_uart.o [1]
+UART_WaitOnFlagUntilTimeout
+                         0x800'2d35   0x84  Code  Lc  stm32f4xx_hal_uart.o [1]
+USART6_IRQHandler        0x800'6839    0xa  Code  Gb  stm32f4xx_it.o [1]
+USERPath                0x2000'073c    0x4  Data  Gb  fatfs.o [1]
 USER_Driver             0x2000'002c   0x14  Data  Gb  user_diskio.o [1]
-USER_initialize          0x800'5a41    0xc  Code  Gb  user_diskio.o [1]
-USER_ioctl               0x800'5a71    0x8  Code  Gb  user_diskio.o [1]
-USER_read                0x800'5a5d    0xa  Code  Gb  user_diskio.o [1]
-USER_status              0x800'5a4d    0xc  Code  Gb  user_diskio.o [1]
-USER_write               0x800'5a67    0xa  Code  Gb  user_diskio.o [1]
-UsageFault_Handler       0x800'591d    0x2  Code  Gb  stm32f4xx_it.o [1]
-__NVIC_EnableIRQ         0x800'1bd5   0x20  Code  Lc  stm32f4xx_hal_cortex.o [1]
+USER_initialize          0x800'6919    0xc  Code  Gb  user_diskio.o [1]
+USER_ioctl               0x800'6949    0x8  Code  Gb  user_diskio.o [1]
+USER_read                0x800'6935    0xa  Code  Gb  user_diskio.o [1]
+USER_status              0x800'6925    0xc  Code  Gb  user_diskio.o [1]
+USER_write               0x800'693f    0xa  Code  Gb  user_diskio.o [1]
+UsageFault_Handler       0x800'67ed    0x2  Code  Gb  stm32f4xx_it.o [1]
+__NVIC_EnableIRQ         0x800'1c71   0x20  Code  Lc  stm32f4xx_hal_cortex.o [1]
 __NVIC_GetPriorityGrouping
-                         0x800'1bc7    0xc  Code  Lc  stm32f4xx_hal_cortex.o [1]
-__NVIC_SetPriority       0x800'1bf5   0x2c  Code  Lc  stm32f4xx_hal_cortex.o [1]
+                         0x800'1c63    0xc  Code  Lc  stm32f4xx_hal_cortex.o [1]
+__NVIC_SetPriority       0x800'1c91   0x2c  Code  Lc  stm32f4xx_hal_cortex.o [1]
 __NVIC_SetPriorityGrouping
-                         0x800'1ba5   0x22  Code  Lc  stm32f4xx_hal_cortex.o [1]
-__aeabi_cdcmpeq          0x800'56dd         Code  Gb  DblCmpEq.o [3]
-__aeabi_cdcmple          0x800'547d         Code  Gb  DblCmpLe.o [3]
-__aeabi_cdrcmple         0x800'56fd         Code  Gb  DblCmpGe.o [3]
-__aeabi_d2f              0x800'4521         Code  Gb  DblToFlt.o [3]
-__aeabi_d2iz             0x800'567d         Code  Gb  DblToS32.o [3]
-__aeabi_dadd             0x800'4bc1         Code  Gb  DblAdd.o [3]
-__aeabi_ddiv             0x800'468d         Code  Gb  DblDiv.o [3]
-__aeabi_dmul             0x800'48d5         Code  Gb  DblMul.o [3]
-__aeabi_dsub             0x800'4a79         Code  Gb  DblSub.o [3]
-__aeabi_f2d              0x800'44ad         Code  Gb  FltToDbl.o [3]
-__aeabi_i2d              0x800'56b9         Code  Gb  S32ToDbl.o [3]
-__aeabi_ldiv0            0x800'5479         Code  Gb  I64DivZer.o [4]
-__aeabi_memclr4          0x800'18dd         Code  Gb  ABImemclr4.o [4]
+                         0x800'1c41   0x22  Code  Lc  stm32f4xx_hal_cortex.o [1]
+__aeabi_cdcmpeq          0x800'65ad         Code  Gb  DblCmpEq.o [3]
+__aeabi_cdcmple          0x800'634d         Code  Gb  DblCmpLe.o [3]
+__aeabi_cdrcmple         0x800'65cd         Code  Gb  DblCmpGe.o [3]
+__aeabi_d2f              0x800'5625         Code  Gb  DblToFlt.o [3]
+__aeabi_d2iz             0x800'654d         Code  Gb  DblToS32.o [3]
+__aeabi_dadd             0x800'5cc5         Code  Gb  DblAdd.o [3]
+__aeabi_ddiv             0x800'5791         Code  Gb  DblDiv.o [3]
+__aeabi_dmul             0x800'59d9         Code  Gb  DblMul.o [3]
+__aeabi_dsub             0x800'5b7d         Code  Gb  DblSub.o [3]
+__aeabi_f2d              0x800'55b1         Code  Gb  FltToDbl.o [3]
+__aeabi_i2d              0x800'6589         Code  Gb  S32ToDbl.o [3]
+__aeabi_ldiv0            0x800'47dd         Code  Gb  I64DivZer.o [4]
+__aeabi_memclr4          0x800'1979         Code  Gb  ABImemclr4.o [4]
 __aeabi_memcpy4          0x800'10fd         Code  Gb  ABImemcpy.o [4]
 __aeabi_memcpy8          0x800'10fd         Code  Gb  ABImemcpy.o [4]
-__aeabi_uldivmod         0x800'4d3d         Code  Gb  I64DivMod.o [4]
-__cmain                  0x800'5ae9         Code  Gb  cmain.o [4]
-__exit                   0x800'5b1d   0x14  Code  Gb  exit.o [5]
-__iar_Atan64             0x800'54ad  0x1d0  Code  Gb  iar_Atan64.o [3]
-__iar_Memset4_word       0x800'1d05         Code  Gb  ABImemset48.o [4]
-__iar_Memset8_word       0x800'1d05         Code  Gb  ABImemset48.o [4]
-__iar_Sin64              0x800'5035  0x3aa  Code  Lc  cos_sin64.o [3]
-__iar_acos64             0x800'4f6d   0xc8  Code  Gb  acos64.o [3]
-__iar_copy_init3         0x800'59d1   0x2c  Code  Gb  copy_init3.o [4]
-__iar_cos64              0x800'5471    0x4  Code  Gb  cos_sin64.o [3]
-__iar_cos_medium         0x800'5471    0x4  Code  Gb  cos_sin64.o [3]
-__iar_cos_medium64       0x800'5471    0x4  Code  Gb  cos_sin64.o [3]
-__iar_cos_mediuml        0x800'5471    0x4  Code  Gb  cos_sin64.o [3]
-__iar_dadd               0x800'4a89         Code  Gb  DblSub.o [3]
-__iar_data_init3         0x800'5a79   0x28  Code  Gb  data_init.o [4]
-__iar_dsub               0x800'4bd1         Code  Gb  DblAdd.o [3]
-__iar_dsubStart          0x800'4be3         Code  Gb  DblAdd.o [3]
-__iar_init_vfp           0x800'5aa1         Code  Gb  fpinit_M.o [3]
-__iar_program_start      0x800'5b75         Code  Gb  cstartup_M.o [4]
-__iar_round64            0x800'4b6d         Code  Gb  round.o [3]
-__iar_sin64              0x800'5475    0x4  Code  Gb  cos_sin64.o [3]
-__iar_sin_medium         0x800'5475    0x4  Code  Gb  cos_sin64.o [3]
-__iar_sin_medium64       0x800'5475    0x4  Code  Gb  cos_sin64.o [3]
-__iar_sin_mediuml        0x800'5475    0x4  Code  Gb  cos_sin64.o [3]
-__iar_sqrt64             0x800'4599         Code  Gb  sqrt.o [3]
+__aeabi_uldivmod         0x800'3f39         Code  Gb  I64DivMod.o [4]
+__cmain                  0x800'6a29         Code  Gb  cmain.o [4]
+__exit                   0x800'6a5d   0x14  Code  Gb  exit.o [5]
+__iar_Atan64             0x800'637d  0x1d0  Code  Gb  iar_Atan64.o [3]
+__iar_Memset4_word       0x800'1da1         Code  Gb  ABImemset48.o [4]
+__iar_Memset8_word       0x800'1da1         Code  Gb  ABImemset48.o [4]
+__iar_Sin64              0x800'5f09  0x3aa  Code  Lc  cos_sin64.o [3]
+__iar_acos64             0x800'5e41   0xc8  Code  Gb  acos64.o [3]
+__iar_close_ttio         0x800'6951   0x2e  Code  Gb  iarttio.o [5]
+__iar_copy_init3         0x800'698d   0x2c  Code  Gb  copy_init3.o [4]
+__iar_cos64              0x800'6345    0x4  Code  Gb  cos_sin64.o [3]
+__iar_cos_medium         0x800'6345    0x4  Code  Gb  cos_sin64.o [3]
+__iar_cos_medium64       0x800'6345    0x4  Code  Gb  cos_sin64.o [3]
+__iar_cos_mediuml        0x800'6345    0x4  Code  Gb  cos_sin64.o [3]
+__iar_dadd               0x800'5b8d         Code  Gb  DblSub.o [3]
+__iar_data_init3         0x800'69b9   0x28  Code  Gb  data_init.o [4]
+__iar_dsub               0x800'5cd5         Code  Gb  DblAdd.o [3]
+__iar_dsubStart          0x800'5ce7         Code  Gb  DblAdd.o [3]
+__iar_init_vfp           0x800'69e1         Code  Gb  fpinit_M.o [3]
+__iar_lookup_ttioh       0x800'6981    0x4  Code  Gb  XShttio.o [2]
+__iar_program_start      0x800'6ab5         Code  Gb  cstartup_M.o [4]
+__iar_round64            0x800'5c71         Code  Gb  round.o [3]
+__iar_sin64              0x800'6349    0x4  Code  Gb  cos_sin64.o [3]
+__iar_sin_medium         0x800'6349    0x4  Code  Gb  cos_sin64.o [3]
+__iar_sin_medium64       0x800'6349    0x4  Code  Gb  cos_sin64.o [3]
+__iar_sin_mediuml        0x800'6349    0x4  Code  Gb  cos_sin64.o [3]
+__iar_sqrt64             0x800'569d         Code  Gb  sqrt.o [3]
+__iar_ttio_handles      0x2000'0040    0x8  Data  Lc  XShttio.o [2]
 __iar_vfp___iar_round64
-                         0x800'4b5d         Code  Gb  round.o [3]
-__iar_vfp___iar_sqrt64   0x800'4589         Code  Gb  sqrt.o [3]
-__iar_vfp_acos           0x800'44fb    0xc  Code  Gb  math_wrappers64.o [3]
-__iar_vfp_cos            0x800'4507    0xc  Code  Gb  math_wrappers64.o [3]
-__iar_vfp_round          0x800'4b5d         Code  Gb  round.o [3]
-__iar_vfp_roundl         0x800'4b5d         Code  Gb  round.o [3]
-__iar_vfp_sin            0x800'4513    0xc  Code  Gb  math_wrappers64.o [3]
-__iar_vfp_sqrt           0x800'4589         Code  Gb  sqrt.o [3]
-__iar_vfp_sqrtl          0x800'4589         Code  Gb  sqrt.o [3]
+                         0x800'5c61         Code  Gb  round.o [3]
+__iar_vfp___iar_sqrt64   0x800'568d         Code  Gb  sqrt.o [3]
+__iar_vfp_acos           0x800'55ff    0xc  Code  Gb  math_wrappers64.o [3]
+__iar_vfp_cos            0x800'560b    0xc  Code  Gb  math_wrappers64.o [3]
+__iar_vfp_round          0x800'5c61         Code  Gb  round.o [3]
+__iar_vfp_roundl         0x800'5c61         Code  Gb  round.o [3]
+__iar_vfp_sin            0x800'5617    0xc  Code  Gb  math_wrappers64.o [3]
+__iar_vfp_sqrt           0x800'568d         Code  Gb  sqrt.o [3]
+__iar_vfp_sqrtl          0x800'568d         Code  Gb  sqrt.o [3]
 __iar_zero_init3         0x800'0fdf   0x3a  Code  Gb  zero_init3.o [4]
-__low_level_init         0x800'5b07    0x4  Code  Gb  low_level_init.o [2]
+__low_level_init         0x800'6a47    0x4  Code  Gb  low_level_init.o [2]
 __vector_table           0x800'0000         Data  Gb  startup_stm32f427xx.o [1]
-_call_main               0x800'5af5         Code  Gb  cmain.o [4]
-_exit                    0x800'5b11         Code  Gb  cexit.o [4]
-_main                    0x800'5b03         Code  Gb  cmain.o [4]
-a                        0x800'5a00   0x40  Data  Lc  iar_Atan64.o [3]
-acos                     0x800'4f6d   0xc8  Code  Gb  acos64.o [3]
-acosl                    0x800'4f6d   0xc8  Code  Gb  acos64.o [3]
-angle                   0x2000'05f4   0x20  Data  Gb  main.o [1]
-cos                      0x800'5471    0x4  Code  Gb  cos_sin64.o [3]
-cosl                     0x800'5471    0x4  Code  Gb  cos_sin64.o [3]
-disk                    0x2000'0630   0x10  Data  Gb  ff_gen_drv.o [1]
-exit                     0x800'5b0b    0x4  Code  Gb  exit.o [2]
-hcan1                   0x2000'05a4   0x28  Data  Gb  can.o [1]
-hcan2                   0x2000'05cc   0x28  Data  Gb  can.o [1]
-hsd                     0x2000'04c4   0x84  Data  Gb  sdio.o [1]
-main                     0x800'3269  0x1ee  Code  Gb  main.o [1]
-retSD                   0x2000'0658    0x1  Data  Gb  fatfs.o [1]
-retUSER                 0x2000'0659    0x1  Data  Gb  fatfs.o [1]
-round                    0x800'4b6d         Code  Gb  round.o [3]
-roundl                   0x800'4b6d         Code  Gb  round.o [3]
-sin                      0x800'5475    0x4  Code  Gb  cos_sin64.o [3]
-sinl                     0x800'5475    0x4  Code  Gb  cos_sin64.o [3]
+_call_main               0x800'6a35         Code  Gb  cmain.o [4]
+_exit                    0x800'6a51         Code  Gb  cexit.o [4]
+_main                    0x800'6a43         Code  Gb  cmain.o [4]
+a                        0x800'68d8   0x40  Data  Lc  iar_Atan64.o [3]
+acos                     0x800'5e41   0xc8  Code  Gb  acos64.o [3]
+acosl                    0x800'5e41   0xc8  Code  Gb  acos64.o [3]
+angle                   0x2000'06d4   0x20  Data  Gb  main.o [1]
+controller_signal       0x2000'0748    0x4  Data  Gb  usart.o [1]
+cos                      0x800'6345    0x4  Code  Gb  cos_sin64.o [3]
+cosl                     0x800'6345    0x4  Code  Gb  cos_sin64.o [3]
+disk                    0x2000'0710   0x10  Data  Gb  ff_gen_drv.o [1]
+exit                     0x800'6a4b    0x4  Code  Gb  exit.o [2]
+hcan1                   0x2000'0684   0x28  Data  Gb  can.o [1]
+hcan2                   0x2000'06ac   0x28  Data  Gb  can.o [1]
+hsd                     0x2000'04cc   0x84  Data  Gb  sdio.o [1]
+huart6                  0x2000'063c   0x48  Data  Gb  usart.o [1]
+huart7                  0x2000'05ac   0x48  Data  Gb  usart.o [1]
+huart8                  0x2000'05f4   0x48  Data  Gb  usart.o [1]
+main                     0x800'43fd  0x29a  Code  Gb  main.o [1]
+retSD                   0x2000'074c    0x1  Data  Gb  fatfs.o [1]
+retUSER                 0x2000'074d    0x1  Data  Gb  fatfs.o [1]
+round                    0x800'5c71         Code  Gb  round.o [3]
+roundl                   0x800'5c71         Code  Gb  round.o [3]
+sin                      0x800'6349    0x4  Code  Gb  cos_sin64.o [3]
+sinl                     0x800'6349    0x4  Code  Gb  cos_sin64.o [3]
 speed                   0x2000'0020    0x4  Data  Gb  main.o [1]
-sqrt                     0x800'4599         Code  Gb  sqrt.o [3]
-sqrtl                    0x800'4599         Code  Gb  sqrt.o [3]
-t                       0x2000'0650    0x4  Data  Gb  main.o [1]
-uwTick                  0x2000'0654    0x4  Data  Gb  stm32f4xx_hal.o [1]
-uwTickFreq              0x2000'0041    0x1  Data  Gb  stm32f4xx_hal.o [1]
+sqrt                     0x800'569d         Code  Gb  sqrt.o [3]
+sqrtl                    0x800'569d         Code  Gb  sqrt.o [3]
+t                       0x2000'0740    0x4  Data  Gb  main.o [1]
+usart_motor_data        0x2000'0720   0x10  Data  Gb  main.o [1]
+uwTick                  0x2000'0744    0x4  Data  Gb  stm32f4xx_hal.o [1]
+uwTickFreq              0x2000'0049    0x1  Data  Gb  stm32f4xx_hal.o [1]
 uwTickPrio              0x2000'0024    0x4  Data  Gb  stm32f4xx_hal.o [1]
 
 
@@ -779,9 +833,9 @@ uwTickPrio              0x2000'0024    0x4  Data  Gb  stm32f4xx_hal.o [1]
 [4] = rt7M_tl.a
 [5] = shb_l.a
 
-  23 542 bytes of readonly  code memory
-     210 bytes of readonly  data memory
-   2 650 bytes of readwrite data memory
+  27 426 bytes of readonly  code memory
+     226 bytes of readonly  data memory
+   2 894 bytes of readwrite data memory
 
 Errors: none
 Warnings: none

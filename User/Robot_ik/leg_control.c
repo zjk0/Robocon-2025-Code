@@ -1,5 +1,5 @@
 #include "leg_control.h"  // 包含头文件
-// #include <stdio.h>    // 包含标准库
+#include <stdio.h>    // 包含标准库
 #include <math.h>
 
 
@@ -60,15 +60,35 @@ void IK_leg(float x_pos,float y_pos,float *angle_e,float *angle_i)
 //   IK_leg(xep,zep,angle_e,angle_i);
     
 // }
-
-void Leg_cyloid(float *t, float *angle_e,float *angle_i,int lag_flag)
+/*
+The lag_flag of lf_leg and the lag_flag of rb_leg are 0;
+The lag_flag of rf_leg and the lag_flag of lb_leg are 1;
+*/
+void Leg_cyloid(float *t, float *angle_e, float *angle_i, int leg_flag, int direction, float fai, float step_length,float step_high)
 {
   float Ts=1;   //周期 
-  float fai=0.4;    //摆动相占空比
-  float xs=-0.08;   //起点x位置
-  float xf=0.08;  //终点x位置
+
+  // float fai=0.3;    //摆动相占空比
+  // float xs=-0.08;   //起点x位置
+  // float xf=0.08;  //终点x位置
+  // float zs=0.2457;   //z起点高度
+  // float h=0.04;   //抬腿高度
+
+
   float zs=0.2457;   //z起点高度
-  float h=0.04;   //抬腿高度
+  float h=step_high;   //抬腿高度
+  float xs,xf;
+
+  if(direction==forward){         //前进
+    xs=-step_length/2.0;
+    xf=step_length/2.0;
+  }
+  else if(direction==backward){   //后退
+    xs=step_length/2.0;
+    xf=-step_length/2.0;
+  }
+
+
   float pi=3.14159;
   float xep,zep,sigma,sita;
   float tme=*t;
@@ -79,7 +99,7 @@ void Leg_cyloid(float *t, float *angle_e,float *angle_i,int lag_flag)
     *t=0;
   }
 
-  if(lag_flag==0){
+  if(leg_flag==0){
     if((*t)>=0&&(*t)<fai*Ts){
       sita=2*pi*(*t)/(fai*Ts);
       flag=0;
@@ -99,7 +119,7 @@ void Leg_cyloid(float *t, float *angle_e,float *angle_i,int lag_flag)
     }
   }
 
-  if(lag_flag==1){
+  if(leg_flag==1){
     if((*t)>=0&&(*t)<(Ts-fai*Ts)){
       sita=2*pi*(*t)/(Ts-fai*Ts);
       flag=0;
@@ -118,10 +138,7 @@ void Leg_cyloid(float *t, float *angle_e,float *angle_i,int lag_flag)
       zep=zs;
     }
   }
-
-
   // printf("%f,%f\n",xep,zep);
-
   IK_leg(xep,zep,angle_e,angle_i);
     
 }
@@ -166,7 +183,7 @@ void Cubic_Bezier_Curve(float *t,float fhi,float high,float half_wide, float *an
     xep = pow((1-tme),3) * P0[0] + 3 * pow((1 - tme),2)*tme* P1[0] + 3 * (1 - tme) * pow(tme,2) * P2[0] + pow(tme,3) * P3[0];
     zep =  zs;
   }
-  //printf("%f,%f\n",xep,zep);
+  printf("%f,%f\n",xep,zep);
   IK_leg(xep,zep,angle_e,angle_i);
 
 }
@@ -198,3 +215,62 @@ void Cubic_Bezier_Curve(float *t,float fhi,float high,float half_wide, float *an
 
 
 // }
+void Quadruped_gait(float *t, float (*angle)[2],int gait_state, float fai, float step_length,float step_high)
+{
+  if(gait_state==Advance){
+    printf("lf:\n");
+    Leg_cyloid(t,&angle[0][0],&angle[0][1],0, forward, fai, step_length,step_high);
+    printf("rf:\n");
+    Leg_cyloid(t,&angle[1][0],&angle[1][1],1, forward, fai, step_length,step_high);
+    printf("rb:\n");
+    Leg_cyloid(t,&angle[2][0],&angle[2][1],0, forward, fai, step_length,step_high);
+    printf("lb:\n");
+    Leg_cyloid(t,&angle[3][0],&angle[3][1],1, forward, fai, step_length,step_high);
+  }
+  else if(gait_state==Retreat){
+    printf("lf:\n");
+    Leg_cyloid(t,&angle[0][0],&angle[0][1],0, backward, fai, step_length,step_high);
+    printf("rf:\n");
+    Leg_cyloid(t,&angle[1][0],&angle[1][1],1, backward, fai, step_length,step_high);
+    printf("rb:\n");
+    Leg_cyloid(t,&angle[2][0],&angle[2][1],0, backward, fai, step_length,step_high);
+    printf("lb:\n");
+    Leg_cyloid(t,&angle[3][0],&angle[3][1],1, backward, fai, step_length,step_high);
+  }
+  else if(gait_state==Turn_left){
+    // printf("lf:\n");
+    // Leg_cyloid(t,&angle[0][0],&angle[0][1],0, backward, fai, step_length,step_high);
+    // printf("rf:\n");
+    // Leg_cyloid(t,&angle[1][0],&angle[1][1],1, forward, fai, step_length,step_high);
+    // printf("rb:\n");
+    // Leg_cyloid(t,&angle[2][0],&angle[2][1],0, forward, fai, step_length,step_high);
+    // printf("lb:\n");
+    // Leg_cyloid(t,&angle[3][0],&angle[3][1],1, backward, fai, step_length,step_high);
+    printf("lf:\n");
+    Leg_cyloid(t,&angle[0][0],&angle[0][1],0, backward, fai, step_length,step_high);
+    printf("rf:\n");
+    Leg_cyloid(t,&angle[1][0],&angle[1][1],0, forward, fai, step_length,step_high);
+    printf("rb:\n");
+    Leg_cyloid(t,&angle[2][0],&angle[2][1],0, forward, fai, step_length,step_high);
+    printf("lb:\n");
+    Leg_cyloid(t,&angle[3][0],&angle[3][1],0, backward, fai, step_length,step_high);
+  }
+  else if(gait_state==Turn_right){
+    // printf("lf:\n");
+    // Leg_cyloid(t,&angle[0][0],&angle[0][1],0, forward, fai, step_length,step_high);
+    // printf("rf:\n");
+    // Leg_cyloid(t,&angle[1][0],&angle[1][1],1, backward, fai, step_length,step_high);
+    // printf("rb:\n");
+    // Leg_cyloid(t,&angle[2][0],&angle[2][1],0, backward, fai, step_length,step_high);
+    // printf("lb:\n");
+    // Leg_cyloid(t,&angle[3][0],&angle[3][1],1, forward, fai, step_length,step_high);
+    printf("lf:\n");
+    Leg_cyloid(t,&angle[0][0],&angle[0][1],0, forward, fai, step_length,step_high);
+    printf("rf:\n");
+    Leg_cyloid(t,&angle[1][0],&angle[1][1],0, backward, fai, step_length,step_high);
+    printf("rb:\n");
+    Leg_cyloid(t,&angle[2][0],&angle[2][1],0, backward, fai, step_length,step_high);
+    printf("lb:\n");
+    Leg_cyloid(t,&angle[3][0],&angle[3][1],0, forward, fai, step_length,step_high);
+  }
+}
