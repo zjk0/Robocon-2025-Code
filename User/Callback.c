@@ -21,20 +21,14 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     if (GPIO_Pin == GPIO_PIN_1) {
-        MoveEnable = 1;
+        TrotEnable = 1;
     }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == UART7) {
-        if (controller_signal[2] == 1) {
-            MoveEnable = 1;
-        }
-        HAL_UART_Receive_IT(&huart7, (uint8_t*)controller_signal, 4);
-    }
     if (huart->Instance == UART8) {
         if (controller_signal[2] == 1) {
-            MoveEnable = 1;
+            TrotEnable = 1;
         }
         HAL_UART_Receive_IT(&huart8, (uint8_t*)controller_signal, 4);
     }

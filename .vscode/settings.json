@@ -23,6 +23,7 @@
         "stm32f4xx_hal_can.h": "c",
         "stm32f4xx_it.h": "c",
         "deepj60_motor.h": "c",
-        "usart.h": "c"
+        "usart.h": "c",
+        "leg_control.h": "c"
     }
 }

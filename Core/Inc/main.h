@@ -60,7 +60,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
-extern uint8_t MoveEnable;
+extern uint8_t TrotEnable;
 
 /* USER CODE END Private defines */
 

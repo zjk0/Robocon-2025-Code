@@ -164,7 +164,7 @@
                     <item>J60Motor_Data_CAN1</item>
                     <item>Can</item>
                     <item>controller_signal</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

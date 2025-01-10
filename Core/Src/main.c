@@ -51,34 +51,14 @@
 
 /* USER CODE BEGIN PV */
 
-uint8_t MoveEnable = 0;
+uint8_t TrotEnable = 0;
+uint8_t JumpEnable = 0;
 
-float J60Motor_StandUpData_CAN1[4] = {0.647773742, -1.65866851, -0.340309143, 1.9198226922}; // lf_out, lf_in, rf_out, rf_in
-float J60Motor_StandUpData_CAN2[4] = {2.20684433, -0.66669464111, -1.8807601922, 0.51845550533};     // rb_out, rb_in, lb_out, lb_in
-float J60Motor_Data_CAN1[4] = {0, 0, 0, 0};
-float J60Motor_Data_CAN2[4] = {0, 0, 0, 0};
 float total_time = 1000;
 float angle[4][2];
 float pos[4][2];
 float t = 0;
 float speed = 0.01;
-
-union {
-  float real_motor_data[4];
-  uint8_t send_motor_data[16];
-} usart_motor_data;
-
-float CubicSpline(float init_position, float goal_position, float init_velocity, float goal_velocity, float now_time, float total_time) {
-  float a, b, c, d;
-  a = (goal_velocity * total_time + init_velocity * total_time - 2 * goal_position + 2 * init_position) / pow(total_time, 3);
-  b = (3 * goal_position - 3 * init_position - 2 * init_velocity * total_time - goal_velocity * total_time) / pow(total_time, 2);
-  c = init_velocity;
-  d = init_position;
-
-  float now_position = a * pow(now_time, 3) + b * pow(now_time, 2) + c * now_time + d;
-
-  return now_position;
-}
 
 /* USER CODE END PV */
 
@@ -169,7 +149,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    if (MoveEnable == 1) {
+    // ************************************* Trot *************************************
+    if (TrotEnable == 1) {
       Leg_cyloid(&t, &angle[0][0], &angle[0][1], 0, forward, 0.4, 0.16, 0.04);  // lf
       Leg_cyloid(&t, &angle[2][0], &angle[2][1], 0, forward, 0.4, 0.16, 0.04);  // rb
       Leg_cyloid(&t, &angle[1][0], &angle[1][1], 1, forward, 0.4, 0.16, 0.04);  // rf
@@ -193,18 +174,13 @@ int main(void)
       RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
       HAL_Delay(1);
 
-      // On another control-board
-      // RunJ60Motor(&J60Motor_CAN1[2], J60Motor_StandUpData_CAN1[2] + angle[1][1], 0, 0, 100, 5, PositionMode);
-      // HAL_Delay(1);
-      // RunJ60Motor(&J60Motor_CAN1[3], J60Motor_StandUpData_CAN1[3] - angle[1][0], 0, 0, 100, 5, PositionMode);
-      // HAL_Delay(1);
-      // RunJ60Motor(&J60Motor_CAN2[2], J60Motor_StandUpData_CAN2[2] - angle[3][1], 0, 0, 100, 5, PositionMode);
-      // HAL_Delay(1);
-      // RunJ60Motor(&J60Motor_CAN2[3], J60Motor_StandUpData_CAN2[3] + angle[3][0], 0, 0, 100, 5, PositionMode);
-      // HAL_Delay(1);
-
       t += speed;
     }
+
+    // ************************************* Jump *************************************
+    Jump(-0.08, 0.08);
+    HAL_Delay(2000);
+    
 
     /* USER CODE END WHILE */
 
