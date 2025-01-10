@@ -4,6 +4,7 @@
 #include "stm32f4xx_hal_can.h"
 #include "can.h"
 #include "usart.h"
+#include "leg_control.h"
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (hcan->Instance == CAN1) {
@@ -19,16 +20,28 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 	// }
 }
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    if (GPIO_Pin == GPIO_PIN_1) {
-        TrotEnable = 1;
-    }
-}
+// void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+//     if (GPIO_Pin == GPIO_PIN_1) {
+//         TrotEnable = 1;
+//     }
+// }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == UART8) {
-        if (controller_signal[2] == 1) {
-            TrotEnable = 1;
+        if (controller_signal[0] == 1 && controller_signal[1] != 1 && controller_signal[2] != 1 && controller_signal[3] != 1) {
+            TrotDirection = Advance;
+        }
+        else if (controller_signal[0] != 1 && controller_signal[1] == 1 && controller_signal[2] != 1 && controller_signal[3] != 1) {
+            TrotDirection = Retreat;
+        }
+        else if (controller_signal[0] != 1 && controller_signal[1] != 1 && controller_signal[2] == 1 && controller_signal[3] != 1) {
+            TrotDirection = Turn_left;
+        }
+        else if (controller_signal[0] != 1 && controller_signal[1] != 1 && controller_signal[2] != 1 && controller_signal[3] == 1) {
+            TrotDirection = Turn_right;
+        }
+        else {
+            TrotDirection = 0;
         }
         HAL_UART_Receive_IT(&huart8, (uint8_t*)controller_signal, 4);
     }

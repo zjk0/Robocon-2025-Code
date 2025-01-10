@@ -53,6 +53,8 @@
 
 uint8_t TrotEnable = 0;
 uint8_t JumpEnable = 0;
+int MultiGaitEnable = -1;
+int TrotDirection = 0;
 
 float total_time = 1000;
 float angle[4][2];
@@ -162,7 +164,7 @@ int main(void)
       usart_motor_data.real_motor_data[3] = angle[3][1];
 
       HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-      while(__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+      while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
       // Only send the command of lf and rb
       RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
@@ -178,8 +180,35 @@ int main(void)
     }
 
     // ************************************* Jump *************************************
-    Jump(-0.08, 0.08);
-    HAL_Delay(2000);
+    if (JumpEnable == 1) {
+      Jump(-0.08, 0.08);
+      HAL_Delay(2000);
+    }
+
+    // ************************************* Multi-Gait *************************************
+    if (TrotDirection > 0) {
+      Quadruped_gait(&t, angle, TrotDirection, 0.4, 0.16, 0.04);
+
+      usart_motor_data.real_motor_data[0] = angle[1][0];
+      usart_motor_data.real_motor_data[1] = angle[1][1];
+      usart_motor_data.real_motor_data[2] = angle[3][0];
+      usart_motor_data.real_motor_data[3] = angle[3][1];
+
+      HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
+      while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+
+      // Only send the command of lf and rb
+      RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
+      HAL_Delay(1);
+      RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
+      HAL_Delay(1);
+      RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
+      HAL_Delay(1);
+      RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
+      HAL_Delay(1);
+
+      t += speed;
+    }
     
 
     /* USER CODE END WHILE */

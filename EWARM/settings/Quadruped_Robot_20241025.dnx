@@ -20,20 +20,20 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <Jet>
-        <JetConnSerialNo>ATK-HS-V3-CMSIS-DAP:ATK-B42D3D99</JetConnSerialNo>
-        <JetConnFoundProbes />
-        <PrevWtdReset>System</PrevWtdReset>
         <OnlineReset>Software</OnlineReset>
         <DisableInterrupts>0</DisableInterrupts>
         <LeaveRunning>0</LeaveRunning>
         <MultiCoreRunAll>0</MultiCoreRunAll>
+        <JetConnSerialNo>ATK-HS-V3-CMSIS-DAP:ATK-B42D3D99</JetConnSerialNo>
+        <JetConnFoundProbes />
+        <PrevWtdReset>System</PrevWtdReset>
     </Jet>
     <PlDriver>
-        <FirstRun>0</FirstRun>
         <MemConfigValue>F:\EWARM_8321\arm\CONFIG\debugger\ST\STM32F427II.ddf</MemConfigValue>
+        <FirstRun>0</FirstRun>
     </PlDriver>
     <DebugChecksum>
-        <Checksum>3442217074</Checksum>
+        <Checksum>1379863898</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -49,8 +49,8 @@
     <SWOManager>
         <SamplingDivider>8192</SamplingDivider>
         <OverrideClock>0</OverrideClock>
-        <CpuClock>1279340114</CpuClock>
-        <SwoClock>541149264</SwoClock>
+        <CpuClock>1277177632</CpuClock>
+        <SwoClock>1699875407</SwoClock>
         <DataLogMode>0</DataLogMode>
         <ItmPortsEnabled>63</ItmPortsEnabled>
         <ItmTermIOPorts>1</ItmTermIOPorts>
@@ -160,23 +160,22 @@
         <EventLSU>0</EventLSU>
         <EventSLEEP>0</EventSLEEP>
     </SWOTraceWindow>
-    <TermIOLog>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ ""</LogFile>
-    </TermIOLog>
-    <LogFile>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ ""</LogFile>
-        <Category>_ 0</Category>
-    </LogFile>
     <DisassembleMode>
         <mode>0</mode>
     </DisassembleMode>
     <Breakpoints2>
         <Bp0>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_can.c}.1328.7" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 1 "EMUL_CODE" "{$PROJ_DIR$\..\User\Callback.c}.31.13" 0 0 1 "" 0 "" 0</Bp1>
-        <Count>2</Count>
+        <Count>1</Count>
     </Breakpoints2>
+    <LogFile>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+        <Category>_ 0</Category>
+    </LogFile>
+    <TermIOLog>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+    </TermIOLog>
     <Aliases>
         <Count>0</Count>
         <SuppressDialog>0</SuppressDialog>

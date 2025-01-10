@@ -240,33 +240,25 @@ void Quadruped_gait(float *t, float (*angle)[2], int gait_state, float fai, floa
     }
     else if (gait_state == Turn_left)
     {
-        // printf("lf:\n");
-        // Leg_cyloid(t,&angle[0][0],&angle[0][1],0, backward, fai, step_length,step_high);
-        // printf("rf:\n");
-        // Leg_cyloid(t,&angle[1][0],&angle[1][1],1, forward, fai, step_length,step_high);
-        // printf("rb:\n");
-        // Leg_cyloid(t,&angle[2][0],&angle[2][1],0, forward, fai, step_length,step_high);
-        // printf("lb:\n");
-        // Leg_cyloid(t,&angle[3][0],&angle[3][1],1, backward, fai, step_length,step_high);
-        Leg_cyloid(t, &angle[0][0], &angle[0][1], 0, backward, fai, step_length, step_high);
-        Leg_cyloid(t, &angle[1][0], &angle[1][1], 0, forward, fai, step_length, step_high);
-        Leg_cyloid(t, &angle[2][0], &angle[2][1], 0, forward, fai, step_length, step_high);
-        Leg_cyloid(t, &angle[3][0], &angle[3][1], 0, backward, fai, step_length, step_high);
+        Leg_cyloid(t,&angle[0][0],&angle[0][1],0, backward, fai, step_length,step_high);
+        Leg_cyloid(t,&angle[1][0],&angle[1][1],1, forward, fai, step_length,step_high);
+        Leg_cyloid(t,&angle[2][0],&angle[2][1],0, forward, fai, step_length,step_high);
+        Leg_cyloid(t,&angle[3][0],&angle[3][1],1, backward, fai, step_length,step_high);
+        // Leg_cyloid(t, &angle[0][0], &angle[0][1], 0, backward, fai, step_length, step_high);
+        // Leg_cyloid(t, &angle[1][0], &angle[1][1], 0, forward, fai, step_length, step_high);
+        // Leg_cyloid(t, &angle[2][0], &angle[2][1], 0, forward, fai, step_length, step_high);
+        // Leg_cyloid(t, &angle[3][0], &angle[3][1], 0, backward, fai, step_length, step_high);
     }
     else if (gait_state == Turn_right)
     {
-        // printf("lf:\n");
-        // Leg_cyloid(t,&angle[0][0],&angle[0][1],0, forward, fai, step_length,step_high);
-        // printf("rf:\n");
-        // Leg_cyloid(t,&angle[1][0],&angle[1][1],1, backward, fai, step_length,step_high);
-        // printf("rb:\n");
-        // Leg_cyloid(t,&angle[2][0],&angle[2][1],0, backward, fai, step_length,step_high);
-        // printf("lb:\n");
-        // Leg_cyloid(t,&angle[3][0],&angle[3][1],1, forward, fai, step_length,step_high);
-        Leg_cyloid(t, &angle[0][0], &angle[0][1], 0, forward, fai, step_length, step_high);
-        Leg_cyloid(t, &angle[1][0], &angle[1][1], 0, backward, fai, step_length, step_high);
-        Leg_cyloid(t, &angle[2][0], &angle[2][1], 0, backward, fai, step_length, step_high);
-        Leg_cyloid(t, &angle[3][0], &angle[3][1], 0, forward, fai, step_length, step_high);
+        Leg_cyloid(t,&angle[0][0],&angle[0][1],0, forward, fai, step_length,step_high);
+        Leg_cyloid(t,&angle[1][0],&angle[1][1],1, backward, fai, step_length,step_high);
+        Leg_cyloid(t,&angle[2][0],&angle[2][1],0, backward, fai, step_length,step_high);
+        Leg_cyloid(t,&angle[3][0],&angle[3][1],1, forward, fai, step_length,step_high);
+        // Leg_cyloid(t, &angle[0][0], &angle[0][1], 0, forward, fai, step_length, step_high);
+        // Leg_cyloid(t, &angle[1][0], &angle[1][1], 0, backward, fai, step_length, step_high);
+        // Leg_cyloid(t, &angle[2][0], &angle[2][1], 0, backward, fai, step_length, step_high);
+        // Leg_cyloid(t, &angle[3][0], &angle[3][1], 0, forward, fai, step_length, step_high);
     }
 }
 
@@ -282,13 +274,14 @@ float CubicSpline(float init_position, float goal_position, float init_velocity,
     return now_position;
 }
 
-void Jump(float start_point, float end_point) {
+void Jump(float squat_length, float up_length) {
+    float original_position = 0.2457;
     float angle_in = 0;
     float angle_out = 0;
 
     // Squat
-    for (float i = 0; i <= start_point; i += (start_point / 10)) {
-        IK_leg(0, -(i), &angle_in, &angle_out);
+    for (float i = 0; i <= squat_length; i += (squat_length / 10)) {
+        IK_leg(0, original_position - i, &angle_in, &angle_out);
 
         usart_motor_data.real_motor_data[0] = angle_in;
         usart_motor_data.real_motor_data[1] = angle_out;
@@ -296,7 +289,7 @@ void Jump(float start_point, float end_point) {
         usart_motor_data.real_motor_data[3] = angle_out;
 
         HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while(__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
         RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 50, 5, PositionMode);
         HAL_Delay(1);
@@ -309,7 +302,7 @@ void Jump(float start_point, float end_point) {
     }
 
     // Jump
-    IK_leg(0, -end_point, &angle_out, &angle_in);
+    IK_leg(0, original_position + up_length, &angle_out, &angle_in);
 
     usart_motor_data.real_motor_data[0] = angle_in;
     usart_motor_data.real_motor_data[1] = angle_out;
@@ -317,7 +310,7 @@ void Jump(float start_point, float end_point) {
     usart_motor_data.real_motor_data[3] = angle_out;
 
     HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-    while(__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+    while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
     RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 100, 5, PositionMode);
     HAL_Delay(1);
@@ -335,7 +328,7 @@ void Jump(float start_point, float end_point) {
     usart_motor_data.real_motor_data[3] = 0;
 
     HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-    while(__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+    while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
     RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 50, 5, PositionMode);
     HAL_Delay(1);
@@ -351,8 +344,8 @@ void Jump(float start_point, float end_point) {
     while (J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque < 0.001);
 
     // Cushioning
-    for (float i = 0; i <= start_point; i += start_point / 10) {
-        IK_leg(0, -(i), &angle_in, &angle_out);
+    for (float i = 0; i <= squat_length; i += squat_length / 10) {
+        IK_leg(0, original_position - i, &angle_in, &angle_out);
 
         usart_motor_data.real_motor_data[0] = angle_in;
         usart_motor_data.real_motor_data[1] = angle_out;
@@ -360,7 +353,7 @@ void Jump(float start_point, float end_point) {
         usart_motor_data.real_motor_data[3] = angle_out;
 
         HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while(__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
         RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 50, 5, PositionMode);
         HAL_Delay(1);
@@ -381,7 +374,7 @@ void Jump(float start_point, float end_point) {
     usart_motor_data.real_motor_data[3] = 0;
 
     HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-    while(__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+    while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
     RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 50, 5, PositionMode);
     HAL_Delay(1);
@@ -391,4 +384,56 @@ void Jump(float start_point, float end_point) {
     HAL_Delay(1);
     RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 50, 5, PositionMode);
     HAL_Delay(1);
+}
+
+void JumpForward (float squat_length, float up_length, float lean_length) {
+    float original_position = 0.2457;
+    float angle_in = 0;
+    float angle_out = 0;
+
+    // Squat
+    for (float i = 0; i <= squat_length; i += (squat_length / 10)) {
+        IK_leg(0, original_position - i, &angle_in, &angle_out);
+
+        usart_motor_data.real_motor_data[0] = angle_in;
+        usart_motor_data.real_motor_data[1] = angle_out;
+        usart_motor_data.real_motor_data[2] = angle_in;
+        usart_motor_data.real_motor_data[3] = angle_out;
+
+        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
+        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+
+        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 50, 5, PositionMode);
+        HAL_Delay(1);
+        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle_in, 0, 0, 50, 5, PositionMode);
+        HAL_Delay(1);
+        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle_out, 0, 0, 50, 5, PositionMode);
+        HAL_Delay(1);
+        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle_in, 0, 0, 50, 5, PositionMode);
+        HAL_Delay(1);
+    }
+
+    // Lean forward
+    for (float i = 0; i <= lean_length; i += (lean_length / 10)) {
+        IK_leg(i, original_position - squat_length, &angle_in, &angle_out);
+
+        usart_motor_data.real_motor_data[0] = angle_in;
+        usart_motor_data.real_motor_data[1] = angle_out;
+        usart_motor_data.real_motor_data[2] = angle_in;
+        usart_motor_data.real_motor_data[3] = angle_out;
+
+        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
+        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+
+        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 50, 5, PositionMode);
+        HAL_Delay(1);
+        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle_in, 0, 0, 50, 5, PositionMode);
+        HAL_Delay(1);
+        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle_out, 0, 0, 50, 5, PositionMode);
+        HAL_Delay(1);
+        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle_in, 0, 0, 50, 5, PositionMode);
+        HAL_Delay(1);
+    }
+
+
 }
