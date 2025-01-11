@@ -54,7 +54,7 @@
 uint8_t TrotEnable = 0;
 uint8_t JumpEnable = 0;
 int MultiGaitEnable = -1;
-int TrotDirection = 0;
+int TrotDirection = 0,Trotbegin=0;
 
 float total_time = 1000;
 float angle[4][2];
@@ -120,28 +120,7 @@ int main(void)
   EnableJ60Motor(&J60Motor_CAN2[0], 1, 2); // rb out
   EnableJ60Motor(&J60Motor_CAN2[1], 2, 2); // rb in
 
-  HAL_Delay(1);
-  RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 20, 5, PositionMode);
-  HAL_Delay(1);
-  RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 20, 5, PositionMode);
-  HAL_Delay(1);
-  RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0], 0, 0, 20, 5, PositionMode);
-  HAL_Delay(1);
-  RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 20, 5, PositionMode);
-
-  // EnableJ60Motor(&J60Motor_CAN1[2], 3, 1);  // rf out
-  // EnableJ60Motor(&J60Motor_CAN1[3], 4, 1);  // rf in
-  // EnableJ60Motor(&J60Motor_CAN2[2], 3, 2);  // lb out
-  // EnableJ60Motor(&J60Motor_CAN2[3], 4, 2);  // lb in
-
-  // HAL_Delay(1);
-  // RunJ60Motor(&J60Motor_CAN1[2], J60Motor_StandUpData_CAN1[2], 0, 0, 20, 5, PositionMode);
-  // HAL_Delay(1);
-  // RunJ60Motor(&J60Motor_CAN1[3], J60Motor_StandUpData_CAN1[3], 0, 0, 20, 5, PositionMode);
-  // HAL_Delay(1);
-  // RunJ60Motor(&J60Motor_CAN2[2], J60Motor_StandUpData_CAN2[2], 0, 0, 20, 5, PositionMode);
-  // HAL_Delay(1);
-  // RunJ60Motor(&J60Motor_CAN2[3], J60Motor_StandUpData_CAN2[3], 0, 0, 20, 5, PositionMode);
+  StandUp();
 
   HAL_Delay(2000);
 
@@ -187,7 +166,7 @@ int main(void)
 
     // ************************************* Multi-Gait *************************************
     if (TrotDirection > 0) {
-      Quadruped_gait(&t, angle, TrotDirection, 0.4, 0.16, 0.04);
+      Quadruped_gait(&t, angle, TrotDirection, 0.4, 0.1, 0.03);
 
       usart_motor_data.real_motor_data[0] = angle[1][0];
       usart_motor_data.real_motor_data[1] = angle[1][1];

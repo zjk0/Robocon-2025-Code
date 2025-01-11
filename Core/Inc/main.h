@@ -64,6 +64,7 @@ extern uint8_t TrotEnable;
 extern uint8_t JumpEnable;
 extern int MultiGaitEnable;
 extern int TrotDirection;
+extern int Trotbegin;
 
 /* USER CODE END Private defines */
 

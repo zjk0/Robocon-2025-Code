@@ -30,9 +30,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == UART8) {
         if (controller_signal[0] == 1 && controller_signal[1] != 1 && controller_signal[2] != 1 && controller_signal[3] != 1) {
             TrotDirection = Advance;
+            Trotbegin = 1;
         }
         else if (controller_signal[0] != 1 && controller_signal[1] == 1 && controller_signal[2] != 1 && controller_signal[3] != 1) {
             TrotDirection = Retreat;
+            Trotbegin = 1;
         }
         else if (controller_signal[0] != 1 && controller_signal[1] != 1 && controller_signal[2] == 1 && controller_signal[3] != 1) {
             TrotDirection = Turn_left;
@@ -42,6 +44,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
         }
         else {
             TrotDirection = 0;
+            Trotbegin = 1;
         }
         HAL_UART_Receive_IT(&huart8, (uint8_t*)controller_signal, 4);
     }

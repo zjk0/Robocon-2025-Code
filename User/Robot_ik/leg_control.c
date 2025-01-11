@@ -72,13 +72,6 @@ void Leg_cyloid(float *t, float *angle_e, float *angle_i, int leg_flag, int dire
 {
   float Ts=1;   //周期 
 
-  // float fai=0.3;    //摆动相占空比
-  // float xs=-0.08;   //起点x位置
-  // float xf=0.08;  //终点x位置
-  // float zs=0.2457;   //z起点高度
-  // float h=0.04;   //抬腿高度
-
-
   float zs=0.2457;   //z起点高度
   float h=step_high;   //抬腿高度
   float xs,xf;
@@ -91,7 +84,6 @@ void Leg_cyloid(float *t, float *angle_e, float *angle_i, int leg_flag, int dire
     xs=step_length/2.0;
     xf=-step_length/2.0;
   }
-
 
   float pi=3.14159;
   float xep,zep,sigma,sita;
@@ -144,86 +136,85 @@ void Leg_cyloid(float *t, float *angle_e, float *angle_i, int leg_flag, int dire
   }
   // printf("%f,%f\n",xep,zep);
   IK_leg(xep,zep,angle_e,angle_i);
-    
 }
 
-void Cubic_Bezier_Curve(float *t, float fhi, float high, float half_wide, float *angle_e, float *angle_i)
+/**
+  * @brief  利用贝塞尔曲线函数计算足端曲线轨迹
+  * @param  
+  * @param  
+  * @retval 
+  */
+void Cubic_Bezier(float *t, float *angle_e, float *angle_i,uint8_t leg_flag, float fai, float start_x, float start_z, float end_x, float end_z, float max_z)
 {
-    float Ts = 2; // 周期
+    float Ts = 2.0f*fai; // 一个曲线的周期,总周期乘占空比
     float pi = 3.14159;
     float xep, zep;
-    float tme = (*t) + fhi;
     int flag = 0;
-    float zs = 0.2457;
+    float zs=0.2457;   //z起点高度
 
-    float P3[2] = {-1 * half_wide, 0}, P2[2] = {-0.5 * half_wide, high}, P1[2] = {0.5 * half_wide, high}, P0[2] = {half_wide, 0};
+    float P3[2] = {end_x, end_z}, P2[2] = {end_x, max_z * 0.09f / 0.0675f}, P1[2] = {start_x, max_z * 0.09f / 0.0675f}, P0[2] = {start_x, start_z};
+    float time;
+  if(leg_flag==0){
+    if (*t<=Ts)
+    {
+        time=*t/Ts;
+        xep = pow((1 - time), 3) * P0[0] +
+              3.0f * pow((1 - time), 2) * (time)*P1[0] +
+              3.0f * (1 - time) * pow((time), 2) * P2[0] +
+              pow((time), 3) * P3[0];
+        zep = zs-(pow((1 - time), 3) * P0[1] +
+              3.0f * pow((1 - time), 2) * (time)*P1[1] +
+              3.0f * (1 - time) * pow((time), 2) * P2[1] +
+              pow((time), 3) * P3[1]);
+    }
+    if (*t>Ts&&*t<=2)
+    {
+        time=(*t-Ts)/(2.0f-Ts);
+        xep = pow((1 - time), 3) * P3[0] +
+              3 * pow((1 - time), 2) * time * P2[0] +
+              3 * (1 - time) * pow(time, 2) * P1[0] +
+              pow(time, 3) * P0[0];
+        zep = zs-(pow((1 - time), 3) * P3[1] +
+              3.0f * pow((1 - time), 2) * (time)* 0 +
+              3.0f * (1 - time) * pow((time), 2) * 0 +
+              pow((time), 3) * P0[1]);
+    }
+  }
+  if(leg_flag==1){
+    if (*t<=Ts)
+    {
+        time=*t/Ts;
+        xep = pow((1 - time), 3) * P0[0] +
+              3.0f * pow((1 - time), 2) * (time)*P1[0] +
+              3.0f * (1 - time) * pow((time), 2) * P2[0] +
+              pow((time), 3) * P3[0];
+        zep = zs-(pow((1 - time), 3) * P0[1] +
+              3.0f * pow((1 - time), 2) * (time)*0 +
+              3.0f * (1 - time) * pow((time), 2) * 0 +
+              pow((time), 3) * P3[1]);
+    }
+    if (*t>Ts&&*t<=2)
+    {
+        time=(*t-Ts)/(2.0f-Ts);
+        xep = pow((1 - time), 3) * P3[0] +
+              3 * pow((1 - time), 2) * time * P2[0] +
+              3 * (1 - time) * pow(time, 2) * P1[0] +
+              pow(time, 3) * P0[0];
+        zep = zs-(pow((1 - time), 3) * P3[1] +
+              3.0f * pow((1 - time), 2) * (time)*P2[1] +
+              3.0f * (1 - time) * pow((time), 2) * P1[1] +
+              pow((time), 3) * P0[1]);
+    }
+  }
 
-    if ((*t) > 2)
-        *t = 0;
-
-    // if(tme>1)
-    // {
-    //   tme-=1;
-    //   flag=1;
-    // }
-    if ((tme >= 1 && tme < 2) || tme >= 3)
-    {
-        flag = 1;
-    }
-    if (tme >= 2 && tme < 3)
-    {
-        flag = 0;
-    }
-    if (flag == 0)
-    {
-
-        while (tme > 1)
-            tme -= 1;
-        xep = pow((1 - tme), 3) * P0[0] + 3 * pow((1 - tme), 2) * (tme)*P1[0] + 3 * (1 - tme) * pow((tme), 2) * P2[0] + pow((tme), 3) * P3[0];
-        zep = zs - pow((1 - tme), 3) * P0[1] + 3 * pow((1 - tme), 2) * (tme)*P1[1] + 3 * (1 - tme) * pow((tme), 2) * P2[1] + pow((tme), 3) * P3[1];
-    }
-    if (flag == 1)
-    {
-        if (tme >= 1 && tme < 2)
-        {
-            tme = 2 - tme;
-        }
-        else
-            tme = 4 - tme;
-        xep = pow((1 - tme), 3) * P0[0] + 3 * pow((1 - tme), 2) * tme * P1[0] + 3 * (1 - tme) * pow(tme, 2) * P2[0] + pow(tme, 3) * P3[0];
-        zep = zs;
-    }
-    printf("%f,%f\n", xep, zep);
+    // printf("%f,%f\n", xep, zep);
     IK_leg(xep, zep, angle_e, angle_i);
 }
 
-// 初始相
-/*
-    fhi_lf和fhi_rb=3.14
-    fhi_rf和fhi_lb=9.423
-*/
-
-// void dog_leg_trot()
-// {
-//     float t=0;
-//     float fai=0.5;
-//     float sita=0;
-//     sita=2*pi*(*t)/(fai*Ts);
-
-//     if(t<=Ts*fai){
-//         sigma=2*pi*(*t)/(fai*Ts);
-//         xep=(xf-xs)*((sigma-sin(sigma))/(2*pi))+xs;
-//         zep=zs-h/2*(1-cos(sigma));
-//     }
-//     if(t>Ts*fai&&t<Ts)
-//     {
-//         sigma=(-1)*2*pi*(*t)/(fai*Ts);
-//         xep=(xs-xf)*((sigma-sin(sigma))/(2*pi))+xs;
-//     }
-
-// }
+//---------------------------------------------------整体步态+摆线-----------------------------------------------------------
 void Quadruped_gait(float *t, float (*angle)[2], int gait_state, float fai, float step_length, float step_high)
 {
+
     if (gait_state == Advance)
     {
         Leg_cyloid(t, &angle[0][0], &angle[0][1], 0, forward, fai, step_length, step_high);
@@ -244,10 +235,7 @@ void Quadruped_gait(float *t, float (*angle)[2], int gait_state, float fai, floa
         Leg_cyloid(t,&angle[1][0],&angle[1][1],1, forward, fai, step_length,step_high);
         Leg_cyloid(t,&angle[2][0],&angle[2][1],0, forward, fai, step_length,step_high);
         Leg_cyloid(t,&angle[3][0],&angle[3][1],1, backward, fai, step_length,step_high);
-        // Leg_cyloid(t, &angle[0][0], &angle[0][1], 0, backward, fai, step_length, step_high);
-        // Leg_cyloid(t, &angle[1][0], &angle[1][1], 0, forward, fai, step_length, step_high);
-        // Leg_cyloid(t, &angle[2][0], &angle[2][1], 0, forward, fai, step_length, step_high);
-        // Leg_cyloid(t, &angle[3][0], &angle[3][1], 0, backward, fai, step_length, step_high);
+
     }
     else if (gait_state == Turn_right)
     {
@@ -255,10 +243,97 @@ void Quadruped_gait(float *t, float (*angle)[2], int gait_state, float fai, floa
         Leg_cyloid(t,&angle[1][0],&angle[1][1],1, backward, fai, step_length,step_high);
         Leg_cyloid(t,&angle[2][0],&angle[2][1],0, backward, fai, step_length,step_high);
         Leg_cyloid(t,&angle[3][0],&angle[3][1],1, forward, fai, step_length,step_high);
-        // Leg_cyloid(t, &angle[0][0], &angle[0][1], 0, forward, fai, step_length, step_high);
-        // Leg_cyloid(t, &angle[1][0], &angle[1][1], 0, backward, fai, step_length, step_high);
-        // Leg_cyloid(t, &angle[2][0], &angle[2][1], 0, backward, fai, step_length, step_high);
-        // Leg_cyloid(t, &angle[3][0], &angle[3][1], 0, forward, fai, step_length, step_high);
+
+    }
+}
+//-----------------------------------------------------直走+摆线-----------------------------------------------------------------
+void Walk_straight_cyloid(float *t, float (*angle)[2], float fai, float step_length, float step_high, uint8_t direction_mode)
+{
+    if(direction_mode==ahead_ward){
+        Leg_cyloid(t, &angle[0][0], &angle[0][1], 0, forward, fai, step_length, step_high);//左前腿
+        Leg_cyloid(t, &angle[1][0], &angle[1][1], 1, forward, fai, step_length, step_high);//右前腿
+        Leg_cyloid(t, &angle[2][0], &angle[2][1], 0, forward, fai, step_length, step_high);//右后腿
+        Leg_cyloid(t, &angle[3][0], &angle[3][1], 1, forward, fai, step_length, step_high);//左后腿
+    }
+    if(direction_mode==back_ward){
+        Leg_cyloid(t, &angle[0][0], &angle[0][1], 0, backward, fai, step_length, step_high);
+        Leg_cyloid(t, &angle[1][0], &angle[1][1], 1, backward, fai, step_length, step_high);
+        Leg_cyloid(t, &angle[2][0], &angle[2][1], 0, backward, fai, step_length, step_high);
+        Leg_cyloid(t, &angle[3][0], &angle[3][1], 1, backward, fai, step_length, step_high);
+    }
+}
+
+//-------------------------------------------------------整体步态+贝塞尔曲线----------------------------------------------------------
+void Quadruped_gait_Bezier(float *t, float (*angle)[2], int gait_state, float fai, float start_x, float start_z, float end_x, float end_z, float max_z)
+{
+    if (gait_state == Advance)
+    {
+        Walk_straight_Bezier(t, angle, fai, start_x, start_z, end_x, end_z, max_z, ahead_ward);
+    }
+    else if (gait_state == Retreat)
+    {
+        Walk_straight_Bezier(t, angle, fai, start_x, start_z, end_x, end_z, max_z, back_ward);
+    }
+    else if (gait_state == Turn_left)
+    {
+        Walk_turn_Bezier(t, angle, fai, start_x, start_z, end_x, end_z, max_z, left);
+    }
+    else if (gait_state == Turn_right)
+    {
+        Walk_turn_Bezier(t, angle, fai, start_x, start_z, end_x, end_z, max_z, right);
+    }
+}
+
+
+//---------------------------------------------------直走+贝塞尔曲线-------------------------------------------------------------
+//leg_flag=0表示前半周期为摆动相，leg_flag=1表示前半周期为支撑相
+void Walk_straight_Bezier(float *t, float (*angle)[2], float fai, float start_x, float start_z, float end_x, float end_z, float max_z, uint8_t direction_mode)
+{
+    if(direction_mode==ahead_ward){
+        //LF_leg_ID1左前腿
+        Cubic_Bezier(t, &angle[0][0], &angle[0][1], 0, fai, start_x, start_z, end_x, end_z, max_z);
+        //RF_leg_ID2右前腿
+        Cubic_Bezier(t, &angle[1][0], &angle[1][1], 1, fai, end_x, end_z, start_x, start_z, max_z);
+        //RD_leg_ID3右后腿
+        Cubic_Bezier(t, &angle[2][0], &angle[2][1], 0, fai, start_x, start_z, end_x, end_z, max_z);
+        //LD_leg_ID4左后腿
+        Cubic_Bezier(t, &angle[3][0], &angle[3][1], 1, fai, end_x, end_z, start_x, start_z, max_z);
+
+    }
+    if(direction_mode==back_ward){
+        //LF_leg_ID1左前腿
+        Cubic_Bezier(t, &angle[0][0], &angle[0][1], 0, fai, end_x, end_z, start_x, start_z, max_z);
+        //RF_leg_ID2右前腿
+        Cubic_Bezier(t, &angle[1][0], &angle[1][1], 1, fai, start_x, start_z, end_x, end_z, max_z);
+        //RD_leg_ID3右后腿
+        Cubic_Bezier(t, &angle[2][0], &angle[2][1], 0, fai, end_x, end_z, start_x, start_z, max_z);
+        //LD_leg_ID4左后腿
+        Cubic_Bezier(t, &angle[3][0], &angle[3][1], 1, fai, start_x, start_z, end_x, end_z, max_z);
+    }
+}
+
+//----------------------------------------------------------转弯加贝塞尔曲线-------------------------------------------------------------------------
+void Walk_turn_Bezier(float *t, float (*angle)[2], float fai, float start_x, float start_z, float end_x, float end_z, float max_z, uint8_t direction_mode)
+{
+    if(direction_mode == left ){
+        //LF_leg_ID1左前腿
+        Cubic_Bezier(t, &angle[0][0], &angle[0][1], 0, fai, start_x, start_z, end_x, end_z, max_z);
+        //RF_leg_ID2右前腿
+        Cubic_Bezier(t, &angle[1][0], &angle[1][1], 1, fai, end_x, end_z, start_x, start_z, max_z);
+        //RD_leg_ID3右后腿
+        Cubic_Bezier(t, &angle[2][0], &angle[2][1], 0, fai, end_x, end_z, start_x, start_z, max_z);
+        //LD_leg_ID4左后腿
+        Cubic_Bezier(t, &angle[3][0], &angle[3][1], 1, fai, start_x, start_z, end_x, end_z, max_z);
+    }
+    if(direction_mode == right ){
+        //LF_leg_ID1左前腿
+        Cubic_Bezier(t, &angle[0][0], &angle[0][1], 0, fai, end_x, end_z, start_x, start_z, max_z);
+        //RF_leg_ID2右前腿
+        Cubic_Bezier(t, &angle[1][0], &angle[1][1], 1, fai, start_x, start_z, end_x, end_z, max_z);
+        //RD_leg_ID3右后腿
+        Cubic_Bezier(t, &angle[2][0], &angle[2][1], 0, fai, start_x, start_z, end_x, end_z, max_z);
+        //LD_leg_ID4左后腿
+        Cubic_Bezier(t, &angle[3][0], &angle[3][1], 1, fai, end_x, end_z, start_x, start_z, max_z);
     }
 }
 
@@ -273,6 +348,7 @@ float CubicSpline(float init_position, float goal_position, float init_velocity,
 
     return now_position;
 }
+
 
 void Jump(float squat_length, float up_length) {
     float original_position = 0.2457;
