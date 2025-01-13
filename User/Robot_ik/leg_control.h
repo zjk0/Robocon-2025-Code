@@ -24,34 +24,26 @@ void Jump(float start_point, float end_point);
 #define backward 1
 
 //关于四足整体的前进后退左转右转
-#define Advance 1
-#define Retreat 2
-#define Turn_left 3
-#define Turn_right 4
+#define Advance 0
+#define Retreat 1
+#define Turn_left 2
+#define Turn_right 3
 
 //curve_line_mode足端轨迹曲线的模式
-#define cyloid 1    //摆线
-#define Bezier 2    //贝塞尔曲线
+#define cyloid 0    //摆线
+#define Bezier 1    //贝塞尔曲线
 
 //direction_mode对于足端轨迹为贝塞尔曲线时，腿部的方向
-#define ahead_ward 1
-#define back_ward 2
-#define left 3
-#define right 4
+#define ahead_ward 0
+#define back_ward 1
+#define left 2
+#define right 3
 
 typedef union {
   float real_motor_data[4];
   uint8_t send_motor_data[16];
 } usart_data;
 
-typedef enum {
-    PreTrot = 0,
-    Troting,
-    PreEndTrot,
-    EndTrot
-} TrotState;
-
-extern TrotState trot_state;
 extern usart_data usart_motor_data;
 extern float J60Motor_StandUpData_CAN1[4];
 extern float J60Motor_StandUpData_CAN2[4];

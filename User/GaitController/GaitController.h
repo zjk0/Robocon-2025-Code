@@ -5,9 +5,9 @@
  */
 #include "DeepJ60_Motor.h"
 #include "leg_control.h"
-#include "GenerateCurve.h"
 #include "main.h"
 #include "usart.h"
+// #include "CurvePlan.h"
 
 /**
  * ----------------------------------- Typedef -----------------------------------
@@ -26,17 +26,24 @@ typedef enum {
     Back
 } TrotDirection;
 
+typedef enum {
+    Cyloid = 0,
+    ThreeOrderBezier
+} TrotCurve;
+
 // The struct to describe the properties of trotting
 typedef struct {
     TrotState trot_state;
     TrotDirection trot_direction;
-    CurveType trot_curve;
+    TrotCurve trot_curve;
 } TrotController;
 
 /**
  * ----------------------------------- Variables -----------------------------------
  */
 extern TrotController trot_controller;
+extern uint8_t StateChange;
+extern uint8_t rotate_direction;
 
 /**
  * ----------------------------------- Functions -----------------------------------

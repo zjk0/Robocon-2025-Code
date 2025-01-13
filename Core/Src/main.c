@@ -21,6 +21,7 @@
 #include "can.h"
 #include "fatfs.h"
 #include "sdio.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -29,6 +30,7 @@
 
 #include "DeepJ60_Motor.h"
 #include "leg_control.h"
+#include "GaitController.h"
 
 /* USER CODE END Includes */
 
@@ -54,7 +56,6 @@
 uint8_t TrotEnable = 0;
 uint8_t JumpEnable = 0;
 int MultiGaitEnable = -1;
-int TrotDirection = 0,Trotbegin=0;
 
 float total_time = 1000;
 float angle[4][2];
@@ -111,6 +112,7 @@ int main(void)
   MX_USART6_UART_Init();
   MX_UART7_Init();
   MX_UART8_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_Delay(4000);
@@ -120,7 +122,14 @@ int main(void)
   EnableJ60Motor(&J60Motor_CAN2[0], 1, 2); // rb out
   EnableJ60Motor(&J60Motor_CAN2[1], 2, 2); // rb in
 
-  StandUp();
+  HAL_Delay(1);
+  RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 20, 5, PositionMode);
+  HAL_Delay(1);
+  RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 20, 5, PositionMode);
+  HAL_Delay(1);
+  RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0], 0, 0, 20, 5, PositionMode);
+  HAL_Delay(1);
+  RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 20, 5, PositionMode);
 
   HAL_Delay(2000);
 
@@ -130,64 +139,66 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    Trot_FSM(&trot_controller);
+
     // ************************************* Trot *************************************
-    if (TrotEnable == 1) {
-      Leg_cyloid(&t, &angle[0][0], &angle[0][1], 0, forward, 0.4, 0.16, 0.04);  // lf
-      Leg_cyloid(&t, &angle[2][0], &angle[2][1], 0, forward, 0.4, 0.16, 0.04);  // rb
-      Leg_cyloid(&t, &angle[1][0], &angle[1][1], 1, forward, 0.4, 0.16, 0.04);  // rf
-      Leg_cyloid(&t, &angle[3][0], &angle[3][1], 1, forward, 0.4, 0.16, 0.04);  // lb
+    // if (TrotEnable == 1) {
+    //   Leg_cyloid(&t, &angle[0][0], &angle[0][1], 0, forward, 0.4, 0.16, 0.04);  // lf
+    //   Leg_cyloid(&t, &angle[2][0], &angle[2][1], 0, forward, 0.4, 0.16, 0.04);  // rb
+    //   Leg_cyloid(&t, &angle[1][0], &angle[1][1], 1, forward, 0.4, 0.16, 0.04);  // rf
+    //   Leg_cyloid(&t, &angle[3][0], &angle[3][1], 1, forward, 0.4, 0.16, 0.04);  // lb
 
-      usart_motor_data.real_motor_data[0] = angle[1][0];
-      usart_motor_data.real_motor_data[1] = angle[1][1];
-      usart_motor_data.real_motor_data[2] = angle[3][0];
-      usart_motor_data.real_motor_data[3] = angle[3][1];
+    //   usart_motor_data.real_motor_data[0] = angle[1][0];
+    //   usart_motor_data.real_motor_data[1] = angle[1][1];
+    //   usart_motor_data.real_motor_data[2] = angle[3][0];
+    //   usart_motor_data.real_motor_data[3] = angle[3][1];
 
-      HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-      while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+    //   HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
+    //   while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
-      // Only send the command of lf and rb
-      RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-      HAL_Delay(1);
-      RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-      HAL_Delay(1);
-      RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-      HAL_Delay(1);
-      RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-      HAL_Delay(1);
+    //   // Only send the command of lf and rb
+    //   RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
+    //   HAL_Delay(1);
+    //   RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
+    //   HAL_Delay(1);
+    //   RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
+    //   HAL_Delay(1);
+    //   RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
+    //   HAL_Delay(1);
 
-      t += speed;
-    }
+    //   t += speed;
+    // }
 
     // ************************************* Jump *************************************
-    if (JumpEnable == 1) {
-      Jump(-0.08, 0.08);
-      HAL_Delay(2000);
-    }
+    // if (JumpEnable == 1) {
+    //   Jump(-0.08, 0.08);
+    //   HAL_Delay(2000);
+    // }
 
     // ************************************* Multi-Gait *************************************
-    if (TrotDirection > 0) {
-      Quadruped_gait(&t, angle, TrotDirection, 0.4, 0.1, 0.03);
+    // if (TrotDirection > 0) {
+    //   Quadruped_gait(&t, angle, TrotDirection, 0.4, 0.1, 0.03);
 
-      usart_motor_data.real_motor_data[0] = angle[1][0];
-      usart_motor_data.real_motor_data[1] = angle[1][1];
-      usart_motor_data.real_motor_data[2] = angle[3][0];
-      usart_motor_data.real_motor_data[3] = angle[3][1];
+    //   usart_motor_data.real_motor_data[0] = angle[1][0];
+    //   usart_motor_data.real_motor_data[1] = angle[1][1];
+    //   usart_motor_data.real_motor_data[2] = angle[3][0];
+    //   usart_motor_data.real_motor_data[3] = angle[3][1];
 
-      HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-      while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+    //   HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
+    //   while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
-      // Only send the command of lf and rb
-      RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-      HAL_Delay(1);
-      RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-      HAL_Delay(1);
-      RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-      HAL_Delay(1);
-      RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-      HAL_Delay(1);
+    //   // Only send the command of lf and rb
+    //   RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
+    //   HAL_Delay(1);
+    //   RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
+    //   HAL_Delay(1);
+    //   RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
+    //   HAL_Delay(1);
+    //   RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
+    //   HAL_Delay(1);
 
-      t += speed;
-    }
+    //   t += speed;
+    // }
     
 
     /* USER CODE END WHILE */

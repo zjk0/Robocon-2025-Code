@@ -63,8 +63,10 @@ void Error_Handler(void);
 extern uint8_t TrotEnable;
 extern uint8_t JumpEnable;
 extern int MultiGaitEnable;
-extern int TrotDirection;
 extern int Trotbegin;
+
+extern float angle[4][2];
+extern float t;
 
 /* USER CODE END Private defines */
 

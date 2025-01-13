@@ -1,7 +1,7 @@
 /**
  * ----------------------------------- Include -----------------------------------
  */
-#include "GenerateCurve.h"
+#include "CurvePlan.h"
 
 /**
  * ----------------------------------- Variables -----------------------------------
@@ -24,24 +24,24 @@ void SetThreeOrderBezier (ThreeOrderBezierInformation* bezier, float* control_po
     }
 }
 
-float CyloidPlan (CyloidInformation* cyloid, float t) {
+// float CyloidPlan (CyloidInformation* cyloid, float t) {
 
-}
+// }
 
-float ThreeOrderBezierPlan (ThreeOrderBezierInformation* bezier, float t) {
+// float ThreeOrderBezierPlan (ThreeOrderBezierInformation* bezier, float t) {
 
-}
+// }
 
-float CurvePlan (CurveType curve) {
-    float t = 0;
-    float curve_point = 0;
+// float CurvePlan (CurveType curve) {
+//     float t = 0;
+//     float curve_point = 0;
 
-    if (curve == Cyloid) {
-        curve_point = GenerateCyloid(t);
-    }
-    else if (curve == ThreeOrderBezier) {
-        curve_point = GenerateBezier(t);
-    }
+//     if (curve == Cyloid) {
+//         curve_point = GenerateCyloid(t);
+//     }
+//     else if (curve == ThreeOrderBezier) {
+//         curve_point = GenerateBezier(t);
+//     }
 
-    return curve_point;
-}
+//     return curve_point;
+// }

@@ -13,7 +13,7 @@
                 "${workspaceFolder}/User/LogSystem",
                 "${workspaceFolder}/User/Robot_ik",
                 "${workspaceFolder}/User/GaitController",
-                "${workspaceFolder}/User/GenerateCurve"
+                "${workspaceFolder}/User/CurvePlan"
             ],
             "defines": [
                 "_DEBUG",

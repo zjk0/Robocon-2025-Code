@@ -5,6 +5,7 @@
 #include "can.h"
 #include "usart.h"
 #include "leg_control.h"
+#include "GaitController.h"
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (hcan->Instance == CAN1) {
@@ -29,23 +30,34 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == UART8) {
         if (controller_signal[0] == 1 && controller_signal[1] != 1 && controller_signal[2] != 1 && controller_signal[3] != 1) {
-            TrotDirection = Advance;
-            Trotbegin = 1;
+            trot_controller.trot_state = PreTrot;
+            trot_controller.trot_direction = Forward;
         }
         else if (controller_signal[0] != 1 && controller_signal[1] == 1 && controller_signal[2] != 1 && controller_signal[3] != 1) {
-            TrotDirection = Retreat;
-            Trotbegin = 1;
+            trot_controller.trot_state = PreTrot;
+            trot_controller.trot_direction = Back;
         }
         else if (controller_signal[0] != 1 && controller_signal[1] != 1 && controller_signal[2] == 1 && controller_signal[3] != 1) {
-            TrotDirection = Turn_left;
+            rotate_direction = 1;
         }
         else if (controller_signal[0] != 1 && controller_signal[1] != 1 && controller_signal[2] != 1 && controller_signal[3] == 1) {
-            TrotDirection = Turn_right;
+            rotate_direction = 2;
         }
         else {
-            TrotDirection = 0;
-            Trotbegin = 1;
+            trot_controller.trot_state = PreEndTrot;
         }
         HAL_UART_Receive_IT(&huart8, (uint8_t*)controller_signal, 4);
+    }
+}
+
+void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
+    if (htim->Instance == TIM2) {
+        if (t <= 2000) {
+            t++;
+        }
+        else {
+            t = 0;
+            StateChange = 1;
+        }
     }
 }
