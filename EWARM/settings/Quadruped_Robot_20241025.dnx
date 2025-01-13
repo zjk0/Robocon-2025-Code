@@ -21,7 +21,7 @@
     </StLinkDriver>
     <Jet>
         <JetConnSerialNo>ATK-HS-V3-CMSIS-DAP:ATK-B42D3D99</JetConnSerialNo>
-        <JetConnFoundProbes />
+        <JetConnFoundProbes>#PW_HID_CMSIS-DAP:A055DA161CA9BE230BA4F70D3DB32E55:#PW_WINUSB_CMSIS-DAP:0:ATK-HS-V3-CMSIS-DAP:ATK-B42D3D99:</JetConnFoundProbes>
         <PrevWtdReset>System</PrevWtdReset>
         <OnlineReset>Software</OnlineReset>
         <DisableInterrupts>0</DisableInterrupts>
@@ -33,7 +33,7 @@
         <MemConfigValue>F:\EWARM_8321\arm\CONFIG\debugger\ST\STM32F427II.ddf</MemConfigValue>
     </PlDriver>
     <DebugChecksum>
-        <Checksum>3282242199</Checksum>
+        <Checksum>1991973196</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -49,8 +49,8 @@
     <SWOManager>
         <SamplingDivider>8192</SamplingDivider>
         <OverrideClock>0</OverrideClock>
-        <CpuClock>1279340114</CpuClock>
-        <SwoClock>541149264</SwoClock>
+        <CpuClock>1</CpuClock>
+        <SwoClock>427225892</SwoClock>
         <DataLogMode>0</DataLogMode>
         <ItmPortsEnabled>63</ItmPortsEnabled>
         <ItmTermIOPorts>1</ItmTermIOPorts>

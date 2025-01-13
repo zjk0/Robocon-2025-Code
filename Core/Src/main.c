@@ -61,6 +61,7 @@ float total_time = 1000;
 float angle[4][2];
 float pos[4][2];
 float t = 0;
+float last_t = -1;
 float speed = 0.01;
 
 /* USER CODE END PV */
@@ -139,7 +140,14 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    Trot_FSM(&trot_controller);
+    if (t != last_t) {
+      Trot_FSM(&trot_controller);
+      if (trot_controller.trot_state != EndTrot) {
+        last_t = t;
+        __HAL_TIM_SET_COUNTER(&htim2, 0);
+        HAL_TIM_Base_Start_IT(&htim2);
+      }
+    }
 
     // ************************************* Trot *************************************
     // if (TrotEnable == 1) {

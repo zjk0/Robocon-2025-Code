@@ -3,6 +3,7 @@
 #include "stm32f4xx_it.h"
 #include "stm32f4xx_hal_can.h"
 #include "can.h"
+#include "tim.h"
 #include "usart.h"
 #include "leg_control.h"
 #include "GaitController.h"
@@ -16,9 +17,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
         Can_Receive_new(&Can, &hcan2);
         AnalyseJ60MotorReceiveData_new(J60Motor_CAN2);
     }
-	// else {
-	// 	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &CanRxInformation1, Can.ReceiveCanData.data);
-	// }
 }
 
 // void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
@@ -38,13 +36,22 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
             trot_controller.trot_direction = Back;
         }
         else if (controller_signal[0] != 1 && controller_signal[1] != 1 && controller_signal[2] == 1 && controller_signal[3] != 1) {
-            rotate_direction = 1;
+            if (trot_controller.trot_state == Trotting) {
+                TrotStateChange = 1;
+            }
+            rotate_direction = 1;  // Not finish
         }
         else if (controller_signal[0] != 1 && controller_signal[1] != 1 && controller_signal[2] != 1 && controller_signal[3] == 1) {
-            rotate_direction = 2;
+            if (trot_controller.trot_state == Trotting) {
+                TrotStateChange = 1;
+            }
+            rotate_direction = 2;  // Not finish
         }
         else {
-            trot_controller.trot_state = PreEndTrot;
+            // trot_controller.trot_state = PreEndTrot;
+            if (trot_controller.trot_state == Trotting) {
+                TrotStateChange = 1;
+            }
         }
         HAL_UART_Receive_IT(&huart8, (uint8_t*)controller_signal, 4);
     }
@@ -52,12 +59,18 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM2) {
-        if (t <= 2000) {
+        if (t < 2000) {
             t++;
+            if (t == 2000) {
+                if (trot_controller.trot_state == PreTrot || trot_controller.trot_state == PreEndTrot) {
+                    TrotStateChange = 1;
+                }
+            }
         }
         else {
-            t = 0;
-            StateChange = 1;
+            t = 1;
+            last_t = 0;        
         }
+        HAL_TIM_Base_Stop_IT(&htim2);
     }
 }

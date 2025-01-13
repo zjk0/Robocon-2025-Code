@@ -317,21 +317,21 @@ void Walk_turn_Bezier(float *t, float (*angle)[2], float fai, float start_x, flo
 {
     if(direction_mode == left ){
         //LF_leg_ID1左前腿
-        Cubic_Bezier(t, &angle[0][0], &angle[0][1], 0, fai, start_x, start_z, end_x, end_z, max_z);
+        Cubic_Bezier(t, &angle[0][0], &angle[0][1], 0, fai, end_x, end_z, start_x, start_z, max_z);
         //RF_leg_ID2右前腿
         Cubic_Bezier(t, &angle[1][0], &angle[1][1], 1, fai, end_x, end_z, start_x, start_z, max_z);
         //RD_leg_ID3右后腿
-        Cubic_Bezier(t, &angle[2][0], &angle[2][1], 0, fai, end_x, end_z, start_x, start_z, max_z);
+        Cubic_Bezier(t, &angle[2][0], &angle[2][1], 0, fai, start_x, start_z, end_x, end_z, max_z);
         //LD_leg_ID4左后腿
         Cubic_Bezier(t, &angle[3][0], &angle[3][1], 1, fai, start_x, start_z, end_x, end_z, max_z);
     }
     if(direction_mode == right ){
         //LF_leg_ID1左前腿
-        Cubic_Bezier(t, &angle[0][0], &angle[0][1], 0, fai, end_x, end_z, start_x, start_z, max_z);
+        Cubic_Bezier(t, &angle[0][0], &angle[0][1], 0, fai, start_x, start_z, end_x, end_z, max_z);
         //RF_leg_ID2右前腿
         Cubic_Bezier(t, &angle[1][0], &angle[1][1], 1, fai, start_x, start_z, end_x, end_z, max_z);
         //RD_leg_ID3右后腿
-        Cubic_Bezier(t, &angle[2][0], &angle[2][1], 0, fai, start_x, start_z, end_x, end_z, max_z);
+        Cubic_Bezier(t, &angle[2][0], &angle[2][1], 0, fai, end_x, end_z, start_x, start_z, max_z);
         //LD_leg_ID4左后腿
         Cubic_Bezier(t, &angle[3][0], &angle[3][1], 1, fai, end_x, end_z, start_x, start_z, max_z);
     }
