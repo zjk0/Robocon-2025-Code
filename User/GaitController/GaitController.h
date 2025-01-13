@@ -29,21 +29,42 @@ typedef enum {
 typedef enum {
     Cyloid = 0,
     ThreeOrderBezier
-} TrotCurve;
+} Curve;
 
 // The struct to describe the properties of trotting
 typedef struct {
     TrotState trot_state;
     TrotDirection trot_direction;
-    TrotCurve trot_curve;
+    Curve trot_curve;
 } TrotController;
+
+typedef enum {
+    PreRotate = 0,
+    Rotating,
+    PreEndRotate,
+    EndRotate
+} RotateState;
+
+typedef enum {
+    Left = 0, 
+    Right
+} RotateDirection;
+
+typedef struct {
+    RotateState rotate_state;
+    RotateDirection rotate_direction;
+    Curve rotate_curve;
+} RotateController;
 
 /**
  * ----------------------------------- Variables -----------------------------------
  */
 extern TrotController trot_controller;
 extern uint8_t TrotStateChange;
-extern uint8_t rotate_direction;
+extern uint8_t RotateStateChange;
+extern RotateController rotate_controller;
+extern uint8_t TrotEnable;
+extern uint8_t RotateEnable;
 extern int Debug1;
 extern int Debug2;
 extern int Debug3;
@@ -53,3 +74,4 @@ extern int Debug4;
  * ----------------------------------- Functions -----------------------------------
  */
 void Trot_FSM (TrotController* trot_controller);
+void Rotate_FSM (RotateController* rotate_controller);

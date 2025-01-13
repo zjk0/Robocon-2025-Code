@@ -60,7 +60,6 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
-extern uint8_t TrotEnable;
 extern uint8_t JumpEnable;
 extern int MultiGaitEnable;
 extern int Trotbegin;

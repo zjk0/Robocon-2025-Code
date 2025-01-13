@@ -53,7 +53,6 @@
 
 /* USER CODE BEGIN PV */
 
-uint8_t TrotEnable = 0;
 uint8_t JumpEnable = 0;
 int MultiGaitEnable = -1;
 
@@ -141,8 +140,13 @@ int main(void)
   while (1)
   {
     if (t != last_t) {
-      Trot_FSM(&trot_controller);
-      if (trot_controller.trot_state != EndTrot) {
+      if (TrotEnable == 1 && RotateEnable == 0) {
+        Trot_FSM(&trot_controller);
+      }
+      else if (TrotEnable == 0 && RotateEnable == 1) {
+        Rotate_FSM(&rotate_controller);
+      }
+      if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate) {
         last_t = t;
         __HAL_TIM_SET_COUNTER(&htim2, 0);
         HAL_TIM_Base_Start_IT(&htim2);

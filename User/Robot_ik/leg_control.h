@@ -36,8 +36,8 @@ void Jump(float start_point, float end_point);
 //direction_mode对于足端轨迹为贝塞尔曲线时，腿部的方向
 #define ahead_ward 0
 #define back_ward 1
-#define left 2
-#define right 3
+#define left 0
+#define right 1
 
 typedef union {
   float real_motor_data[4];
