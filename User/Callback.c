@@ -79,9 +79,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM2) {
         if (trot_controller.trot_state == PreTrot || trot_controller.trot_state == PreEndTrot) {
-            if (t < 1200) {
+            if (t < 1000) {
                 t += 40;
-                if (t == 1200) {
+                if (t == 1000) {
                     trot_controller.trot_state_change = 1;
                 }
             }

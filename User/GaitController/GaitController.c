@@ -31,9 +31,9 @@ void Trot_FSM (TrotController* trot_controller) {
     float max_z = 0.03;
     if (trot_controller->trot_state == PreTrot) {
         start_x = 0;
-        end_x = 0.04;
+        end_x = 0.06;
         
-        Walk_straight_Bezier(&t_real, angle, 0.4, start_x, 0, end_x, 0, max_z, trot_controller->trot_direction);
+        Walk_straight_Bezier(&t_real, angle, 0.5, start_x, 0, end_x, 0, max_z, trot_controller->trot_direction);
 
         // Debug
         // Debug1++;
@@ -62,16 +62,16 @@ void Trot_FSM (TrotController* trot_controller) {
         }
 
         // Change state
-        if (t == 1200 && trot_controller->trot_state_change == 1) {
+        if (t == 1000 && trot_controller->trot_state_change == 1) {
             trot_controller->trot_state = Trotting;
             trot_controller->trot_state_change = 0;
         }
     }
     else if (trot_controller->trot_state == Trotting) {
-        start_x = -0.04;
-        end_x = 0.04;
+        start_x = -0.06;
+        end_x = 0.06;
         
-        Walk_straight_Bezier(&t_real, angle, 0.4, start_x, 0, end_x, 0, max_z, trot_controller->trot_direction);
+        Walk_straight_Bezier(&t_real, angle, 0.5, start_x, 0, end_x, 0, max_z, trot_controller->trot_direction);
 
         // Debug
         // Debug2++;
@@ -104,10 +104,10 @@ void Trot_FSM (TrotController* trot_controller) {
         }
     }
     else if (trot_controller->trot_state == PreEndTrot) {
-        start_x = -0.04;
+        start_x = -0.06;
         end_x = 0;
 
-        Walk_straight_Bezier(&t_real, angle, 0.4, start_x, 0, end_x, 0, max_z, trot_controller->trot_direction);
+        Walk_straight_Bezier(&t_real, angle, 0.5, start_x, 0, end_x, 0, max_z, trot_controller->trot_direction);
 
         // Debug
         // Debug3++;
@@ -136,7 +136,7 @@ void Trot_FSM (TrotController* trot_controller) {
         HAL_Delay(1);
 
         // Change state
-        if (t == 1200 && trot_controller->trot_state_change == 1) {
+        if (t == 1000 && trot_controller->trot_state_change == 1) {
             trot_controller->trot_state = EndTrot;
             trot_controller->trot_state_change = 0;
         }
