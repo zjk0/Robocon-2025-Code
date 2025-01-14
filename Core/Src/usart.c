@@ -22,7 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 
-uint8_t controller_signal[4];
+uint8_t controller_signal[1];
 
 /* USER CODE END 0 */
 
@@ -85,7 +85,7 @@ void MX_UART8_Init(void)
   }
   /* USER CODE BEGIN UART8_Init 2 */
 
-  HAL_UART_Receive_IT(&huart8, (uint8_t*)controller_signal, 4);
+  HAL_UART_Receive_IT(&huart8, (uint8_t*)controller_signal, 1);
 
   /* USER CODE END UART8_Init 2 */
 

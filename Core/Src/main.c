@@ -140,10 +140,10 @@ int main(void)
   while (1)
   {
     if (t != last_t) {
-      if (TrotEnable == 1 && RotateEnable == 0) {
+      if (trot_controller.trot_enable == 1 && rotate_controller.rotate_enable == 0) {
         Trot_FSM(&trot_controller);
       }
-      else if (TrotEnable == 0 && RotateEnable == 1) {
+      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 1) {
         Rotate_FSM(&rotate_controller);
       }
       if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate) {

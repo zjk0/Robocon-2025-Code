@@ -36,6 +36,9 @@ typedef struct {
     TrotState trot_state;
     TrotDirection trot_direction;
     Curve trot_curve;
+    float swing_duty_cycle;
+    int trot_enable;
+    int trot_state_change;
 } TrotController;
 
 typedef enum {
@@ -54,17 +57,17 @@ typedef struct {
     RotateState rotate_state;
     RotateDirection rotate_direction;
     Curve rotate_curve;
+    float swing_duty_cycle;
+    int rotate_enable;
+    int rotate_state_change;
 } RotateController;
 
 /**
  * ----------------------------------- Variables -----------------------------------
  */
 extern TrotController trot_controller;
-extern uint8_t TrotStateChange;
-extern uint8_t RotateStateChange;
 extern RotateController rotate_controller;
-extern uint8_t TrotEnable;
-extern uint8_t RotateEnable;
+
 extern int Debug1;
 extern int Debug2;
 extern int Debug3;

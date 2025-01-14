@@ -6,12 +6,9 @@
 /**
  * ----------------------------------- Variables -----------------------------------
  */
-TrotController trot_controller = {EndTrot, Forward, ThreeOrderBezier};
-RotateController rotate_controller = {EndRotate, Left, ThreeOrderBezier};
-uint8_t TrotStateChange = 0;
-uint8_t RotateStateChange = 0;
-uint8_t TrotEnable = 0;
-uint8_t RotateEnable = 0;
+TrotController trot_controller = {EndTrot, Forward, ThreeOrderBezier, 0.4, 0, 0};
+RotateController rotate_controller = {EndRotate, Left, ThreeOrderBezier, 0.4, 0, 0};
+
 int Debug1 = 0;
 int Debug2 = 0;
 int Debug3 = 0;
@@ -19,6 +16,13 @@ int Debug4 = 0;
 
 /**
  * ----------------------------------- Functions -----------------------------------
+ */
+/**
+ * @brief The finite state machine of trotting
+ * 
+ * @param trot_controller: The pointer to the struct which store the information of trot-gait
+ * 
+ * @return none
  */
 void Trot_FSM (TrotController* trot_controller) {
     float t_real = t / 1000;
@@ -45,20 +49,22 @@ void Trot_FSM (TrotController* trot_controller) {
         HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
         while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
-        // Only send the command of lf and rb
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
+        if (t <= 800) {
+            // Only send the command of lf and rb
+            RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
+            HAL_Delay(1);
+            RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
+            HAL_Delay(1);
+            RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
+            HAL_Delay(1);
+            RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
+            HAL_Delay(1);
+        }
 
         // Change state
-        if (t == 1200 && TrotStateChange == 1) {
+        if (t == 1200 && trot_controller->trot_state_change == 1) {
             trot_controller->trot_state = Trotting;
-            TrotStateChange = 0;
+            trot_controller->trot_state_change = 0;
         }
     }
     else if (trot_controller->trot_state == Trotting) {
@@ -92,9 +98,9 @@ void Trot_FSM (TrotController* trot_controller) {
         HAL_Delay(1);
         
         // Change state
-        if (t == 2000 && TrotStateChange == 1) {
+        if (t == 2000 && trot_controller->trot_state_change == 1) {
             trot_controller->trot_state = PreEndTrot;
-            TrotStateChange = 0;
+            trot_controller->trot_state_change = 0;
         }
     }
     else if (trot_controller->trot_state == PreEndTrot) {
@@ -109,13 +115,15 @@ void Trot_FSM (TrotController* trot_controller) {
         //     Debug3 = 0;
         // }
 
-        usart_motor_data.real_motor_data[0] = angle[1][0];
-        usart_motor_data.real_motor_data[1] = angle[1][1];
-        usart_motor_data.real_motor_data[2] = angle[3][0];
-        usart_motor_data.real_motor_data[3] = angle[3][1];
-    
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+        if (t <= 800) {
+            usart_motor_data.real_motor_data[0] = angle[1][0];
+            usart_motor_data.real_motor_data[1] = angle[1][1];
+            usart_motor_data.real_motor_data[2] = angle[3][0];
+            usart_motor_data.real_motor_data[3] = angle[3][1];
+
+            HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
+            while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+        }
     
         // Only send the command of lf and rb
         RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
@@ -128,9 +136,9 @@ void Trot_FSM (TrotController* trot_controller) {
         HAL_Delay(1);
 
         // Change state
-        if (t == 1200 && TrotStateChange == 1) {
+        if (t == 1200 && trot_controller->trot_state_change == 1) {
             trot_controller->trot_state = EndTrot;
-            TrotStateChange = 0;
+            trot_controller->trot_state_change = 0;
         }
     }
     else if (trot_controller->trot_state == EndTrot) {
@@ -139,7 +147,7 @@ void Trot_FSM (TrotController* trot_controller) {
         // if (Debug4 == 2000) {
         //     Debug4 = 0;
         // }
-        // TrotEnable = 0;
+        trot_controller->trot_enable = 0;
 
         for (int i = 0; i < 4; i++) {
             usart_motor_data.real_motor_data[i] = 0;
@@ -148,6 +156,7 @@ void Trot_FSM (TrotController* trot_controller) {
         HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
         while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
+        // Only send the command of lf and rb
         RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 20, 5, PositionMode);
         HAL_Delay(1);
         RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 20, 5, PositionMode);
@@ -162,6 +171,13 @@ void Trot_FSM (TrotController* trot_controller) {
     }
 }
 
+/**
+ * @brief The finite state machine of rotating
+ * 
+ * @param rotate_controller: The pointer to the struct which store the information of rotate-gait
+ * 
+ * @return none
+ */
 void Rotate_FSM (RotateController* rotate_controller) {
     float t_real = t / 1000;
     float start_x = 0;
@@ -169,15 +185,8 @@ void Rotate_FSM (RotateController* rotate_controller) {
     float max_z = 0.03;
     if (rotate_controller->rotate_state == PreRotate) {
         start_x = 0;
-        if (rotate_controller->rotate_direction == Left) {
-            end_x = 0.04;
-        }
-        else if (rotate_controller->rotate_direction == Right) {
-            end_x = -0.04;
-        }
-        else {
-            return;
-        }
+        end_x = 0.04;
+        
         Walk_turn_Bezier(&t_real, angle, 0.4, start_x, 0, end_x, 0, max_z, rotate_controller->rotate_direction);
 
         // Debug
@@ -205,23 +214,14 @@ void Rotate_FSM (RotateController* rotate_controller) {
         HAL_Delay(1);
 
         // Change state
-        if (t == 1200 && RotateStateChange == 1) {
+        if (t == 800 && rotate_controller->rotate_state_change == 1) {
             rotate_controller->rotate_state = Rotating;
-            RotateStateChange = 0;
+            rotate_controller->rotate_state_change = 0;
         }
     }
     else if (rotate_controller->rotate_state == Rotating) {
-        if (rotate_controller->rotate_direction == Left) {
-            start_x = -0.04;
-            end_x = 0.04;
-        }
-        else if (rotate_controller->rotate_direction == Right) {
-            start_x = 0.04;
-            end_x = -0.04;
-        }
-        else {
-            return;
-        }
+        start_x = -0.04;
+        end_x = 0.04;
         
         Walk_turn_Bezier(&t_real, angle, 0.4, start_x, 0, end_x, 0, max_z, rotate_controller->rotate_direction);
 
@@ -250,22 +250,15 @@ void Rotate_FSM (RotateController* rotate_controller) {
         HAL_Delay(1);
         
         // Change state
-        if (t == 2000 && RotateStateChange == 1) {
+        if (t == 2000 && rotate_controller->rotate_state_change == 1) {
             rotate_controller->rotate_state = PreEndRotate;
-            RotateStateChange = 0;
+            rotate_controller->rotate_state_change = 0;
         }
     }
     else if (rotate_controller->rotate_state == PreEndRotate) {
         end_x = 0;
-        if (rotate_controller->rotate_direction == Left) {
-            start_x = -0.04;
-        }
-        else if (rotate_controller->rotate_direction == Right) {
-            start_x = 0.04;
-        }
-        else {
-            return;
-        }
+        start_x = -0.04;
+
         Walk_turn_Bezier(&t_real, angle, 0.4, start_x, 0, end_x, 0, max_z, rotate_controller->rotate_direction);
 
         // Debug
@@ -293,13 +286,13 @@ void Rotate_FSM (RotateController* rotate_controller) {
         HAL_Delay(1);
 
         // Change state
-        if (t == 1200 && RotateStateChange == 1) {
+        if (t == 800 && rotate_controller->rotate_state_change == 1) {
             rotate_controller->rotate_state = EndRotate;
-            RotateStateChange = 0;
+            rotate_controller->rotate_state_change = 0;
         }
     }
     else if (rotate_controller->rotate_state == EndRotate) {
-        RotateEnable = 0;
+        rotate_controller->rotate_enable = 0;
 
         for (int i = 0; i < 4; i++) {
             usart_motor_data.real_motor_data[i] = 0;

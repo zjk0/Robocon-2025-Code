@@ -40,7 +40,7 @@ extern UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN Private defines */
 
-extern uint8_t controller_signal[4];
+extern uint8_t controller_signal[1];
 
 /* USER CODE END Private defines */
 
