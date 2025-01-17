@@ -6,7 +6,7 @@
 // 函数声明
 void IK_leg(float x_pos,float y_pos,float *angle_e,float *angle_i);
 void Leg_cyloid(float *t, float *angle_e, float *angle_i, int leg_flag, int direction, float fai, float step_length,float step_high);
-void Cubic_Bezier(float *t, float *angle_e, float *angle_i,uint8_t leg_flag, float fai, float start_x, float start_z, float end_x, float end_z, float max_z);
+void Cubic_Bezier(float *t, float *angle_e, float *angle_i, float fai, float start_x, float start_z, float end_x, float end_z, float max_z,float Start_phase);
 void Quadruped_gait(float *t, float (*angle)[2],int gait_state, float fai, float step_length,float step_high);
 
 void Walk_straight_Bezier(float *t, float (*angle)[2], float fai, float start_x, float start_z, float end_x, float end_z, float max_z, uint8_t direction_mode);

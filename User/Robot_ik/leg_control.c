@@ -144,18 +144,18 @@ void Leg_cyloid(float *t, float *angle_e, float *angle_i, int leg_flag, int dire
   * @param  
   * @retval 
   */
-void Cubic_Bezier(float *t, float *angle_e, float *angle_i,uint8_t leg_flag, float fai, float start_x, float start_z, float end_x, float end_z, float max_z)
+void Cubic_Bezier(float *t, float *angle_e, float *angle_i, float fai, float start_x, float start_z, float end_x, float end_z, float max_z,float Start_phase)
 {
-    float Ts = 2.0f*fai; // 一个曲线的周期,总周期乘占空比
+    float Ts = 1.0f; // 一个曲线的周期,总周期乘占空比
     float pi = 3.14159;
     float xep, zep;
     int flag = 0;
     float zs=0.2457;   //z起点高度
 
     float P3[2] = {end_x, end_z}, P2[2] = {end_x, max_z * 0.09f / 0.0675f}, P1[2] = {start_x, max_z * 0.09f / 0.0675f}, P0[2] = {start_x, start_z};
-    float time;
-  if(leg_flag==0){
-    if (*t<=Ts)
+    float time=*t/Ts+Start_phase;
+  // if(leg_flag==0){
+    if (*t<=Ts && time<=Ts&&time>=0)
     {
         time=*t/Ts;
         xep = pow((1 - time), 3) * P0[0] +
@@ -167,45 +167,45 @@ void Cubic_Bezier(float *t, float *angle_e, float *angle_i,uint8_t leg_flag, flo
               3.0f * (1 - time) * pow((time), 2) * P2[1] +
               pow((time), 3) * P3[1]);
     }
-    if (*t>Ts&&*t<=2)
-    {
-        time=(*t-Ts)/(2.0f-Ts);
-        xep = pow((1 - time), 3) * P3[0] +
-              3 * pow((1 - time), 2) * time * P2[0] +
-              3 * (1 - time) * pow(time, 2) * P1[0] +
-              pow(time, 3) * P0[0];
-        zep = zs-(pow((1 - time), 3) * P3[1] +
-              3.0f * pow((1 - time), 2) * (time)* 0 +
-              3.0f * (1 - time) * pow((time), 2) * 0 +
-              pow((time), 3) * P0[1]);
-    }
-  }
-  if(leg_flag==1){
-    if (*t<=Ts)
-    {
-        time=*t/Ts;
-        xep = pow((1 - time), 3) * P0[0] +
-              3.0f * pow((1 - time), 2) * (time)*P1[0] +
-              3.0f * (1 - time) * pow((time), 2) * P2[0] +
-              pow((time), 3) * P3[0];
-        zep = zs-(pow((1 - time), 3) * P0[1] +
-              3.0f * pow((1 - time), 2) * (time)*0 +
-              3.0f * (1 - time) * pow((time), 2) * 0 +
-              pow((time), 3) * P3[1]);
-    }
-    if (*t>Ts&&*t<=2)
-    {
-        time=(*t-Ts)/(2.0f-Ts);
-        xep = pow((1 - time), 3) * P3[0] +
-              3 * pow((1 - time), 2) * time * P2[0] +
-              3 * (1 - time) * pow(time, 2) * P1[0] +
-              pow(time, 3) * P0[0];
-        zep = zs-(pow((1 - time), 3) * P3[1] +
-              3.0f * pow((1 - time), 2) * (time)*P2[1] +
-              3.0f * (1 - time) * pow((time), 2) * P1[1] +
-              pow((time), 3) * P0[1]);
-    }
-  }
+    // if (*t>Ts&&*t<=2)
+    // {
+    //     time=(*t-Ts)/(2.0f-Ts);
+    //     xep = pow((1 - time), 3) * P3[0] +
+    //           3 * pow((1 - time), 2) * time * P2[0] +
+    //           3 * (1 - time) * pow(time, 2) * P1[0] +
+    //           pow(time, 3) * P0[0];
+    //     zep = zs-(pow((1 - time), 3) * P3[1] +
+    //           3.0f * pow((1 - time), 2) * (time)* 0 +
+    //           3.0f * (1 - time) * pow((time), 2) * 0 +
+    //           pow((time), 3) * P0[1]);
+    // }
+  // }
+  // if(leg_flag==1){
+  //   if (*t<=Ts)
+  //   {
+  //       time=*t/Ts;
+  //       xep = pow((1 - time), 3) * P0[0] +
+  //             3.0f * pow((1 - time), 2) * (time)*P1[0] +
+  //             3.0f * (1 - time) * pow((time), 2) * P2[0] +
+  //             pow((time), 3) * P3[0];
+  //       zep = zs-(pow((1 - time), 3) * P0[1] +
+  //             3.0f * pow((1 - time), 2) * (time)*0 +
+  //             3.0f * (1 - time) * pow((time), 2) * 0 +
+  //             pow((time), 3) * P3[1]);
+  //   }
+    // if (*t>Ts&&*t<=2)
+    // {
+    //     time=(*t-Ts)/(2.0f-Ts);
+    //     xep = pow((1 - time), 3) * P3[0] +
+    //           3 * pow((1 - time), 2) * time * P2[0] +
+    //           3 * (1 - time) * pow(time, 2) * P1[0] +
+    //           pow(time, 3) * P0[0];
+    //     zep = zs-(pow((1 - time), 3) * P3[1] +
+    //           3.0f * pow((1 - time), 2) * (time)*P2[1] +
+    //           3.0f * (1 - time) * pow((time), 2) * P1[1] +
+    //           pow((time), 3) * P0[1]);
+    // }
+  // }
 
     // printf("%f,%f\n", xep, zep);
     IK_leg(xep, zep, angle_e, angle_i);
