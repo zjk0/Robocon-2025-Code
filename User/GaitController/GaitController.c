@@ -26,12 +26,13 @@ int Debug4 = 0;
  */
 void Trot_FSM (TrotController* trot_controller) {
     float t_real = t / 1000;
-    float t_real_2=0;
+    float t_real_2 = 0;
     //RF¡¢RF¡¢RD¡¢LD
-    float start_x[4] =0;
-    float end_x[4] =0;
+    float start_x[4] = {0};
+    float end_x[4] = {0};
     float max_z = 0.03;
-    float fai=0.5;
+    float fai_swing = 1;
+    float fai_support = 1;
     if (trot_controller->trot_state == PreTrot) {
         start_x[0] =0;
         start_x[1] =0;
@@ -53,13 +54,13 @@ void Trot_FSM (TrotController* trot_controller) {
         if(t_real>=0&&t_real<=1)
         {
             //LF_leg_ID1×óÇ°ÍÈ
-            Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], fai, start_x[0], 0, end_x[0], 0, max_z, 0);
+            Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], fai_swing, start_x[0], 0, end_x[0], 0, max_z, 0);
             //RF_leg_ID2ÓÒÇ°ÍÈ
-            Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], fai, start_x[1], 0, end_x[1], 0, 0, 0);
+            Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], fai_support, start_x[1], 0, end_x[1], 0, 0, 0);
             //RD_leg_ID3ÓÒºóÍÈ
-            Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], fai, start_x[2], 0, end_x[2], 0, max_z, 0);
+            Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], fai_swing, start_x[2], 0, end_x[2], 0, max_z, 0);
             //LD_leg_ID4×óºóÍÈ
-            Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], fai, start_x[3], 0, end_x[3], 0, 0, 0);
+            Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], fai_support, start_x[3], 0, end_x[3], 0, 0, 0);
         }
 
 
@@ -102,7 +103,7 @@ void Trot_FSM (TrotController* trot_controller) {
     else if (trot_controller->trot_state == Trotting) {
         //Walk_straight_Bezier(&t_real, angle, 0.5f, start_x, 0, end_x, 0, max_z, trot_controller->trot_direction);
 
-        if(t_real>=0&&t_real<fai){
+        if(t_real>=0&&t_real<fai_support){
             start_x[0] = 0.06f;
             start_x[2] = 0.06f;
             end_x[0] = -0.06f;
@@ -114,12 +115,12 @@ void Trot_FSM (TrotController* trot_controller) {
                 end_x[2] = 0.06f;
             }
             //LF_leg_ID1×óÇ°ÍÈ
-            t_real_2=t_real/fai;
-            Cubic_Bezier(&t_real_2, &angle[0][0], &angle[0][1], fai, start_x[0], 0, end_x[0], 0, 0, 0);
+            t_real_2=t_real/fai_support;
+            Cubic_Bezier(&t_real_2, &angle[0][0], &angle[0][1], fai_support, start_x[0], 0, end_x[0], 0, 0, 0);
             //RD_leg_ID3ÓÒºóÍÈ
-            Cubic_Bezier(&t_real_2, &angle[2][0], &angle[2][1], fai, start_x[2], 0, end_x[2], 0, 0, 0);
+            Cubic_Bezier(&t_real_2, &angle[2][0], &angle[2][1], fai_support, start_x[2], 0, end_x[2], 0, 0, 0);
         }
-        else if(t_real>=fai&&t_real<=2.0f){
+        else if(t_real>=fai_support&&t_real<=2.0f){
             start_x[0] = -0.06f;
             start_x[2] = -0.06f;
             end_x[0] = 0.06f;
@@ -130,14 +131,14 @@ void Trot_FSM (TrotController* trot_controller) {
                 end_x[0] = -0.06f;
                 end_x[2] = -0.06f;
             }
-            t_real_2=(t_real-fai)/(2.0f-fai);
+            t_real_2=(t_real-fai_support)/(2.0f-fai_support);
             //LF_leg_ID1×óÇ°ÍÈ
-            Cubic_Bezier(&t_real_2, &angle[0][0], &angle[0][1], fai, start_x[0], 0, end_x[0], 0, max_z, 0);
+            Cubic_Bezier(&t_real_2, &angle[0][0], &angle[0][1], fai_swing, start_x[0], 0, end_x[0], 0, max_z, 0);
             //RD_leg_ID3ÓÒºóÍÈ
-            Cubic_Bezier(&t_real_2, &angle[2][0], &angle[2][1], fai, start_x[2], 0, end_x[2], 0, max_z, 0);
+            Cubic_Bezier(&t_real_2, &angle[2][0], &angle[2][1], fai_swing, start_x[2], 0, end_x[2], 0, max_z, 0);
         }
 
-        if(t_real>=0&&t_real<(2.0f-fai)){
+        if(t_real>=0&&t_real<(2.0f-fai_support)){
             start_x[1] = -0.06f;
             start_x[3] = -0.06f;
             end_x[1] = 0.06f;
@@ -148,13 +149,13 @@ void Trot_FSM (TrotController* trot_controller) {
                 end_x[1] = -0.06f;
                 end_x[3] = -0.06f;
             }
-            t_real_2=t_real/(2.0f-fai);
+            t_real_2=t_real/(2.0f-fai_support);
             //RF_leg_ID2ÓÒÇ°ÍÈ
-            Cubic_Bezier(&t_real_2, &angle[1][0], &angle[1][1], fai, start_x[1], 0, end_x[1], 0, max_z, 0);
+            Cubic_Bezier(&t_real_2, &angle[1][0], &angle[1][1], fai_swing, start_x[1], 0, end_x[1], 0, max_z, 0);
             //LD_leg_ID4×óºóÍÈ
-            Cubic_Bezier(&t_real_2, &angle[3][0], &angle[3][1], fai, start_x[3], 0, end_x[3], 0, max_z, 0);
+            Cubic_Bezier(&t_real_2, &angle[3][0], &angle[3][1], fai_swing, start_x[3], 0, end_x[3], 0, max_z, 0);
         }
-        else if(t_real>=(2.0f-fai)&&t_real<=2.0f){
+        else if(t_real>=(2.0f-fai_support)&&t_real<=2.0f){
             start_x[1] = 0.06f;
             start_x[3] = 0.06f;
             end_x[1] = -0.06f;
@@ -165,11 +166,11 @@ void Trot_FSM (TrotController* trot_controller) {
                 end_x[1] = 0.06f;
                 end_x[3] = 0.06f;
             }
-            t_real_2=(t_real+fai-2.0f)/fai;
+            t_real_2=(t_real+fai_support-2.0f)/fai_support;
             //RF_leg_ID2ÓÒÇ°ÍÈ
-            Cubic_Bezier(&t_real_2, &angle[1][0], &angle[1][1], fai, start_x[1], 0, end_x[1], 0, 0, 0);
+            Cubic_Bezier(&t_real_2, &angle[1][0], &angle[1][1], fai_support, start_x[1], 0, end_x[1], 0, 0, 0);
             //LD_leg_ID4×óºóÍÈ
-            Cubic_Bezier(&t_real_2, &angle[3][0], &angle[3][1], fai, start_x[3], 0, end_x[3], 0, 0, 0);
+            Cubic_Bezier(&t_real_2, &angle[3][0], &angle[3][1], fai_support, start_x[3], 0, end_x[3], 0, 0, 0);
         }
 
 
@@ -223,10 +224,10 @@ void Trot_FSM (TrotController* trot_controller) {
             start_x[3] = 0.06;
         }
         // Walk_straight_Bezier(&t_real, angle, 0.5, start_x, 0, end_x, 0, max_z, trot_controller->trot_direction);
-        Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], fai, start_x[0], 0, end_x[0], 0, 0, 0);
-        Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], fai, start_x[1], 0, end_x[1], 0, max_z, 0);
-        Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], fai, start_x[2], 0, end_x[2], 0, 0, 0);
-        Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], fai, start_x[3], 0, end_x[3], 0, max_z, 0);
+        Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], fai_support, start_x[0], 0, end_x[0], 0, 0, 0);
+        Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], fai_swing, start_x[1], 0, end_x[1], 0, max_z, 0);
+        Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], fai_support, start_x[2], 0, end_x[2], 0, 0, 0);
+        Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], fai_swing, start_x[3], 0, end_x[3], 0, max_z, 0);
 
 //         Debug
         Debug3++;
@@ -302,10 +303,11 @@ void Trot_FSM (TrotController* trot_controller) {
 void Rotate_FSM (RotateController* rotate_controller) {
     float t_real = t / 1000;
     float t_real_2 =0;
-    float start_x[4] = 0;
-    float end_x[4] = 0;
+    float start_x[4] = {0};
+    float end_x[4] = {0};
     float max_z = 0.03;
-    float fai=0.5;
+    float fai_swing = 1;
+    float fai_support = 1;
     if (rotate_controller->rotate_state == PreRotate) {
         start_x[0] = 0;
         start_x[1] = 0;
@@ -315,7 +317,7 @@ void Rotate_FSM (RotateController* rotate_controller) {
         end_x[1] = 0.04;
         end_x[2] = -0.04;
         end_x[3] = -0.04;
-        if(rotate_controller->rotate_direction==Right){
+        if(rotate_controller->rotate_direction==Left){
             end_x[0] = -0.04;
             end_x[1] = -0.04;
             end_x[2] = 0.04;
@@ -323,16 +325,16 @@ void Rotate_FSM (RotateController* rotate_controller) {
         }
         
         //Walk_turn_Bezier(&t_real, angle, 0.4, start_x, 0, end_x, 0, max_z, rotate_controller->rotate_direction);
-        if(t_real>=0&&t_real<=1)
+        if(t_real >=0 && t_real <= 1)
         {
             //LF_leg_ID1×óÇ°ÍÈ
-            Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], fai, start_x[0], 0, end_x[0], 0, max_z, 0);
+            Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], fai_swing, start_x[0], 0, end_x[0], 0, max_z, 0);
             //RF_leg_ID2ÓÒÇ°ÍÈ
-            Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], fai, start_x[1], 0, end_x[1], 0, 0, 0);
+            Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], fai_support, start_x[1], 0, end_x[1], 0, 0, 0);
             //RD_leg_ID3ÓÒºóÍÈ
-            Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], fai, start_x[2], 0, end_x[2], 0, max_z, 0);
+            Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], fai_swing, start_x[2], 0, end_x[2], 0, max_z, 0);
             //LD_leg_ID4×óºóÍÈ
-            Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], fai, start_x[3], 0, end_x[3], 0, 0, 0);
+            Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], fai_support, start_x[3], 0, end_x[3], 0, 0, 0);
         }
 //         Debug
          Debug1++;
@@ -375,77 +377,77 @@ void Rotate_FSM (RotateController* rotate_controller) {
         end_x[1] =-0.04;
         end_x[2] = 0.04;
         end_x[3] = 0.04;
-        fai=0.5;
+        // fai=0.5;
         
         // Walk_turn_Bezier(&t_real, angle, 0.4, start_x, 0, end_x, 0, max_z, rotate_controller->rotate_direction);
-        if(t_real>=0&&t_real<fai){
+        if(t_real>=0&&t_real<fai_support){
             start_x[0] = 0.04f;
             start_x[2] = -0.04f;
             end_x[0] = -0.04f;
             end_x[2] = 0.04f;
-            if(rotate_controller->rotate_direction==Right){
+            if(rotate_controller->rotate_direction==Left){
                 start_x[0] = -0.04;
                 start_x[2] = 0.04;
                 end_x[0] = 0.04f;
                 end_x[2] = -0.04f;
             }
             //LF_leg_ID1×óÇ°ÍÈ
-            t_real_2=t_real/fai;
-            Cubic_Bezier(&t_real_2, &angle[0][0], &angle[0][1], fai, start_x[0], 0, end_x[0], 0, 0, 0);
+            t_real_2=t_real/fai_support;
+            Cubic_Bezier(&t_real_2, &angle[0][0], &angle[0][1], fai_support, start_x[0], 0, end_x[0], 0, 0, 0);
             //RD_leg_ID3ÓÒºóÍÈ
-            Cubic_Bezier(&t_real_2, &angle[2][0], &angle[2][1], fai, start_x[2], 0, end_x[2], 0, 0, 0);
+            Cubic_Bezier(&t_real_2, &angle[2][0], &angle[2][1], fai_support, start_x[2], 0, end_x[2], 0, 0, 0);
         }
-        else if(t_real>=fai&&t_real<=2.0f){
+        else if(t_real>=fai_support&&t_real<=2.0f){
             start_x[0] = -0.04f;
             start_x[2] = 0.04f;
             end_x[0] = 0.04f;
             end_x[2] = -0.04f;
-            if(rotate_controller->rotate_direction==Right){
+            if(rotate_controller->rotate_direction==Left){
                 start_x[0] = 0.04;
                 start_x[2] = -0.04;
                 end_x[0] = -0.04f;
                 end_x[2] = 0.04f;
             }
-            t_real_2=(t_real-fai)/(2.0f-fai);
+            t_real_2=(t_real-fai_support)/(2.0f-fai_support);
             //LF_leg_ID1×óÇ°ÍÈ
-            Cubic_Bezier(&t_real_2, &angle[0][0], &angle[0][1], fai, start_x[0], 0, end_x[0], 0, max_z, 0);
+            Cubic_Bezier(&t_real_2, &angle[0][0], &angle[0][1], fai_swing, start_x[0], 0, end_x[0], 0, max_z, 0);
             //RD_leg_ID3ÓÒºóÍÈ
-            Cubic_Bezier(&t_real_2, &angle[2][0], &angle[2][1], fai, start_x[2], 0, end_x[2], 0, max_z, 0);
+            Cubic_Bezier(&t_real_2, &angle[2][0], &angle[2][1], fai_swing, start_x[2], 0, end_x[2], 0, max_z, 0);
         }
 
-        if(t_real>=0&&t_real<(2.0f-fai)){
+        if(t_real>=0&&t_real<(2.0f-fai_support)){
             start_x[1] = 0.04f;
             start_x[3] = -0.04f;
             end_x[1] = -0.04f;
             end_x[3] = 0.04f;
-            if(rotate_controller->rotate_direction==Right){
+            if(rotate_controller->rotate_direction==Left){
                 start_x[1] = -0.04;
                 start_x[3] = 0.04;
                 end_x[1] = 0.04f;
                 end_x[3] = -0.04f;
             }
-            t_real_2=t_real/(2.0f-fai);
+            t_real_2=t_real/(2.0f-fai_support);
             //RF_leg_ID2ÓÒÇ°ÍÈ
-            Cubic_Bezier(&t_real_2, &angle[1][0], &angle[1][1], fai, start_x[1], 0, end_x[1], 0, max_z, 0);
+            Cubic_Bezier(&t_real_2, &angle[1][0], &angle[1][1], fai_swing, start_x[1], 0, end_x[1], 0, max_z, 0);
             //LD_leg_ID4×óºóÍÈ
-            Cubic_Bezier(&t_real_2, &angle[3][0], &angle[3][1], fai, start_x[3], 0, end_x[3], 0, max_z, 0);
+            Cubic_Bezier(&t_real_2, &angle[3][0], &angle[3][1], fai_swing, start_x[3], 0, end_x[3], 0, max_z, 0);
         }
-        else if(t_real>=(2.0f-fai)&&t_real<=2.0f){
+        else if(t_real>=(2.0f-fai_support)&&t_real<=2.0f){
             start_x[1] = -0.04f;
             start_x[3] = 0.04f;
             end_x[1] = 0.04f;
             end_x[3] = -0.04f;
-            if(rotate_controller->rotate_direction==Right){
+            if(rotate_controller->rotate_direction==Left){
                 start_x[1] = 0.04;
                 start_x[3] = -0.04;
                 end_x[1] = -0.04f;
                 end_x[3] = 0.04f;
             }
-            t_real_2=(t_real+fai-2.0f)/fai;
+            t_real_2=(t_real+fai_support-2.0f)/fai_support;
             //RF_leg_ID2ÓÒÇ°ÍÈ
-            Cubic_Bezier(&t_real_2, &angle[1][0], &angle[1][1], fai, start_x[1], 0, end_x[1], 0, 0, 0);
+            Cubic_Bezier(&t_real_2, &angle[1][0], &angle[1][1], fai_support, start_x[1], 0, end_x[1], 0, 0, 0);
             //LD_leg_ID4×óºóÍÈ
-            Cubic_Bezier(&t_real_2, &angle[3][0], &angle[3][1], fai, start_x[3], 0, end_x[3], 0, 0, 0);
+            Cubic_Bezier(&t_real_2, &angle[3][0], &angle[3][1], fai_support, start_x[3], 0, end_x[3], 0, 0, 0);
         }
         // Debug
         Debug2++;
@@ -488,7 +490,7 @@ void Rotate_FSM (RotateController* rotate_controller) {
         end_x[1] = 0;
         end_x[2] = 0;
         end_x[3] = 0;
-        if(rotate_controller->rotate_direction==Right){
+        if(rotate_controller->rotate_direction==Left){
             start_x[0] = -0.04;
             start_x[1] = -0.04;
             start_x[2] = 0.04f;
@@ -498,13 +500,13 @@ void Rotate_FSM (RotateController* rotate_controller) {
         if(t_real>=0&&t_real<=1)
         {
             //LF_leg_ID1×óÇ°ÍÈ
-            Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], fai, start_x[0], 0, end_x[0], 0, 0, 0);
+            Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], fai_support, start_x[0], 0, end_x[0], 0, 0, 0);
             //RF_leg_ID2ÓÒÇ°ÍÈ
-            Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], fai, start_x[1], 0, end_x[1], 0, max_z, 0);
+            Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], fai_swing, start_x[1], 0, end_x[1], 0, max_z, 0);
             //RD_leg_ID3ÓÒºóÍÈ
-            Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], fai, start_x[2], 0, end_x[2], 0, 0, 0);
+            Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], fai_support, start_x[2], 0, end_x[2], 0, 0, 0);
             //LD_leg_ID4×óºóÍÈ
-            Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], fai, start_x[3], 0, end_x[3], 0, max_z, 0);
+            Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], fai_swing, start_x[3], 0, end_x[3], 0, max_z, 0);
         }
         // Debug
         Debug3++;
