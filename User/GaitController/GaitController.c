@@ -6,8 +6,15 @@
 /**
  * ----------------------------------- Variables -----------------------------------
  */
-TrotController trot_controller = {EndTrot, Forward, ThreeOrderBezier, 0.4, 0, 0};
-RotateController rotate_controller = {EndRotate, Left, ThreeOrderBezier, 0.4, 0, 0};
+TrotController trot_controller = {EndTrot, Forward, ThreeOrderBezier, 0.5, 0, 0};
+RotateController rotate_controller = {EndRotate, Left, ThreeOrderBezier, 0.5, 0, 0};
+SuddenSituation sudden_situation = {0, 0};
+JumpController jump_controller = {EndJump, 0, 0};
+
+float ReInit_can1[2];
+float ReInit_can2[2];
+
+uint8_t reinit_signal[1] = {0x01};
 
 int Debug1 = 0;
 int Debug2 = 0;
@@ -17,6 +24,27 @@ int Debug4 = 0;
 /**
  * ----------------------------------- Functions -----------------------------------
  */
+
+void SetMotor (void) {
+    usart_motor_data.real_motor_data[0] = angle[1][0];
+    usart_motor_data.real_motor_data[1] = angle[1][1];
+    usart_motor_data.real_motor_data[2] = angle[3][0];
+    usart_motor_data.real_motor_data[3] = angle[3][1];
+
+    HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
+    while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+
+    // Only send the command of lf and rb
+    RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
+    HAL_Delay(1);
+    RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
+    HAL_Delay(1);
+    RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
+    HAL_Delay(1);
+    RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
+    HAL_Delay(1);
+}
+
 /**
  * @brief The finite state machine of trotting
  * 
@@ -65,31 +93,13 @@ void Trot_FSM (TrotController* trot_controller) {
 
 
         // Debug
-         Debug1++;
-         if (Debug1 == 2000) {
-             Debug1 = 0;
-         }
-
-        usart_motor_data.real_motor_data[0] = angle[1][0];
-        usart_motor_data.real_motor_data[1] = angle[1][1];
-        usart_motor_data.real_motor_data[2] = angle[3][0];
-        usart_motor_data.real_motor_data[3] = angle[3][1];
-
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-        if (t <= 1000) {
-            // Only send the command of lf and rb
-            RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-            HAL_Delay(1);
-            RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-            HAL_Delay(1);
-            RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-            HAL_Delay(1);
-            RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-            HAL_Delay(1);
+        Debug1++;
+        if (Debug1 == 2000) {
+            Debug1 = 0;
         }
 
+        SetMotor();
+        
         // Change state
         if (t >= 1000 && trot_controller->trot_state_change == 1) {
             trot_controller->trot_state = Trotting;
@@ -98,8 +108,6 @@ void Trot_FSM (TrotController* trot_controller) {
             last_t=-1;
         }
     }
-
-
     else if (trot_controller->trot_state == Trotting) {
         //Walk_straight_Bezier(&t_real, angle, 0.5f, start_x, 0, end_x, 0, max_z, trot_controller->trot_direction);
 
@@ -181,23 +189,7 @@ void Trot_FSM (TrotController* trot_controller) {
             Debug2 = 0;
         }
 
-        usart_motor_data.real_motor_data[0] = angle[1][0];
-        usart_motor_data.real_motor_data[1] = angle[1][1];
-        usart_motor_data.real_motor_data[2] = angle[3][0];
-        usart_motor_data.real_motor_data[3] = angle[3][1];
-
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-        // Only send the command of lf and rb
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
+        SetMotor();
         
         // Change state
         if (t >= 2000 && trot_controller->trot_state_change == 1) {
@@ -235,25 +227,8 @@ void Trot_FSM (TrotController* trot_controller) {
             Debug3 = 0;
         }
 
-        if (t <= 1000) {
-            usart_motor_data.real_motor_data[0] = angle[1][0];
-            usart_motor_data.real_motor_data[1] = angle[1][1];
-            usart_motor_data.real_motor_data[2] = angle[3][0];
-            usart_motor_data.real_motor_data[3] = angle[3][1];
-
-            HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-            while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-        }
-    
-        // Only send the command of lf and rb
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
+        
+        SetMotor();
 
         // Change state
         if (t == 1000 && trot_controller->trot_state_change == 1) {
@@ -279,13 +254,13 @@ void Trot_FSM (TrotController* trot_controller) {
         while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
         // Only send the command of lf and rb
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 20, 5, PositionMode);
+        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 100, 5, PositionMode);
         HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 20, 5, PositionMode);
+        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 100, 5, PositionMode);
         HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0], 0, 0, 20, 5, PositionMode);
+        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0], 0, 0, 100, 5, PositionMode);
         HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 20, 5, PositionMode);
+        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 100, 5, PositionMode);
         HAL_Delay(1);
     }
     else {
@@ -342,23 +317,7 @@ void Rotate_FSM (RotateController* rotate_controller) {
              Debug1 = 0;
          }
 
-        usart_motor_data.real_motor_data[0] = angle[1][0];
-        usart_motor_data.real_motor_data[1] = angle[1][1];
-        usart_motor_data.real_motor_data[2] = angle[3][0];
-        usart_motor_data.real_motor_data[3] = angle[3][1];
-
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-        // Only send the command of lf and rb
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
+        SetMotor();
 
         // Change state
         if (t >= 1000 && rotate_controller->rotate_state_change == 1) {
@@ -455,23 +414,7 @@ void Rotate_FSM (RotateController* rotate_controller) {
             Debug2 = 0;
         }
 
-        usart_motor_data.real_motor_data[0] = angle[1][0];
-        usart_motor_data.real_motor_data[1] = angle[1][1];
-        usart_motor_data.real_motor_data[2] = angle[3][0];
-        usart_motor_data.real_motor_data[3] = angle[3][1];
-
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-        // Only send the command of lf and rb
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
+        SetMotor();
         
         // Change state
         if (t == 2000 && rotate_controller->rotate_state_change == 1) {
@@ -514,23 +457,7 @@ void Rotate_FSM (RotateController* rotate_controller) {
             Debug3 = 0;
         }
 
-        usart_motor_data.real_motor_data[0] = angle[1][0];
-        usart_motor_data.real_motor_data[1] = angle[1][1];
-        usart_motor_data.real_motor_data[2] = angle[3][0];
-        usart_motor_data.real_motor_data[3] = angle[3][1];
-    
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-    
-        // Only send the command of lf and rb
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-        HAL_Delay(1);
+        SetMotor();
 
         // Change state
         if (t >= 1000 && rotate_controller->rotate_state_change == 1) {
@@ -550,16 +477,115 @@ void Rotate_FSM (RotateController* rotate_controller) {
         HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
         while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
 
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 20, 5, PositionMode);
+        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 100, 5, PositionMode);
         HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 20, 5, PositionMode);
+        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 100, 5, PositionMode);
         HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0], 0, 0, 20, 5, PositionMode);
+        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0], 0, 0, 100, 5, PositionMode);
         HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 20, 5, PositionMode);
+        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 100, 5, PositionMode);
         HAL_Delay(1);
     }
     else {
         return;
+    }
+}
+
+// void ReInit (float t) {
+//     Cubic_Bezier(&t, &angle[0][0], &angle[0][1], 1, sudden_situation.re_init_x[0], sudden_situation.re_init_y[0], 0, 0, 0, 0);
+//     Cubic_Bezier(&t, &angle[1][0], &angle[1][1], 1, sudden_situation.re_init_x[1], sudden_situation.re_init_y[1], 0, 0, 0, 0);
+
+//     RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
+//     HAL_Delay(1);
+//     RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
+//     HAL_Delay(1);
+//     RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
+//     HAL_Delay(1);
+//     RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
+//     HAL_Delay(1);
+
+// }
+
+void Jump_FSM (JumpController* jump_controller) {
+    float squat_length = 0.05;
+    float jump_leg_length = squat_length + 0.02;
+    float t_real = t / 1000;
+    if (jump_controller->jump_state == Squat) {
+        Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], 1, 0, 0, 0, squat_length, squat_length, 0);
+        Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], 1, 0, 0, 0, squat_length, squat_length, 0);
+        Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], 1, 0, 0, 0, squat_length, squat_length, 0);
+        Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], 1, 0, 0, 0, squat_length, squat_length, 0);
+
+        SetMotor();
+
+        if (t >= 1000 && jump_controller->jump_state_change == 1) {
+            jump_controller->jump_state = JumpUp;
+            jump_controller->jump_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+    }
+    else if (jump_controller->jump_state == JumpUp) {
+        float original_position = 0.2457;
+        for (int i = 0; i < 4; i++) {
+            IK_leg(0, original_position + jump_leg_length, &angle[i][0], &angle[i][1]);
+        }
+
+        SetMotor();
+
+        HAL_Delay(10);
+
+        jump_controller->jump_state = LegUp;
+    }
+    else if (jump_controller->jump_state == LegUp) {
+        Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], 1, 0, -jump_leg_length, 0, squat_length, squat_length, 0);
+        Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], 1, 0, -jump_leg_length, 0, squat_length, squat_length, 0);
+        Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], 1, 0, -jump_leg_length, 0, squat_length, squat_length, 0);
+        Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], 1, 0, -jump_leg_length, 0, squat_length, squat_length, 0);
+
+        SetMotor();
+
+        if (t >= 1000 && jump_controller->jump_state_change == 1) {
+            jump_controller->jump_state = Land;
+            jump_controller->jump_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+
+    }
+    else if (jump_controller->jump_state == Land) {
+        Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], 1, 0, squat_length, 0, 0, squat_length, 0);
+        Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], 1, 0, squat_length, 0, 0, squat_length, 0);
+        Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], 1, 0, squat_length, 0, 0, squat_length, 0);
+        Cubic_Bezier(&t_real, &angle[3][0], &angle[3][1], 1, 0, squat_length, 0, 0, squat_length, 0);
+
+        SetMotor();
+
+        if (t >= 1000 && jump_controller->jump_state_change == 1) {
+            jump_controller->jump_state = EndJump;
+            jump_controller->jump_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+
+    }
+    else if (jump_controller->jump_state == EndJump) {
+        jump_controller->jump_enable = 0;
+
+        for (int i = 0; i < 4; i++) {
+            usart_motor_data.real_motor_data[i] = 0;
+        }
+
+        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
+        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
+
+        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 100, 5, PositionMode);
+        HAL_Delay(1);
+        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 100, 5, PositionMode);
+        HAL_Delay(1);
+        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0], 0, 0, 100, 5, PositionMode);
+        HAL_Delay(1);
+        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 100, 5, PositionMode);
+        HAL_Delay(1);
     }
 }

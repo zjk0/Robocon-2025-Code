@@ -13,7 +13,7 @@ void Walk_straight_Bezier(float *t, float (*angle)[2], float fai, float start_x,
 void Walk_turn_Bezier(float *t, float (*angle)[2], float fai, float start_x, float start_z, float end_x, float end_z, float max_z, uint8_t direction_mode);
 void Walk_straight_cyloid(float *t, float (*angle)[2], float fai, float step_length, float step_high, uint8_t direction_mode);
 
-
+void Direct_Solution(float angle_e, float angle_i, float* x_pos, float* y_pos);
 
 float CubicSpline(float init_position, float goal_position, float init_velocity, float goal_velocity, float now_time, float total_time);
 void Jump(float start_point, float end_point);

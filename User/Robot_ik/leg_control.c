@@ -167,47 +167,7 @@ void Cubic_Bezier(float *t, float *angle_e, float *angle_i, float fai, float sta
               3.0f * (1 - time) * pow((time), 2) * P2[1] +
               pow((time), 3) * P3[1]);
     }
-    // if (*t>Ts&&*t<=2)
-    // {
-    //     time=(*t-Ts)/(2.0f-Ts);
-    //     xep = pow((1 - time), 3) * P3[0] +
-    //           3 * pow((1 - time), 2) * time * P2[0] +
-    //           3 * (1 - time) * pow(time, 2) * P1[0] +
-    //           pow(time, 3) * P0[0];
-    //     zep = zs-(pow((1 - time), 3) * P3[1] +
-    //           3.0f * pow((1 - time), 2) * (time)* 0 +
-    //           3.0f * (1 - time) * pow((time), 2) * 0 +
-    //           pow((time), 3) * P0[1]);
-    // }
-  // }
-  // if(leg_flag==1){
-  //   if (*t<=Ts)
-  //   {
-  //       time=*t/Ts;
-  //       xep = pow((1 - time), 3) * P0[0] +
-  //             3.0f * pow((1 - time), 2) * (time)*P1[0] +
-  //             3.0f * (1 - time) * pow((time), 2) * P2[0] +
-  //             pow((time), 3) * P3[0];
-  //       zep = zs-(pow((1 - time), 3) * P0[1] +
-  //             3.0f * pow((1 - time), 2) * (time)*0 +
-  //             3.0f * (1 - time) * pow((time), 2) * 0 +
-  //             pow((time), 3) * P3[1]);
-  //   }
-    // if (*t>Ts&&*t<=2)
-    // {
-    //     time=(*t-Ts)/(2.0f-Ts);
-    //     xep = pow((1 - time), 3) * P3[0] +
-    //           3 * pow((1 - time), 2) * time * P2[0] +
-    //           3 * (1 - time) * pow(time, 2) * P1[0] +
-    //           pow(time, 3) * P0[0];
-    //     zep = zs-(pow((1 - time), 3) * P3[1] +
-    //           3.0f * pow((1 - time), 2) * (time)*P2[1] +
-    //           3.0f * (1 - time) * pow((time), 2) * P1[1] +
-    //           pow((time), 3) * P0[1]);
-    // }
-  // }
 
-    // printf("%f,%f\n", xep, zep);
     IK_leg(xep, zep, angle_e, angle_i);
 }
 
@@ -511,5 +471,40 @@ void JumpForward (float squat_length, float up_length, float lean_length) {
         HAL_Delay(1);
     }
 
+
+}
+
+void Direct_Solution(float angle_e, float angle_i, float* x_pos, float* y_pos)
+{
+  float l1 = 0.09, l2 = 0.24, l3 = 0.025,loc;                  // 并联腿的长度
+  float lod2, lbd2, loc2;                                  // 逆解的并联腿之外的一些长度
+  float angle_link_i, angle_link_e,angle_obc;                        // 定义求解的两个电机转动角度
+  float cosangle_obc,cosBOC;
+  float xb,yb,xdd,ydd,xc,yc,xd,yd;                                   // 定义一些逆解需要角的cos值
+  // float angle_gama, angle_xOD, angle_COD, angle_xOC, bata; // 定义一些逆解需要的角
+  float link1_1_angle;
+
+  angle_link_e=angle_e;
+
+  xb=-l1*cos(angle_link_e);
+  yb=l1*sin(angle_link_e);
+
+  cosBOC=cos((3.14159-angle_e+angle_i)/2.0f);
+
+
+  loc = (l1 * cosBOC + sqrt(l1 * l1 * cosBOC * cosBOC - l1 * l1 + l2 * l2));
+
+  cosangle_obc=(l1*l1+l2*l2-loc*loc)/(2*l1*l2);
+
+  angle_obc=acos(cosangle_obc);
+
+  xdd=(l2+l3)*cos(angle_obc-angle_e);
+  ydd=(l2+l3)*sin(angle_obc-angle_e);
+  
+  xd=xdd+xb;
+  yd=ydd+yb;
+
+  *x_pos=xd;
+  *y_pos=yd;
 
 }

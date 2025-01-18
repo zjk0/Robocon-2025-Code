@@ -113,6 +113,7 @@ int main(void)
   MX_UART7_Init();
   MX_UART8_Init();
   MX_TIM2_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_Delay(4000);
@@ -140,17 +141,40 @@ int main(void)
   while (1)
   {
     if (t != last_t) {
-      if (trot_controller.trot_enable == 1 && rotate_controller.rotate_enable == 0) {
+      if (trot_controller.trot_enable == 1 && rotate_controller.rotate_enable == 0 && jump_controller.jump_enable == 0) {
         Trot_FSM(&trot_controller);
       }
-      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 1) {
+      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 1 && jump_controller.jump_enable == 0) {
         Rotate_FSM(&rotate_controller);
       }
-      if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate) {
+      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 0 && jump_controller.jump_enable == 1) {
+        Jump_FSM(&jump_controller);
+      }
+      // else if ((trot_controller.trot_state == EndTrot && sudden_situation.re_init == 1) || (rotate_controller.rotate_state == EndRotate && sudden_situation.re_init == 1)) {
+      //   ReInit(t);
+      //   if (t < 1000) {
+      //     last_t = t;
+      //     __HAL_TIM_SET_COUNTER(&htim2, 0);
+      //     HAL_TIM_Base_Start_IT(&htim2);
+      //   }
+      //   else {
+      //     t = 0;
+      //     last_t = -1;
+      //     sudden_situation.re_init = 0;
+      //   }
+      // }
+
+      if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || jump_controller.jump_state != EndJump) {
         last_t = t;
         __HAL_TIM_SET_COUNTER(&htim2, 0);
         HAL_TIM_Base_Start_IT(&htim2);
       }
+
+      // if ((trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate) && trot_controller.trot_state != ImmediatelyStopTrot && rotate_controller.rotate_state != ImmediatelyStopRotate) {
+      //   last_t = t;
+      //   __HAL_TIM_SET_COUNTER(&htim2, 0);
+      //   HAL_TIM_Base_Start_IT(&htim2);
+      // }
     }
 
     // ************************************* Trot *************************************
