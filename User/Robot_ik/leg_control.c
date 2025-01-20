@@ -6,8 +6,8 @@
 #include "usart.h"
 
 usart_data usart_motor_data;
-float J60Motor_StandUpData_CAN1[4] = {0.647773742, -1.65866851, -0.340309143, 1.9198226922}; // lf_out, lf_in, rf_out, rf_in
-float J60Motor_StandUpData_CAN2[4] = {2.20684433, -0.66669464111, -1.8807601922, 0.51845550533};     // rb_out, rb_in, lb_out, lb_in
+float J60Motor_StandUpData_CAN1[4] = {0.68881988522, -1.6083908, -0.261573791, 1.99489593}; // lf_out, lf_in, rf_out, rf_in
+float J60Motor_StandUpData_CAN2[4] = {2.23797226, -0.641670227, -1.9462966911, 0.997886657};     // rb_out, rb_in, lb_out, lb_in
 
 void IK_leg(float x_pos, float y_pos, float *angle_e, float *angle_i)
 {
@@ -309,171 +309,6 @@ float CubicSpline(float init_position, float goal_position, float init_velocity,
     return now_position;
 }
 
-
-void Jump(float squat_length, float up_length) {
-    float original_position = 0.2457;
-    float angle_in = 0;
-    float angle_out = 0;
-
-    // Squat
-    for (float i = 0; i <= squat_length; i += (squat_length / 10)) {
-        IK_leg(0, original_position - i, &angle_in, &angle_out);
-
-        usart_motor_data.real_motor_data[0] = angle_in;
-        usart_motor_data.real_motor_data[1] = angle_out;
-        usart_motor_data.real_motor_data[2] = angle_in;
-        usart_motor_data.real_motor_data[3] = angle_out;
-
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle_in, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle_out, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle_in, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-    }
-
-    // Jump
-    IK_leg(0, original_position + up_length, &angle_out, &angle_in);
-
-    usart_motor_data.real_motor_data[0] = angle_in;
-    usart_motor_data.real_motor_data[1] = angle_out;
-    usart_motor_data.real_motor_data[2] = angle_in;
-    usart_motor_data.real_motor_data[3] = angle_out;
-
-    HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-    while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-    RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 100, 5, PositionMode);
-    HAL_Delay(1);
-    RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle_in, 0, 0, 100, 5, PositionMode);
-    HAL_Delay(1);
-    RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle_out, 0, 0, 100, 5, PositionMode);
-    HAL_Delay(1);
-    RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle_in, 0, 0, 100, 5, PositionMode);
-    HAL_Delay(500);
-
-    // Reset legs
-    usart_motor_data.real_motor_data[0] = 0;
-    usart_motor_data.real_motor_data[1] = 0;
-    usart_motor_data.real_motor_data[2] = 0;
-    usart_motor_data.real_motor_data[3] = 0;
-
-    HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-    while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-    RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 50, 5, PositionMode);
-    HAL_Delay(1);
-    RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 50, 5, PositionMode);
-    HAL_Delay(1);
-    RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0], 0, 0, 50, 5, PositionMode);
-    HAL_Delay(1);
-    RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 50, 5, PositionMode);
-    HAL_Delay(1);
-
-    // Waiting for landing
-    float torque = J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque;
-    while (J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque < 0.001);
-
-    // Cushioning
-    for (float i = 0; i <= squat_length; i += squat_length / 10) {
-        IK_leg(0, original_position - i, &angle_in, &angle_out);
-
-        usart_motor_data.real_motor_data[0] = angle_in;
-        usart_motor_data.real_motor_data[1] = angle_out;
-        usart_motor_data.real_motor_data[2] = angle_in;
-        usart_motor_data.real_motor_data[3] = angle_out;
-
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle_in, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle_out, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle_in, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-    }
-
-    HAL_Delay(500);
-
-    // Reset legs
-    usart_motor_data.real_motor_data[0] = 0;
-    usart_motor_data.real_motor_data[1] = 0;
-    usart_motor_data.real_motor_data[2] = 0;
-    usart_motor_data.real_motor_data[3] = 0;
-
-    HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-    while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-    RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 50, 5, PositionMode);
-    HAL_Delay(1);
-    RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 50, 5, PositionMode);
-    HAL_Delay(1);
-    RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0], 0, 0, 50, 5, PositionMode);
-    HAL_Delay(1);
-    RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 50, 5, PositionMode);
-    HAL_Delay(1);
-}
-
-void JumpForward (float squat_length, float up_length, float lean_length) {
-    float original_position = 0.2457;
-    float angle_in = 0;
-    float angle_out = 0;
-
-    // Squat
-    for (float i = 0; i <= squat_length; i += (squat_length / 10)) {
-        IK_leg(0, original_position - i, &angle_in, &angle_out);
-
-        usart_motor_data.real_motor_data[0] = angle_in;
-        usart_motor_data.real_motor_data[1] = angle_out;
-        usart_motor_data.real_motor_data[2] = angle_in;
-        usart_motor_data.real_motor_data[3] = angle_out;
-
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle_in, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle_out, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle_in, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-    }
-
-    // Lean forward
-    for (float i = 0; i <= lean_length; i += (lean_length / 10)) {
-        IK_leg(i, original_position - squat_length, &angle_in, &angle_out);
-
-        usart_motor_data.real_motor_data[0] = angle_in;
-        usart_motor_data.real_motor_data[1] = angle_out;
-        usart_motor_data.real_motor_data[2] = angle_in;
-        usart_motor_data.real_motor_data[3] = angle_out;
-
-        HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-        while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-        RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle_out, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle_in, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle_out, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-        RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle_in, 0, 0, 50, 5, PositionMode);
-        HAL_Delay(1);
-    }
-
-
-}
-
 void Direct_Solution(float angle_e, float angle_i, float* x_pos, float* y_pos)
 {
   float l1 = 0.09, l2 = 0.24, l3 = 0.025,loc;                  // 并联腿的长度
@@ -507,4 +342,28 @@ void Direct_Solution(float angle_e, float angle_i, float* x_pos, float* y_pos)
   *x_pos=xd;
   *y_pos=yd;
 
+}
+
+// float StraightLinePlan (float init_position_x, float init_position_y, float goal_position_x, float goal_position_y, float now_time, float total_time) {
+//     float now_position = 0;
+//     float k = 0;
+//     float b = 0;
+
+//     if (init_position_x != goal_position_x) {
+//         k = (goal_position_y - init_position_y) / (goal_position_x - init_position_x);
+
+//     }
+// }
+
+void line(float *t, float *angle_e, float *angle_i, float start_x, float start_z, float end_x, float end_z)
+{
+    float Ts = 1.0f; // 一个曲线的周期,总周期乘占空比
+    float pi = 3.14159;
+    float xep, zep;
+    float zs=0.2457;  //z起点高度
+    if(*t<=Ts&&*t>=0){
+        xep=(end_x-start_x)*(*t)+start_x;
+        zep=zs-((end_z-start_z)*(*t)+start_z);
+    }
+    IK_leg(xep, zep, angle_e, angle_i);
 }

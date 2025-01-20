@@ -63,15 +63,6 @@ typedef struct {
     int rotate_state_change;
 } RotateController;
 
-// typedef struct {
-//     float init_position;
-//     float goal_position;
-//     float now_position;
-//     float init_velocity;
-//     float goal_velocity;
-//     float total_time;
-// } CubicSplineInformation;
-
 typedef struct {
     int stop;
     int re_init;
@@ -101,8 +92,6 @@ extern RotateController rotate_controller;
 extern SuddenSituation sudden_situation;
 extern JumpController jump_controller;
 
-// extern CubicSplineInformation ReInit_can1[4];
-// extern CubicSplineInformation ReInit_can2[4];
 extern float ReInit_can1[2];
 extern float ReInit_can2[2];
 
@@ -116,7 +105,7 @@ extern int Debug4;
 /**
  * ----------------------------------- Functions -----------------------------------
  */
-void SetMotor (void);
+void SetMotor (float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float Kp, float Kd, enum MotorMode motor_mode);
 void Trot_FSM (TrotController* trot_controller);
 void Rotate_FSM (RotateController* rotate_controller);
-void ReInit (float t);
+void Jump_FSM (JumpController* jump_controller);

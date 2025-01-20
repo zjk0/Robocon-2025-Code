@@ -63,6 +63,9 @@ float t = 0;
 float last_t = -1;
 float speed = 0.01;
 
+float x[2] = {0};
+float y[2] = {0};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -134,6 +137,15 @@ int main(void)
 
   HAL_Delay(2000);
 
+  // HAL_Delay(1);
+  // RunJ60Motor(&J60Motor_CAN1[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
+  // HAL_Delay(1);
+  // RunJ60Motor(&J60Motor_CAN1[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
+  // HAL_Delay(1);
+  // RunJ60Motor(&J60Motor_CAN2[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
+  // HAL_Delay(1);
+  // RunJ60Motor(&J60Motor_CAN2[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -150,19 +162,6 @@ int main(void)
       else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 0 && jump_controller.jump_enable == 1) {
         Jump_FSM(&jump_controller);
       }
-      // else if ((trot_controller.trot_state == EndTrot && sudden_situation.re_init == 1) || (rotate_controller.rotate_state == EndRotate && sudden_situation.re_init == 1)) {
-      //   ReInit(t);
-      //   if (t < 1000) {
-      //     last_t = t;
-      //     __HAL_TIM_SET_COUNTER(&htim2, 0);
-      //     HAL_TIM_Base_Start_IT(&htim2);
-      //   }
-      //   else {
-      //     t = 0;
-      //     last_t = -1;
-      //     sudden_situation.re_init = 0;
-      //   }
-      // }
 
       if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || jump_controller.jump_state != EndJump) {
         last_t = t;
@@ -170,71 +169,24 @@ int main(void)
         HAL_TIM_Base_Start_IT(&htim2);
       }
 
-      // if ((trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate) && trot_controller.trot_state != ImmediatelyStopTrot && rotate_controller.rotate_state != ImmediatelyStopRotate) {
-      //   last_t = t;
-      //   __HAL_TIM_SET_COUNTER(&htim2, 0);
-      //   HAL_TIM_Base_Start_IT(&htim2);
-      // }
     }
 
-    // ************************************* Trot *************************************
-    // if (TrotEnable == 1) {
-    //   Leg_cyloid(&t, &angle[0][0], &angle[0][1], 0, forward, 0.4, 0.16, 0.04);  // lf
-    //   Leg_cyloid(&t, &angle[2][0], &angle[2][1], 0, forward, 0.4, 0.16, 0.04);  // rb
-    //   Leg_cyloid(&t, &angle[1][0], &angle[1][1], 1, forward, 0.4, 0.16, 0.04);  // rf
-    //   Leg_cyloid(&t, &angle[3][0], &angle[3][1], 1, forward, 0.4, 0.16, 0.04);  // lb
+    // HAL_Delay(1);
+    // RunJ60Motor(&J60Motor_CAN1[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
+    // HAL_Delay(1);
+    // RunJ60Motor(&J60Motor_CAN1[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
+    // HAL_Delay(1);
+    // RunJ60Motor(&J60Motor_CAN2[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
+    // HAL_Delay(1);
+    // RunJ60Motor(&J60Motor_CAN2[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
 
-    //   usart_motor_data.real_motor_data[0] = angle[1][0];
-    //   usart_motor_data.real_motor_data[1] = angle[1][1];
-    //   usart_motor_data.real_motor_data[2] = angle[3][0];
-    //   usart_motor_data.real_motor_data[3] = angle[3][1];
+    // ReInit_can1[0] = J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition;  // lf out
+    // ReInit_can1[1] = J60Motor_CAN1[1].ReceiveMotorData.CurrentPosition;  // lf in
+    // ReInit_can2[0] = J60Motor_CAN2[0].ReceiveMotorData.CurrentPosition;  // rb out
+    // ReInit_can2[1] = J60Motor_CAN2[1].ReceiveMotorData.CurrentPosition;  // rb in
 
-    //   HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-    //   while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-    //   // Only send the command of lf and rb
-    //   RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-    //   HAL_Delay(1);
-    //   RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-    //   HAL_Delay(1);
-    //   RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-    //   HAL_Delay(1);
-    //   RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-    //   HAL_Delay(1);
-
-    //   t += speed;
-    // }
-
-    // ************************************* Jump *************************************
-    // if (JumpEnable == 1) {
-    //   Jump(-0.08, 0.08);
-    //   HAL_Delay(2000);
-    // }
-
-    // ************************************* Multi-Gait *************************************
-    // if (TrotDirection > 0) {
-    //   Quadruped_gait(&t, angle, TrotDirection, 0.4, 0.1, 0.03);
-
-    //   usart_motor_data.real_motor_data[0] = angle[1][0];
-    //   usart_motor_data.real_motor_data[1] = angle[1][1];
-    //   usart_motor_data.real_motor_data[2] = angle[3][0];
-    //   usart_motor_data.real_motor_data[3] = angle[3][1];
-
-    //   HAL_UART_Transmit(&huart6, usart_motor_data.send_motor_data, 16, 1000);
-    //   while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-
-    //   // Only send the command of lf and rb
-    //   RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-    //   HAL_Delay(1);
-    //   RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-    //   HAL_Delay(1);
-    //   RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-    //   HAL_Delay(1);
-    //   RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-    //   HAL_Delay(1);
-
-    //   t += speed;
-    // }
+    // Direct_Solution(-(ReInit_can1[0] - J60Motor_StandUpData_CAN1[0]), -(ReInit_can1[1] - J60Motor_StandUpData_CAN1[1]), &x[0], &y[0]);  // lf
+    // Direct_Solution(-(ReInit_can2[0] - J60Motor_StandUpData_CAN2[0]), -(ReInit_can2[1] - J60Motor_StandUpData_CAN2[1]), &x[1], &y[1]);  // rb
     
 
     /* USER CODE END WHILE */

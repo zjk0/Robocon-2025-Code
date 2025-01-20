@@ -14,9 +14,9 @@ void Walk_turn_Bezier(float *t, float (*angle)[2], float fai, float start_x, flo
 void Walk_straight_cyloid(float *t, float (*angle)[2], float fai, float step_length, float step_high, uint8_t direction_mode);
 
 void Direct_Solution(float angle_e, float angle_i, float* x_pos, float* y_pos);
+void line(float *t, float *angle_e, float *angle_i, float start_x, float start_z, float end_x, float end_z);
 
 float CubicSpline(float init_position, float goal_position, float init_velocity, float goal_velocity, float now_time, float total_time);
-void Jump(float start_point, float end_point);
 // 宏定义
 
 //关于腿部的前进后退
@@ -40,8 +40,8 @@ void Jump(float start_point, float end_point);
 #define right 1
 
 typedef union {
-  float real_motor_data[4];
-  uint8_t send_motor_data[16];
+  float real_motor_data[15];
+  uint8_t send_motor_data[60];
 } usart_data;
 
 extern usart_data usart_motor_data;

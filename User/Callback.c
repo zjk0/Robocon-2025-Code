@@ -125,10 +125,13 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
                 }
             }
         }
-        else if (jump_controller.jump_state == Squat || jump_controller.jump_state == Land || jump_controller.jump_state == LegUp) {
+        else if (jump_controller.jump_state == Squat || jump_controller.jump_state == Land || jump_controller.jump_state == LegUp || jump_controller.jump_state == JumpUp) {
             if (t < 1000) {
                 if (jump_controller.jump_state == LegUp) {
                     t += 50;
+                }
+                else if (jump_controller.jump_state == JumpUp){
+                    t += 100;
                 }
                 else {
                     t += 20;
