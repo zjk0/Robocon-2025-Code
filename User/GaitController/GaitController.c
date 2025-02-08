@@ -727,12 +727,32 @@ void Jump_FSM (JumpController* jump_controller) {
         }
         SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
 
-        float torque_not_land_1 = J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque;
-        float torque_not_land_2 = J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque;
-        while (J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 <= 0.01 && 
-               J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 >= -0.01 &&
-               J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 <= 0.01 &&
-               J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 >= -0.01);
+        // State change condition 1
+        // float torque_not_land_1 = J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque;
+        // float torque_not_land_2 = J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque;
+        // while (J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 <= 0.01 && 
+        //        J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 >= -0.01 &&
+        //        J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 <= 0.01 &&
+        //        J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 >= -0.01);
+
+        // State change condition 2
+        float last_position = J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition;
+        int state_change_analyse = 0;
+        while (1) {
+            if (last_position >= J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - 0.01 && 
+                last_position <= J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition + 0.01) {
+                state_change_analyse++;
+            }
+            else {
+                state_change_analyse = 0;
+            }
+            if (state_change_analyse > 1000) {
+                break;
+            }
+        }
+
+        // State change condition 3
+        // HAL_Delay(1000);
 
         jump_controller->jump_state = StandUp;
 
