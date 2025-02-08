@@ -75,6 +75,7 @@ typedef enum {
     JumpUp,
     LegUp,
     Land,
+    StandUp,
     EndJump
 } JumpState;
 

@@ -583,6 +583,7 @@ void Rotate_FSM (RotateController* rotate_controller) {
 void Jump_FSM (JumpController* jump_controller) {
     float squat_length = 0.05;
     float jump_leg_length = 0.1;
+    float jump_torque = 0;
     float t_real = t / 1000;
     if (jump_controller->jump_state == Squat) {
         Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], 1, 0, 0, 0, squat_length, squat_length, 0);
@@ -604,7 +605,7 @@ void Jump_FSM (JumpController* jump_controller) {
             jump_controller->jump_state_change = 0;
             t = 0;
             last_t = -1;
-            HAL_Delay(1000);
+            HAL_Delay(10);
         }
     }
     else if (jump_controller->jump_state == JumpUp) {
@@ -629,42 +630,47 @@ void Jump_FSM (JumpController* jump_controller) {
             IK_leg(0, original_position + jump_leg_length, &angle[i][0], &angle[i][1]);
         }
 
+        jump_torque = 10 * (fabs(J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - J60Motor_StandUpData_CAN1[0]) + fabs(angle[0][1]));
+        if (jump_torque > TORQUE_MAX) {
+            jump_torque = TORQUE_MAX;
+        }
+
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 2; j++) {
                 Velocity[i][j] = 0;
                 if (angle[i][j] > 0) {
                     if ( i == 0 || i == 3) {  // left foot
                         if (j == 1) {  // out leg
-                            Torque[i][j] = -6;
+                            Torque[i][j] = -jump_torque;
                         }
                         else {  // in leg
-                            Torque[i][j] = 6;
+                            Torque[i][j] = jump_torque;
                         }
                     }
                     else {  // right foot
                         if (j == 1) {  // out leg
-                            Torque[i][j] = 6;
+                            Torque[i][j] = jump_torque;
                         }
                         else {  // in leg
-                            Torque[i][j] = -6;
+                            Torque[i][j] = -jump_torque;
                         }
                     }
                 }
                 else {
                     if (i == 0 || i == 3) {  // left foot
                         if (j == 1) {  // out leg
-                            Torque[i][j] = 6;
+                            Torque[i][j] = jump_torque;
                         }
                         else {  // in leg
-                            Torque[i][j] = -6;
+                            Torque[i][j] = -jump_torque;
                         }
                     }
                     else {  // right foot
                         if (j == 1) {  // out leg
-                            Torque[i][j] = -6;
+                            Torque[i][j] = -jump_torque;
                         }
                         else {  // in leg
-                            Torque[i][j] = 6;
+                            Torque[i][j] = jump_torque;
                         }
                     }
                 }
@@ -713,6 +719,26 @@ void Jump_FSM (JumpController* jump_controller) {
 
     }
     else if (jump_controller->jump_state == Land) {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 2; j++) {
+                Velocity[i][j] = 0;
+                Torque[i][j] = 0;
+            }
+        }
+        SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
+
+        float torque_not_land_1 = J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque;
+        float torque_not_land_2 = J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque;
+        while (J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 <= 0.01 && 
+               J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 >= -0.01 &&
+               J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 <= 0.01 &&
+               J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 >= -0.01);
+
+        jump_controller->jump_state = StandUp;
+
+        HAL_Delay(100);
+    }
+    else if (jump_controller->jump_state == StandUp) {
         Cubic_Bezier(&t_real, &angle[0][0], &angle[0][1], 1, 0, squat_length, 0, 0, squat_length, 0);
         Cubic_Bezier(&t_real, &angle[1][0], &angle[1][1], 1, 0, squat_length, 0, 0, squat_length, 0);
         Cubic_Bezier(&t_real, &angle[2][0], &angle[2][1], 1, 0, squat_length, 0, 0, squat_length, 0);
