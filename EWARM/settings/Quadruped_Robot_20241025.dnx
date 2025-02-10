@@ -33,7 +33,7 @@
         <MemConfigValue>F:\EWARM_8321\arm\CONFIG\debugger\ST\STM32F427II.ddf</MemConfigValue>
     </PlDriver>
     <DebugChecksum>
-        <Checksum>884479152</Checksum>
+        <Checksum>1334615676</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>

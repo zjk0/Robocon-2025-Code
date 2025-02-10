@@ -11,6 +11,12 @@
 // #include "CurvePlan.h"
 
 /**
+ * ----------------------------------- Marcos -----------------------------------
+ */
+#define TORQUE_DEAD_AREA 0.01f
+#define POSITION_DEAD_AREA 0.01f
+
+/**
  * ----------------------------------- Typedef -----------------------------------
  */
 // The state of the process of trotting
