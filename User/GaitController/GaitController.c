@@ -4,6 +4,12 @@
 #include "GaitController.h"
 
 /**
+ * ----------------------------------- Marcos -----------------------------------
+ */
+// #define JUMP_KD 2.0f
+// #define JUMP_KP 100.0f
+
+/**
  * ----------------------------------- Variables -----------------------------------
  */
 TrotController trot_controller = {EndTrot, Forward, ThreeOrderBezier, 0.5, 0, 0};
@@ -677,7 +683,7 @@ void Jump_FSM (JumpController* jump_controller) {
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 400, 5, PositionTorqueMode);
+        SetMotor(angle, Velocity, Torque, 400, 1, PositionTorqueMode);
 
         // while (J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition <= J60Motor_StandUpData_CAN1[0] - angle[0][1] + 0.02 && 
         //        J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition >= J60Motor_StandUpData_CAN1[0] - angle[0][1] - 0.02);
