@@ -17,8 +17,6 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\DeepJ60
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\Robot_ik
--I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../FATFS/Target
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../FATFS/App
@@ -30,6 +28,8 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\GaitController
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\CurvePlan
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\KinematicSolution
 -I
 F:\EWARM_8321\arm\inc
 -I
@@ -47,8 +47,6 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\DeepJ60
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\Robot_ik
--I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\FATFS\Target
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\FATFS\App
@@ -60,6 +58,8 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\GaitController
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\CurvePlan
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\KinematicSolution
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0

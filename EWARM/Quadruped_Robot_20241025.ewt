@@ -1356,7 +1356,7 @@
             <name>$PROJ_DIR$\..\User\GaitController\GaitController.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\User\Robot_ik\leg_control.c</name>
+            <name>$PROJ_DIR$\..\User\KinematicSolution\KinematicSolution.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\User\LogSystem\LogSystem.c</name>

@@ -29,7 +29,6 @@
 /* USER CODE BEGIN Includes */
 
 #include "DeepJ60_Motor.h"
-#include "leg_control.h"
 #include "GaitController.h"
 
 /* USER CODE END Includes */
@@ -52,19 +51,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
-uint8_t JumpEnable = 0;
-int MultiGaitEnable = -1;
-
-float total_time = 1000;
-float angle[4][2];
-float pos[4][2];
-float t = 0;
-float last_t = -1;
-float speed = 0.01;
-
-float x[2] = {0};
-float y[2] = {0};
 
 /* USER CODE END PV */
 
@@ -119,7 +105,7 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_Delay(4000);
+  HAL_Delay(3000);
 
   EnableJ60Motor(&J60Motor_CAN1[0], 1, 1); // lf out
   EnableJ60Motor(&J60Motor_CAN1[1], 2, 1); // lf in
@@ -153,41 +139,22 @@ int main(void)
   while (1)
   {
     if (t != last_t) {
-      if (trot_controller.trot_enable == 1 && rotate_controller.rotate_enable == 0 && jump_controller.jump_enable == 0) {
+      if (trot_controller.trot_enable == 1 && rotate_controller.rotate_enable == 0 && jump_up_controller.jump_enable == 0) {
         Trot_FSM(&trot_controller);
       }
-      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 1 && jump_controller.jump_enable == 0) {
+      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 1 && jump_up_controller.jump_enable == 0) {
         Rotate_FSM(&rotate_controller);
       }
-      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 0 && jump_controller.jump_enable == 1) {
-        Jump_FSM(&jump_controller);
+      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 0 && jump_up_controller.jump_enable == 1) {
+        JumpUp_FSM(&jump_up_controller);
       }
 
-      if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || jump_controller.jump_state != EndJump) {
+      if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || jump_up_controller.jump_state != EndJump) {
         last_t = t;
         __HAL_TIM_SET_COUNTER(&htim2, 0);
         HAL_TIM_Base_Start_IT(&htim2);
       }
-
     }
-
-    // HAL_Delay(1);
-    // RunJ60Motor(&J60Motor_CAN1[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
-    // HAL_Delay(1);
-    // RunJ60Motor(&J60Motor_CAN1[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
-    // HAL_Delay(1);
-    // RunJ60Motor(&J60Motor_CAN2[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
-    // HAL_Delay(1);
-    // RunJ60Motor(&J60Motor_CAN2[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
-
-    // ReInit_can1[0] = J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition;  // lf out
-    // ReInit_can1[1] = J60Motor_CAN1[1].ReceiveMotorData.CurrentPosition;  // lf in
-    // ReInit_can2[0] = J60Motor_CAN2[0].ReceiveMotorData.CurrentPosition;  // rb out
-    // ReInit_can2[1] = J60Motor_CAN2[1].ReceiveMotorData.CurrentPosition;  // rb in
-
-    // Direct_Solution(-(ReInit_can1[0] - J60Motor_StandUpData_CAN1[0]), -(ReInit_can1[1] - J60Motor_StandUpData_CAN1[1]), &x[0], &y[0]);  // lf
-    // Direct_Solution(-(ReInit_can2[0] - J60Motor_StandUpData_CAN2[0]), -(ReInit_can2[1] - J60Motor_StandUpData_CAN2[1]), &x[1], &y[1]);  // rb
-    
 
     /* USER CODE END WHILE */
 

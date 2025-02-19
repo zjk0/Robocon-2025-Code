@@ -60,14 +60,6 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
-extern uint8_t JumpEnable;
-extern int MultiGaitEnable;
-extern int Trotbegin;
-
-extern float angle[4][2];
-extern float t;
-extern float last_t;
-
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

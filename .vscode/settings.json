@@ -6,7 +6,9 @@
         "stm32f4xx_it.h": "c",
         "deepj60_motor.h": "c",
         "usart.h": "c",
-        "leg_control.h": "c",
-        "gaitcontroller.h": "c"
+        "kinematicsolution.h": "c",
+        "gaitcontroller.h": "c",
+        "curveplan.h": "c",
+        "math.h": "c"
     }
 }

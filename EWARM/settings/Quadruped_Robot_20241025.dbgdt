@@ -174,7 +174,7 @@
                     <item>sudden_situation</item>
                     <item>ReInit_can1</item>
                     <item>ReInit_can2</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
