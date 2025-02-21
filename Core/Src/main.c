@@ -139,17 +139,21 @@ int main(void)
   while (1)
   {
     if (t != last_t) {
-      if (trot_controller.trot_enable == 1 && rotate_controller.rotate_enable == 0 && jump_up_controller.jump_enable == 0) {
+      if (trot_controller.trot_enable && !rotate_controller.rotate_enable && !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable) {
         Trot_FSM(&trot_controller);
       }
-      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 1 && jump_up_controller.jump_enable == 0) {
+      else if (!trot_controller.trot_enable && rotate_controller.rotate_enable && !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable) {
         Rotate_FSM(&rotate_controller);
       }
-      else if (trot_controller.trot_enable == 0 && rotate_controller.rotate_enable == 0 && jump_up_controller.jump_enable == 1) {
+      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && jump_up_controller.jump_enable && !jump_forward_controller.jump_enable) {
         JumpUp_FSM(&jump_up_controller);
       }
+      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && !jump_up_controller.jump_enable && jump_forward_controller.jump_enable) {
+        JumpForward_FSM(&jump_forward_controller);
+      }
 
-      if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || jump_up_controller.jump_state != EndJump) {
+      if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || 
+          jump_up_controller.jump_state != EndJump || jump_forward_controller.jump_state != EndJump) {
         last_t = t;
         __HAL_TIM_SET_COUNTER(&htim2, 0);
         HAL_TIM_Base_Start_IT(&htim2);

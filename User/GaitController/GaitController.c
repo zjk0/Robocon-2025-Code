@@ -10,8 +10,11 @@
 TrotController trot_controller = {
     .trot_state = EndTrot,
     .trot_direction = Forward,
-    .trot_bezier = {
-        {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1}  // lf, rf, rb, lb
+    .trot_bezier = {  // lf, rf, rb, lb
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}
     },
     .swing_duty_cycle = 0.5,
     .trot_enable = 0,
@@ -22,8 +25,11 @@ TrotController trot_controller = {
 RotateController rotate_controller = {
     .rotate_state = EndRotate,
     .rotate_direction = Left,
-    .rotate_bezier = {
-        {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1}  // lf, rf, rb, lb
+    .rotate_bezier = {  // lf, rf, rb, lb
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}
     },
     .swing_duty_cycle = 0.5,
     .rotate_enable = 0,
@@ -33,8 +39,11 @@ RotateController rotate_controller = {
 // Initialize jump up controller
 JumpController jump_up_controller = {
     .jump_state = EndJump, 
-    .jump_bezier = {
-        {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1}  // lf, rf, rb, lb
+    .jump_bezier = {  // lf, rf, rb, lb
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}
     },
     .jump_enable = 0, 
     .jump_state_change = 0
@@ -43,8 +52,11 @@ JumpController jump_up_controller = {
 // Initialize jump forward controller
 JumpController jump_forward_controller = {
     .jump_state = EndJump, 
-    .jump_bezier = {
-        {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1}  // lf, rf, rb, lb
+    .jump_bezier = {  // lf, rf, rb, lb
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}
     },
     .jump_enable = 0, 
     .jump_state_change = 0
@@ -348,10 +360,6 @@ void Trot_FSM (TrotController* trot_controller) {
     else {
         return;
     }
-
-    // if (trot_controller->trot_state != EndTrot) {
-    //     last_t = t;
-    // }
 }
 
 /**
@@ -554,10 +562,6 @@ void Rotate_FSM (RotateController* rotate_controller) {
     else {
         return;
     }
-
-    // if (rotate_controller->rotate_state != EndRotate) {
-    //     last_t = t;
-    // }
 }
 
 /**
@@ -565,14 +569,14 @@ void Rotate_FSM (RotateController* rotate_controller) {
  * 
  * @param jump_up_controller: A struct to store jump-up information
  * @param squat_length: The length when robot squats
- * @param jump_leg_length: The length of leg when robot jumps up
+ * @param jump_length: The change value of length of leg when robot jumps up
  * 
  * @return none
  */
-void SetJumpUpBezierControlPoints (JumpController* jump_up_controller, float squat_length, float jump_leg_length) {
+void SetJumpUpBezierControlPoints (JumpController* jump_up_controller, float squat_length, float jump_length) {
     float control_points_x[4] = {0, 0, 0, 0};
     float control_points_y_1[4] = {0, 0, squat_length, squat_length};
-    float control_points_y_2[4] = {-jump_leg_length, -jump_leg_length, squat_length, squat_length};
+    float control_points_y_2[4] = {-jump_length, -jump_length, squat_length, squat_length};
     float control_points_y_3[4] = {squat_length, squat_length, 0, 0};
 
     if (jump_up_controller->jump_state == Squat) {
@@ -604,7 +608,7 @@ void SetJumpUpBezierControlPoints (JumpController* jump_up_controller, float squ
  */
 void JumpUp_FSM (JumpController* jump_up_controller) {
     float squat_length = 0.05;
-    float jump_leg_length = 0.1;
+    float jump_length = 0.1;
     float jump_torque = 0;
     float robot_height = 0.2295;
     float bezier_x[4] = {0};  // lf, rf, rb, lb
@@ -616,7 +620,7 @@ void JumpUp_FSM (JumpController* jump_up_controller) {
     float t_real = t / 1000;
 
     if (jump_up_controller->jump_state == Squat) {
-        SetJumpUpBezierControlPoints(jump_up_controller, squat_length, jump_leg_length);
+        SetJumpUpBezierControlPoints(jump_up_controller, squat_length, jump_length);
 
         for (int i = 0; i < 4; i++) {
             ThreeOrderBezierPlan(&(jump_up_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
@@ -636,7 +640,7 @@ void JumpUp_FSM (JumpController* jump_up_controller) {
     else if (jump_up_controller->jump_state == JumpUp) {
         float original_position = 0.2457;
         for (int i = 0; i < 4; i++) {
-            IK_leg(0, original_position + jump_leg_length, &angle[i][0], &angle[i][1]);
+            IK_leg(0, original_position + jump_length, &angle[i][0], &angle[i][1]);
         }
 
         jump_torque = 10 * (fabs(J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - J60Motor_StandUpData_CAN1[0]) + fabs(angle[0][1]));
@@ -699,7 +703,7 @@ void JumpUp_FSM (JumpController* jump_up_controller) {
         jump_up_controller->jump_state = LegUp;
     }
     else if (jump_up_controller->jump_state == LegUp) {
-        SetJumpUpBezierControlPoints(jump_up_controller, squat_length, jump_leg_length);
+        SetJumpUpBezierControlPoints(jump_up_controller, squat_length, jump_length);
 
         for (int i = 0; i < 4; i++) {
             ThreeOrderBezierPlan(&(jump_up_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
@@ -714,48 +718,15 @@ void JumpUp_FSM (JumpController* jump_up_controller) {
             t = 0;
             last_t = -1;
         }
-
     }
     else if (jump_up_controller->jump_state == Land) {
         SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
-
-        // State change condition 1
-        // float torque_not_land_1 = J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque;
-        // float torque_not_land_2 = J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque;
-        // while (J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 <= TORQUE_DEAD_AREA && 
-        //        J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 >= -TORQUE_DEAD_AREA &&
-        //        J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 <= TORQUE_DEAD_AREA &&
-        //        J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 >= -TORQUE_DEAD_AREA) {
-        //     SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
-        // }
-
-        // State change condition 2
-        // float last_position = J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition;
-        // int state_change_analyse = 0;
-        // while (1) {
-        //     SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
-        //     if (last_position >= J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - POSITION_DEAD_AREA && 
-        //         last_position <= J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition + POSITION_DEAD_AREA) {
-        //         state_change_analyse++;
-        //     }
-        //     else {
-        //         state_change_analyse = 0;
-        //     }
-        //     if (state_change_analyse > 1000) {
-        //         break;
-        //     }
-        //     last_position = J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition;
-        // }
-
-        // State change condition 3
         HAL_Delay(3000);
 
         jump_up_controller->jump_state = StandUp;
-
-        // HAL_Delay(100);
     }
     else if (jump_up_controller->jump_state == StandUp) {
-        SetJumpUpBezierControlPoints(jump_up_controller, squat_length, jump_leg_length);
+        SetJumpUpBezierControlPoints(jump_up_controller, squat_length, jump_length);
 
         for (int i = 0; i < 4; i++) {
             ThreeOrderBezierPlan(&(jump_up_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
@@ -778,195 +749,182 @@ void JumpUp_FSM (JumpController* jump_up_controller) {
     else {
         return;
     }
-
-    // if (jump_up_controller->jump_state != EndJump) {
-    //     last_t = t;
-    // }
 }
 
-// void SetJumpForwaredBezierControlPoints (JumpController* jump_forward_controller, float squat_length, float jump_leg_length, float tilt_length) {
+void SetJumpForwardBezierControlPoints (JumpController* jump_forward_controller, float squat_length, float jump_length, float tilt_length) {
+    float robot_height = 0.2295;
+    float tilt_length_2 = tilt_length * ((robot_height + jump_length) / (robot_height - squat_length));
+    float control_points_x_1[4] = {0, 0, -tilt_length, -tilt_length};
+    float control_points_x_2[4] = {-tilt_length_2, -tilt_length, 0, tilt_length};
+    float control_points_x_3[4] = {tilt_length, tilt_length, 0, 0};
+    float control_points_y_1[4] = {0, 0, squat_length, squat_length};
+    float control_points_y_2[4] = {-jump_length, squat_length, squat_length, squat_length};
+    float control_points_y_3[4] = {squat_length, squat_length, 0, 0};
 
-// }
+    if (jump_forward_controller->jump_state == Squat) {
+        for (int i = 0; i < 4; i++) {
+            SetThreeOrderBezierControlPoints(&(jump_forward_controller->jump_bezier[i]), control_points_x_1, control_points_y_1);
+        }
+    }
+    else if (jump_forward_controller->jump_state == LegUp) {
+        for (int i = 0; i < 4; i++) {
+            SetThreeOrderBezierControlPoints(&(jump_forward_controller->jump_bezier[i]), control_points_x_2, control_points_y_2);
+        }
+    }
+    else if (jump_forward_controller->jump_state == StandUp) {
+        for (int i = 0; i < 4; i++) {
+            SetThreeOrderBezierControlPoints(&(jump_forward_controller->jump_bezier[i]), control_points_x_3, control_points_y_3);
+        }
+    }
+    else {
+        return;
+    }
+}
 
-// void JumpForward_FSM (JumpController* jump_forward_controller) {
-//     float squat_length = 0.05;
-//     float jump_leg_length = 0.1;
-//     float tilt_length = 0.02;
-//     float jump_torque = 0;
-//     float robot_height = 0.2295;
-//     float bezier_x[4] = {0};  // lf, rf, rb, lb
-//     float bezier_y[4] = {0};  // lf, rf, rb, lb
-//     for (int i = 0; i < 4; i++) {
-//         SetThreeOrderBezierPeriod(&jump_forward_controller->jump_bezier[i], 1.0);
-//     }
+void JumpForward_FSM (JumpController* jump_forward_controller) {
+    float squat_length = 0.05;
+    float jump_length = 0.1;
+    float tilt_length = 0.02;
+    float jump_torque = 0;
+    float robot_height = 0.2295;
+    float bezier_x[4] = {0};  // lf, rf, rb, lb
+    float bezier_y[4] = {0};  // lf, rf, rb, lb
+    for (int i = 0; i < 4; i++) {
+        SetThreeOrderBezierPeriod(&jump_forward_controller->jump_bezier[i], 1.0);
+    }
 
-//     float t_real = t / 1000;
+    float t_real = t / 1000;
 
-//     if (jump_forward_controller->jump_state == Squat) {
-//         SetJumpForwaredBezierControlPoints(jump_forward_controller, squat_length, jump_leg_length, tilt_length);
+    if (jump_forward_controller->jump_state == Squat) {
+        SetJumpForwardBezierControlPoints(jump_forward_controller, squat_length, jump_length, tilt_length);
 
-//         for (int i = 0; i < 4; i++) {
-//             ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
-//             IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
-//         }
+        for (int i = 0; i < 4; i++) {
+            ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
+            IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+        }
 
-//         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 
-//         if (t >= 1000 && jump_forward_controller->jump_state_change == 1) {
-//             jump_forward_controller->jump_state = JumpUp;
-//             jump_forward_controller->jump_state_change = 0;
-//             t = 0;
-//             last_t = -1;
-//             HAL_Delay(10);
-//         }
-//     }
-//     else if (jump_forward_controller->jump_state == JumpUp) {
-//         float original_position = 0.2457;
-//         for (int i = 0; i < 4; i++) {
-//             IK_leg(0, original_position + jump_leg_length, &angle[i][0], &angle[i][1]);
-//         }
+        if (t >= 1000 && jump_forward_controller->jump_state_change == 1) {
+            jump_forward_controller->jump_state = JumpUp;
+            jump_forward_controller->jump_state_change = 0;
+            t = 0;
+            last_t = -1;
+            HAL_Delay(10);
+        }
+    }
+    else if (jump_forward_controller->jump_state == JumpUp) {
+        float original_position = 0.2457;
+        float tilt_length_2 = tilt_length * ((robot_height + jump_length) / (robot_height - squat_length));
+        for (int i = 0; i < 4; i++) {
+            IK_leg(-tilt_length_2, original_position + jump_length, &angle[i][0], &angle[i][1]);
+        }
 
-//         jump_torque = 10 * (fabs(J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - J60Motor_StandUpData_CAN1[0]) + fabs(angle[0][1]));
-//         if (jump_torque > TORQUE_MAX) {
-//             jump_torque = TORQUE_MAX;
-//         }
+        jump_torque = 10 * (fabs(J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - J60Motor_StandUpData_CAN1[0]) + fabs(angle[0][1]));
+        if (jump_torque > TORQUE_MAX) {
+            jump_torque = TORQUE_MAX;
+        }
 
-//         for (int i = 0; i < 4; i++) {
-//             for (int j = 0; j < 2; j++) {
-//                 Velocity[i][j] = 0;
-//                 if (angle[i][j] > 0) {
-//                     if ( i == 0 || i == 3) {  // left foot
-//                         if (j == 1) {  // out leg
-//                             Torque[i][j] = -jump_torque;
-//                         }
-//                         else {  // in leg
-//                             Torque[i][j] = jump_torque;
-//                         }
-//                     }
-//                     else {  // right foot
-//                         if (j == 1) {  // out leg
-//                             Torque[i][j] = jump_torque;
-//                         }
-//                         else {  // in leg
-//                             Torque[i][j] = -jump_torque;
-//                         }
-//                     }
-//                 }
-//                 else {
-//                     if (i == 0 || i == 3) {  // left foot
-//                         if (j == 1) {  // out leg
-//                             Torque[i][j] = jump_torque;
-//                         }
-//                         else {  // in leg
-//                             Torque[i][j] = -jump_torque;
-//                         }
-//                     }
-//                     else {  // right foot
-//                         if (j == 1) {  // out leg
-//                             Torque[i][j] = -jump_torque;
-//                         }
-//                         else {  // in leg
-//                             Torque[i][j] = jump_torque;
-//                         }
-//                     }
-//                 }
-//             }
-//         }
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 2; j++) {
+                Velocity[i][j] = 0;
+                if (angle[i][j] > 0) {
+                    if ( i == 0 || i == 3) {  // left foot
+                        if (j == 1) {  // out leg
+                            Torque[i][j] = -jump_torque;
+                        }
+                        else {  // in leg
+                            Torque[i][j] = jump_torque;
+                        }
+                    }
+                    else {  // right foot
+                        if (j == 1) {  // out leg
+                            Torque[i][j] = jump_torque;
+                        }
+                        else {  // in leg
+                            Torque[i][j] = -jump_torque;
+                        }
+                    }
+                }
+                else {
+                    if (i == 0 || i == 3) {  // left foot
+                        if (j == 1) {  // out leg
+                            Torque[i][j] = jump_torque;
+                        }
+                        else {  // in leg
+                            Torque[i][j] = -jump_torque;
+                        }
+                    }
+                    else {  // right foot
+                        if (j == 1) {  // out leg
+                            Torque[i][j] = -jump_torque;
+                        }
+                        else {  // in leg
+                            Torque[i][j] = jump_torque;
+                        }
+                    }
+                }
+            }
+        }
 
-//         SetMotor(angle, Velocity, Torque, 400, 1, PositionTorqueMode);
+        SetMotor(angle, Velocity, Torque, 400, 1, PositionTorqueMode);
 
-//         for (int i = 0; i < 4; i++) {
-//             for (int j = 0; j < 2; j++) {
-//                 Velocity[i][j] = 0;
-//                 Torque[i][j] = 0;
-//             }
-//         }
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 2; j++) {
+                Velocity[i][j] = 0;
+                Torque[i][j] = 0;
+            }
+        }
 
-//         HAL_Delay(200);
-//         jump_forward_controller->jump_state = LegUp;
-//     }
-//     else if (jump_forward_controller->jump_state == LegUp) {
-//         // SetJumpUpBezierControlPoints(jump_forward_controller, squat_length, jump_leg_length);
+        HAL_Delay(200);
+        jump_forward_controller->jump_state = LegUp;
+    }
+    else if (jump_forward_controller->jump_state == LegUp) {
+        SetJumpForwardBezierControlPoints(jump_forward_controller, squat_length, jump_length, tilt_length);
 
-//         for (int i = 0; i < 4; i++) {
-//             ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
-//             IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
-//         }
+        for (int i = 0; i < 4; i++) {
+            ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
+            IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+        }
 
-//         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 
-//         if (t >= 1000 && jump_forward_controller->jump_state_change == 1) {
-//             jump_forward_controller->jump_state = Land;
-//             jump_forward_controller->jump_state_change = 0;
-//             t = 0;
-//             last_t = -1;
-//         }
+        if (t >= 1000 && jump_forward_controller->jump_state_change == 1) {
+            jump_forward_controller->jump_state = Land;
+            jump_forward_controller->jump_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
 
-//     }
-//     else if (jump_forward_controller->jump_state == Land) {
-//         SetMotor(angle, Velocity, Torque, 0, 10, KdMode);
+    }
+    else if (jump_forward_controller->jump_state == Land) {
+        SetMotor(angle, Velocity, Torque, 0, 10, KdMode);
+        HAL_Delay(3000);
 
-//         // State change condition 1
-//         // float torque_not_land_1 = J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque;
-//         // float torque_not_land_2 = J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque;
-//         // while (J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 <= TORQUE_DEAD_AREA && 
-//         //        J60Motor_CAN1[0].ReceiveMotorData.CurrentTorque - torque_not_land_1 >= -TORQUE_DEAD_AREA &&
-//         //        J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 <= TORQUE_DEAD_AREA &&
-//         //        J60Motor_CAN1[1].ReceiveMotorData.CurrentTorque - torque_not_land_2 >= -TORQUE_DEAD_AREA) {
-//         //     SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
-//         // }
+        jump_forward_controller->jump_state = StandUp;
+    }
+    else if (jump_forward_controller->jump_state == StandUp) {
+        SetJumpForwardBezierControlPoints(jump_forward_controller, squat_length, jump_length, tilt_length);
 
-//         // State change condition 2
-//         // float last_position = J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition;
-//         // int state_change_analyse = 0;
-//         // while (1) {
-//         //     SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
-//         //     if (last_position >= J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - POSITION_DEAD_AREA && 
-//         //         last_position <= J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition + POSITION_DEAD_AREA) {
-//         //         state_change_analyse++;
-//         //     }
-//         //     else {
-//         //         state_change_analyse = 0;
-//         //     }
-//         //     if (state_change_analyse > 1000) {
-//         //         break;
-//         //     }
-//         //     last_position = J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition;
-//         // }
+        for (int i = 0; i < 4; i++) {
+            ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
+            IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+        }
 
-//         // State change condition 3
-//         HAL_Delay(3000);
+        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 
-//         jump_forward_controller->jump_state = StandUp;
-
-//         // HAL_Delay(100);
-//     }
-//     else if (jump_forward_controller->jump_state == StandUp) {
-//         // SetJumpUpBezierControlPoints(jump_forward_controller, squat_length, jump_leg_length);
-
-//         for (int i = 0; i < 4; i++) {
-//             ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
-//             IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
-//         }
-
-//         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
-
-//         if (t >= 1000 && jump_forward_controller->jump_state_change == 1) {
-//             jump_forward_controller->jump_state = EndJump;
-//             jump_forward_controller->jump_state_change = 0;
-//             t = 0;
-//             last_t = -1;
-//         }
-//     }
-//     else if (jump_forward_controller->jump_state == EndJump) {
-//         jump_forward_controller->jump_enable = 0;
-//         Stand();
-//     }
-//     else {
-//         return;
-//     }
-
-//     if (jump_forward_controller->jump_state != EndJump) {
-//         last_t = t;
-//     }
-// }
+        if (t >= 1000 && jump_forward_controller->jump_state_change == 1) {
+            jump_forward_controller->jump_state = EndJump;
+            jump_forward_controller->jump_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+    }
+    else if (jump_forward_controller->jump_state == EndJump) {
+        jump_forward_controller->jump_enable = 0;
+        Stand();
+    }
+    else {
+        return;
+    }
+}
