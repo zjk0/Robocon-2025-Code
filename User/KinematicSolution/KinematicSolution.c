@@ -10,12 +10,11 @@ void IK_leg(float x_pos, float y_pos, float *angle_e, float *angle_i) {
     float lod2, lbd2, loc2;                                  // 逆解的并联腿之外的一些长度
     float angle_link_i, angle_link_e;                        // 定义求解的两个电机转动角度
     float cosgama, cosCOD;                                   // 定义一些逆解需要角的cos值
-    float angle_gama, angle_xOD, angle_COD, angle_xOC, bata; // 定义一些逆解需要的角
+    float angle_xOD, angle_COD, angle_xOC, bata; // 定义一些逆解需要的角
 
     lod2 = x_pos * x_pos + y_pos * y_pos;
     lbd2 = (l3 + l2) * (l3 + l2);
     cosgama = (l1 * l1 + lbd2 - lod2) / (2 * l1 * (l2 + l3));
-    angle_gama = acos(cosgama);
 
     loc2 = l1 * l1 + l2 * l2 - 2 * l1 * l2 * cosgama;
 

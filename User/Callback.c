@@ -42,8 +42,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
                     trot_controller.trot_state = PreTrot;
                     trot_controller.trot_direction = Forward;
                     trot_controller.trot_enable = 1;
-                    rotate_controller.rotate_enable = 0;
-                    jump_up_controller.jump_enable = 0;
                     t = 0;
                     last_t = -1;
                     break;
@@ -51,34 +49,34 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
                     trot_controller.trot_state = PreTrot;
                     trot_controller.trot_direction = Back;
                     trot_controller.trot_enable = 1;
-                    rotate_controller.rotate_enable = 0;
-                    jump_up_controller.jump_enable = 0;
                     t = 0;
                     last_t = -1;
                     break;
                 case LEFT_SIGNAL:
-                    rotate_controller.rotate_state = PreRotate;
-                    rotate_controller.rotate_direction = Left;
-                    trot_controller.trot_enable = 0;
-                    rotate_controller.rotate_enable = 1;
-                    jump_up_controller.jump_enable = 0;
+                    // rotate_controller.rotate_state = PreRotate;
+                    // rotate_controller.rotate_direction = Left;
+                    // rotate_controller.rotate_enable = 1;
+                    turn_controller.turn_state = PreTurn;
+                    turn_controller.turn_angular_direction = TurnLeft;
+                    turn_controller.turn_enable = 1;
                     t = 0;
                     last_t = -1;
                     break;
                 case RIGHT_SIGNAL:
-                    rotate_controller.rotate_state = PreRotate;
-                    rotate_controller.rotate_direction = Right;
-                    trot_controller.trot_enable = 0;
-                    rotate_controller.rotate_enable = 1;
-                    jump_up_controller.jump_enable = 0;
+                    // rotate_controller.rotate_state = PreRotate;
+                    // rotate_controller.rotate_direction = Right;
+                    // rotate_controller.rotate_enable = 1;
+                    turn_controller.turn_state = PreTurn;
+                    turn_controller.turn_angular_direction = TurnRight;
+                    turn_controller.turn_enable = 1;
                     t = 0;
                     last_t = -1;
                     break;
                 case JUMP_SIGNAL:
-                    jump_up_controller.jump_state = Squat;
-                    jump_up_controller.jump_enable = 1;
-                    rotate_controller.rotate_enable = 0;
-                    trot_controller.trot_enable = 0;
+                    // jump_up_controller.jump_state = Squat;
+                    // jump_up_controller.jump_enable = 1;
+                    jump_forward_controller.jump_state = Squat;
+                    jump_forward_controller.jump_enable = 1;
                     t = 0;
                     last_t = -1;
                     break;
@@ -89,10 +87,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
                     trot_controller.trot_state_change = 1;
                     break;
                 case LEFT_END_SIGNAL:
-                    rotate_controller.rotate_state_change = 1;
+                    // rotate_controller.rotate_state_change = 1;
+					turn_controller.turn_state_change = 1;
                     break;
                 case RIGHT_END_SIGNAL:
-                    rotate_controller.rotate_state_change = 1;
+                    // rotate_controller.rotate_state_change = 1;
+                    turn_controller.turn_state_change = 1;
                     break;
                 case IMMEDIATELY_STOP_SIGNAL:
                     trot_controller.trot_state_change = 1;
@@ -134,6 +134,27 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
                 }
                 if (t >= 1000) {
                     jump_up_controller.jump_state_change = 1;
+                }
+            }
+        }
+        else if (jump_forward_controller.jump_state == Squat || jump_forward_controller.jump_state == StandUp || jump_forward_controller.jump_state == LegUp) {
+            if (t < 1000) {
+                if (jump_forward_controller.jump_state == LegUp) {
+                    t += JUMP_LEGUP_DELTA_T;
+                }
+                else {
+                    t += JUMP_SQUAT_STANDUP_DELTA_T;
+                }
+                if (t >= 1000) {
+                    jump_forward_controller.jump_state_change = 1;
+                }
+            }
+        }
+        else if (turn_controller.turn_state == PreTurn || turn_controller.turn_state == PreEndTurn) {
+            if (t < 1000) {
+                t += NORMAL_DELTA_T;
+                if (t >= 1000) {
+                    turn_controller.turn_state_change = 1;
                 }
             }
         }

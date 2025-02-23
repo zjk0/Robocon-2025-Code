@@ -60,7 +60,23 @@ JumpController jump_forward_controller = {
     },
     .jump_enable = 0, 
     .jump_state_change = 0
-}; 
+};
+
+// Initialize turn controller
+TurnController turn_controller = {
+    .turn_state = EndTurn, 
+    .turn_angular_direction = TurnLeft, 
+    .turn_linear_direction = LinearForward, 
+    .turn_bezier = {  // lf, rf, rb, lb
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}
+    },
+    .turn_enable = 0,
+    .turn_state_change = 0,
+    .swing_duty_cycle = 0.5
+};
 
 usart_data usart_motor_data;
 
@@ -607,7 +623,7 @@ void SetJumpUpBezierControlPoints (JumpController* jump_up_controller, float squ
  * @return none
  */
 void JumpUp_FSM (JumpController* jump_up_controller) {
-    float squat_length = 0.05;
+    float squat_length = 0.08;
     float jump_length = 0.1;
     float jump_torque = 0;
     float robot_height = 0.2295;
@@ -638,9 +654,8 @@ void JumpUp_FSM (JumpController* jump_up_controller) {
         }
     }
     else if (jump_up_controller->jump_state == JumpUp) {
-        float original_position = 0.2457;
         for (int i = 0; i < 4; i++) {
-            IK_leg(0, original_position + jump_length, &angle[i][0], &angle[i][1]);
+            IK_leg(0, robot_height + jump_length, &angle[i][0], &angle[i][1]);
         }
 
         jump_torque = 10 * (fabs(J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - J60Motor_StandUpData_CAN1[0]) + fabs(angle[0][1]));
@@ -690,7 +705,7 @@ void JumpUp_FSM (JumpController* jump_up_controller) {
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 400, 1, PositionTorqueMode);
+        SetMotor(angle, Velocity, Torque, 400, 5, PositionTorqueMode);
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 2; j++) {
@@ -721,7 +736,7 @@ void JumpUp_FSM (JumpController* jump_up_controller) {
     }
     else if (jump_up_controller->jump_state == Land) {
         SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
-        HAL_Delay(3000);
+        HAL_Delay(2000);
 
         jump_up_controller->jump_state = StandUp;
     }
@@ -758,7 +773,7 @@ void SetJumpForwardBezierControlPoints (JumpController* jump_forward_controller,
     float control_points_x_2[4] = {-tilt_length_2, -tilt_length, 0, tilt_length};
     float control_points_x_3[4] = {tilt_length, tilt_length, 0, 0};
     float control_points_y_1[4] = {0, 0, squat_length, squat_length};
-    float control_points_y_2[4] = {-jump_length, squat_length, squat_length, squat_length};
+    float control_points_y_2[4] = {-jump_length, squat_length, squat_length * 1.1, squat_length};
     float control_points_y_3[4] = {squat_length, squat_length, 0, 0};
 
     if (jump_forward_controller->jump_state == Squat) {
@@ -782,9 +797,9 @@ void SetJumpForwardBezierControlPoints (JumpController* jump_forward_controller,
 }
 
 void JumpForward_FSM (JumpController* jump_forward_controller) {
-    float squat_length = 0.05;
+    float squat_length = 0.08;
     float jump_length = 0.1;
-    float tilt_length = 0.02;
+    float tilt_length = 0.03;
     float jump_torque = 0;
     float robot_height = 0.2295;
     float bezier_x[4] = {0};  // lf, rf, rb, lb
@@ -814,10 +829,9 @@ void JumpForward_FSM (JumpController* jump_forward_controller) {
         }
     }
     else if (jump_forward_controller->jump_state == JumpUp) {
-        float original_position = 0.2457;
         float tilt_length_2 = tilt_length * ((robot_height + jump_length) / (robot_height - squat_length));
         for (int i = 0; i < 4; i++) {
-            IK_leg(-tilt_length_2, original_position + jump_length, &angle[i][0], &angle[i][1]);
+            IK_leg(-tilt_length_2, robot_height + jump_length, &angle[i][0], &angle[i][1]);
         }
 
         jump_torque = 10 * (fabs(J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - J60Motor_StandUpData_CAN1[0]) + fabs(angle[0][1]));
@@ -867,7 +881,7 @@ void JumpForward_FSM (JumpController* jump_forward_controller) {
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 400, 1, PositionTorqueMode);
+        SetMotor(angle, Velocity, Torque, 400, 5, PositionTorqueMode);
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 2; j++) {
@@ -898,8 +912,8 @@ void JumpForward_FSM (JumpController* jump_forward_controller) {
 
     }
     else if (jump_forward_controller->jump_state == Land) {
-        SetMotor(angle, Velocity, Torque, 0, 10, KdMode);
-        HAL_Delay(3000);
+        SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
+        HAL_Delay(2000);
 
         jump_forward_controller->jump_state = StandUp;
     }
@@ -927,4 +941,304 @@ void JumpForward_FSM (JumpController* jump_forward_controller) {
     else {
         return;
     }
+}
+
+void SetTurnBezierControlPoints (TurnController* turn_controller, float shorter_length, float longer_length, float bezier_height, int leg, int turning_state) {
+    float left_length = 0;
+    float right_length = 0;
+    if (turn_controller->turn_angular_direction == TurnLeft) {
+        left_length = shorter_length;
+        right_length = longer_length;
+    }
+    else if (turn_controller->turn_angular_direction == TurnRight) {
+        left_length = longer_length;
+        right_length = shorter_length;
+    }
+
+    float symbol = turn_controller->turn_linear_direction;
+    float control_points_x_left_1[4] = {0, 0, left_length * symbol, left_length * symbol};
+    float control_points_x_left_2[4] = {0, 0, -left_length * symbol, -left_length * symbol};
+    float control_points_x_left_3[4] = {left_length * symbol, left_length * symbol, 0, 0};
+    float control_points_x_left_4[4] = {-left_length * symbol, -left_length * symbol, 0, 0};
+    float control_points_x_left_5[4] = {-left_length * symbol, -left_length * symbol, left_length * symbol, left_length * symbol};
+    float control_points_x_left_6[4] = {left_length * symbol, left_length * symbol, -left_length * symbol, -left_length * symbol};
+    float control_points_x_right_1[4] = {0, 0, right_length * symbol, right_length * symbol};
+    float control_points_x_right_2[4] = {0, 0, -right_length * symbol, -right_length * symbol};
+    float control_points_x_right_3[4] = {right_length * symbol, right_length * symbol, 0, 0};
+    float control_points_x_right_4[4] = {-right_length * symbol, -right_length * symbol, 0, 0};
+    float control_points_x_right_5[4] = {-right_length * symbol, -right_length * symbol, right_length * symbol, right_length * symbol};
+    float control_points_x_right_6[4] = {right_length * symbol, right_length * symbol, -right_length * symbol, -right_length * symbol};
+    float control_points_y_1[4] = {0, 0, 0, 0};
+    float control_points_y_2[4] = {0, bezier_height * 0.09 / 0.0675, bezier_height * 0.09 / 0.0675, 0};
+
+    if (turn_controller->turn_state == PreTurn) {
+        if (leg == LEFT_FRONT_LEG) {
+            SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[0]), control_points_x_left_1, control_points_y_2);
+        }
+        else if (leg == RIGHT_FRONT_LEG) {
+            SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[1]), control_points_x_right_2, control_points_y_1);
+        }
+        else if (leg == RIGHT_BACK_LEG) {
+            SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[2]), control_points_x_right_1, control_points_y_2);
+        }
+        else if (leg == LEFT_BACK_LEG) {
+            SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[3]), control_points_x_left_2, control_points_y_1);
+        }
+    }
+    else if (turn_controller->turn_state == Turning) {
+        if (turning_state == TURNING_LF_RB_SUPPORT_RF_LB_SWING) {
+            if (leg == LEFT_FRONT_LEG) {
+                SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[0]), control_points_x_left_6, control_points_y_1);
+            }
+            else if (leg == RIGHT_FRONT_LEG) {
+                SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[1]), control_points_x_right_5, control_points_y_2);
+            }
+            else if (leg == RIGHT_BACK_LEG) {
+                SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[2]), control_points_x_right_6, control_points_y_1);
+            }
+            else if (leg == LEFT_BACK_LEG) {
+                SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[3]), control_points_x_left_5, control_points_y_2);
+            }
+        }
+        else if (turning_state == TURNING_LF_RB_SWING_RF_LB_SUPPORT) {
+            if (leg == LEFT_FRONT_LEG) {
+                SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[0]), control_points_x_left_5, control_points_y_2);
+            }
+            else if (leg == RIGHT_FRONT_LEG) {
+                SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[1]), control_points_x_right_6, control_points_y_1);
+            }
+            else if (leg == RIGHT_BACK_LEG) {
+                SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[2]), control_points_x_right_5, control_points_y_2);
+            }
+            else if (leg == LEFT_BACK_LEG) {
+                SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[3]), control_points_x_left_6, control_points_y_1);
+            }
+        }
+        else {
+            return;
+        }
+    }
+    else if (turn_controller->turn_state == PreEndTurn) {
+        if (leg == LEFT_FRONT_LEG) {
+            SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[0]), control_points_x_left_3, control_points_y_1);
+        }
+        else if (leg == RIGHT_FRONT_LEG) {
+            SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[1]), control_points_x_right_4, control_points_y_2);
+        }
+        else if (leg == RIGHT_BACK_LEG) {
+            SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[2]), control_points_x_right_3, control_points_y_1);
+        }
+        else if (leg == LEFT_BACK_LEG) {
+            SetThreeOrderBezierControlPoints(&(turn_controller->turn_bezier[3]), control_points_x_left_4, control_points_y_2);
+        }
+    }
+    else {
+        return;
+    }
+}
+
+void Turn_FSM (TurnController* turn_controller) {
+    float bezier_height = 0.03;
+    float shorter_length = 0.06;
+    float longer_length = 0.1;
+    float robot_height = 0.2295;
+    float bezier_x[4] = {0};  // lf, rf, rb, lb
+    float bezier_y[4] = {0};  // lf, rf, rb, lb
+    for (int i = 0; i < 4; i++) {
+        SetThreeOrderBezierPeriod(&turn_controller->turn_bezier[i], 1.0);
+    }
+
+    float t_real = t / 1000;
+    float t_real_2 = 0;
+    float fai_swing = 1;
+    float fai_support = 1;
+
+    if (turn_controller->turn_state == PreTurn) {
+        SetTurnBezierControlPoints(turn_controller, shorter_length / 2, longer_length / 2, bezier_height, LEFT_FRONT_LEG, NOT_TURNING);
+        SetTurnBezierControlPoints(turn_controller, shorter_length / 2, longer_length / 2, bezier_height, RIGHT_FRONT_LEG, NOT_TURNING);
+        SetTurnBezierControlPoints(turn_controller, shorter_length / 2, longer_length / 2, bezier_height, RIGHT_BACK_LEG, NOT_TURNING);
+        SetTurnBezierControlPoints(turn_controller, shorter_length / 2, longer_length / 2, bezier_height, LEFT_BACK_LEG, NOT_TURNING);
+
+        for (int i = 0; i < 4; i++) {
+            ThreeOrderBezierPlan(&(turn_controller->turn_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
+            IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+        }
+
+        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+
+        if (t >= 1000 && turn_controller->turn_state_change == 1) {
+            turn_controller->turn_state = Turning;
+            turn_controller->turn_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+    }
+    else if (turn_controller->turn_state == Turning) {
+        if (t_real >= 0 && t_real < fai_support) {
+            SetTurnBezierControlPoints(turn_controller, shorter_length, longer_length, bezier_height, LEFT_FRONT_LEG, TURNING_LF_RB_SUPPORT_RF_LB_SWING);
+            SetTurnBezierControlPoints(turn_controller, shorter_length, longer_length, bezier_height, RIGHT_BACK_LEG, TURNING_LF_RB_SUPPORT_RF_LB_SWING);
+            t_real_2 = t_real / fai_support;
+        }
+        else if (t_real >= fai_support && t_real <= 2.0) {
+            SetTurnBezierControlPoints(turn_controller, shorter_length, longer_length, bezier_height, LEFT_FRONT_LEG, TURNING_LF_RB_SWING_RF_LB_SUPPORT);
+            SetTurnBezierControlPoints(turn_controller, shorter_length, longer_length, bezier_height, RIGHT_BACK_LEG, TURNING_LF_RB_SWING_RF_LB_SUPPORT);
+            t_real_2 = (t_real - fai_support) / (2.0 - fai_support);
+        }
+        ThreeOrderBezierPlan(&(turn_controller->turn_bezier[0]), t_real_2, &bezier_x[0], &bezier_y[0]);
+        ThreeOrderBezierPlan(&(turn_controller->turn_bezier[2]), t_real_2, &bezier_x[2], &bezier_y[2]);
+
+        if (t_real >= 0 && t_real < (2.0 - fai_support)) {
+            SetTurnBezierControlPoints(turn_controller, shorter_length, longer_length, bezier_height, RIGHT_FRONT_LEG, TURNING_LF_RB_SUPPORT_RF_LB_SWING);
+            SetTurnBezierControlPoints(turn_controller, shorter_length, longer_length, bezier_height, LEFT_BACK_LEG, TURNING_LF_RB_SUPPORT_RF_LB_SWING);
+            t_real_2 = t_real / (2.0 - fai_support);
+        }
+        else if (t_real >= (2.0 - fai_support) && t_real <= 2.0) {
+            SetTurnBezierControlPoints(turn_controller, shorter_length, longer_length, bezier_height, RIGHT_FRONT_LEG, TURNING_LF_RB_SWING_RF_LB_SUPPORT);
+            SetTurnBezierControlPoints(turn_controller, shorter_length, longer_length, bezier_height, LEFT_BACK_LEG, TURNING_LF_RB_SWING_RF_LB_SUPPORT);
+            t_real_2 = (t_real + fai_support - 2.0) / fai_support;
+        }
+        ThreeOrderBezierPlan(&(turn_controller->turn_bezier[1]), t_real_2, &bezier_x[1], &bezier_y[1]);
+        ThreeOrderBezierPlan(&(turn_controller->turn_bezier[3]), t_real_2, &bezier_x[3], &bezier_y[3]);
+
+        for (int i = 0; i < 4; i++) {
+            IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+        }
+
+        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+
+        if (t >= 2000 && turn_controller->turn_state_change == 1) {
+            turn_controller->turn_state = PreEndTurn;
+            turn_controller->turn_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+    }
+    else if (turn_controller->turn_state == PreEndTurn) {
+        SetTurnBezierControlPoints(turn_controller, shorter_length / 2, longer_length / 2, bezier_height, LEFT_FRONT_LEG, NOT_TURNING);
+        SetTurnBezierControlPoints(turn_controller, shorter_length / 2, longer_length / 2, bezier_height, RIGHT_FRONT_LEG, NOT_TURNING);
+        SetTurnBezierControlPoints(turn_controller, shorter_length / 2, longer_length / 2, bezier_height, RIGHT_BACK_LEG, NOT_TURNING);
+        SetTurnBezierControlPoints(turn_controller, shorter_length / 2, longer_length / 2, bezier_height, LEFT_BACK_LEG, NOT_TURNING);
+
+        for (int i = 0; i < 4; i++) {
+            ThreeOrderBezierPlan(&(turn_controller->turn_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
+            IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+        }
+
+        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+
+        if (t >= 1000 && turn_controller->turn_state_change == 1) {
+            turn_controller->turn_state = EndTurn;
+            turn_controller->turn_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+    }
+    else if (turn_controller->turn_state == EndTurn) {
+        turn_controller->turn_enable = 0;
+        Stand();
+    }
+}
+
+void Trot_to_Turn (TrotController* trot_controller, TurnController* turn_controller, 
+                   float trot_length, float shorter_length, float longer_length, float bezier_height, float trotting_state) {
+    float t_real = t / 1000;
+    float robot_height = 0.2295;
+    float bezier_x[4] = {0};  // lf, rf, rb, lb
+    float bezier_y[4] = {0};  // lf, rf, rb, lb
+    
+    float left_length = 0;
+    float right_length = 0;
+    if (turn_controller->turn_angular_direction == TurnLeft) {
+        left_length = shorter_length;
+        right_length = longer_length;
+    }
+    else if (turn_controller->turn_angular_direction == TurnRight) {
+        left_length = longer_length;
+        right_length = shorter_length;
+    }
+    else {
+        return;
+    }
+
+    float symbol = trot_controller->trot_direction;
+    float control_points_x_left_1[4] = {-trot_length * symbol, -trot_length * symbol, left_length * symbol, left_length * symbol};
+    float control_points_x_left_2[4] = {trot_length * symbol, trot_length * symbol, -left_length * symbol, -left_length * symbol};
+    float control_points_x_right_1[4] = {-trot_length * symbol, -trot_length * symbol, right_length * symbol, right_length * symbol};
+    float control_points_x_right_2[4] = {trot_length * symbol, trot_length * symbol, -right_length * symbol, -right_length * symbol};
+    float control_points_y_1[4] = {0, 0, 0, 0};
+    float control_points_y_2[4] = {0, bezier_height * 0.09 / 0.0675, bezier_height * 0.09 / 0.0675, 0};
+
+    ThreeOrderBezierInformation bezier[4];
+
+    if (trotting_state == TROTTING_LF_RB_SUPPORT_RF_LB_SWING) {
+        SetThreeOrderBezierControlPoints(&bezier[0], control_points_x_left_1, control_points_y_2);
+        SetThreeOrderBezierControlPoints(&bezier[1], control_points_x_right_2, control_points_y_1);
+        SetThreeOrderBezierControlPoints(&bezier[2], control_points_x_right_1, control_points_y_2);
+        SetThreeOrderBezierControlPoints(&bezier[3], control_points_x_left_2, control_points_y_1);
+    }
+    else if (trotting_state == TROTTING_LF_RB_SWING_RF_LB_SUPPORT) {
+        SetThreeOrderBezierControlPoints(&bezier[0], control_points_x_left_2, control_points_y_1);
+        SetThreeOrderBezierControlPoints(&bezier[1], control_points_x_right_1, control_points_y_2);
+        SetThreeOrderBezierControlPoints(&bezier[2], control_points_x_right_2, control_points_y_1);
+        SetThreeOrderBezierControlPoints(&bezier[3], control_points_x_left_1, control_points_y_2);
+    }
+
+    for (int i = 0; i < 4; i++) {
+        ThreeOrderBezierPlan(&bezier[i], t_real, &bezier_x[i], &bezier_y[i]);
+        IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+    }
+
+    SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+}
+
+void Turn_to_Trot (TrotController* trot_controller, TurnController* turn_controller, 
+                   float trot_length, float shorter_length, float longer_length, float bezier_height, float turning_state) {
+    float t_real = t / 1000;
+    float robot_height = 0.2295;
+    float bezier_x[4] = {0};  // lf, rf, rb, lb
+    float bezier_y[4] = {0};  // lf, rf, rb, lb
+
+    float left_length = 0;
+    float right_length = 0;
+    if (turn_controller->turn_angular_direction == TurnLeft) {
+        left_length = shorter_length;
+        right_length = longer_length;
+    }
+    else if (turn_controller->turn_angular_direction == TurnRight) {
+        left_length = longer_length;
+        right_length = shorter_length;
+    }
+    else {
+        return;
+    }
+
+    float symbol = trot_controller->trot_direction;
+    float control_points_x_left_1[4] = {-left_length * symbol, -left_length * symbol, trot_length * symbol, trot_length * symbol};
+    float control_points_x_left_2[4] = {left_length * symbol, left_length * symbol, -trot_length * symbol, -trot_length * symbol};
+    float control_points_x_right_1[4] = {-right_length * symbol, -right_length * symbol, trot_length * symbol, trot_length * symbol};
+    float control_points_x_right_2[4] = {right_length * symbol, right_length * symbol, -trot_length * symbol, -trot_length * symbol};
+    float control_points_y_1[4] = {0, 0, 0, 0};
+    float control_points_y_2[4] = {0, bezier_height * 0.09 / 0.0675, bezier_height * 0.09 / 0.0675, 0};
+
+    ThreeOrderBezierInformation bezier[4];
+
+    if (turning_state == TURNING_LF_RB_SUPPORT_RF_LB_SWING) {
+        SetThreeOrderBezierControlPoints(&bezier[0], control_points_x_left_1, control_points_y_2);
+        SetThreeOrderBezierControlPoints(&bezier[1], control_points_x_right_2, control_points_y_1);
+        SetThreeOrderBezierControlPoints(&bezier[2], control_points_x_right_1, control_points_y_2);
+        SetThreeOrderBezierControlPoints(&bezier[3], control_points_x_left_2, control_points_y_1);
+    }
+    else if (turning_state == TURNING_LF_RB_SWING_RF_LB_SUPPORT) {
+        SetThreeOrderBezierControlPoints(&bezier[0], control_points_x_left_2, control_points_y_1);
+        SetThreeOrderBezierControlPoints(&bezier[1], control_points_x_right_1, control_points_y_2);
+        SetThreeOrderBezierControlPoints(&bezier[2], control_points_x_right_2, control_points_y_1);
+        SetThreeOrderBezierControlPoints(&bezier[3], control_points_x_left_1, control_points_y_2);
+    }
+
+    for (int i = 0; i < 4; i++) {
+        ThreeOrderBezierPlan(&bezier[i], t_real, &bezier_x[i], &bezier_y[i]);
+        IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+    }
+
+    SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 }

@@ -139,21 +139,29 @@ int main(void)
   while (1)
   {
     if (t != last_t) {
-      if (trot_controller.trot_enable && !rotate_controller.rotate_enable && !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable) {
+      if (trot_controller.trot_enable && !rotate_controller.rotate_enable && 
+          !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
         Trot_FSM(&trot_controller);
       }
-      else if (!trot_controller.trot_enable && rotate_controller.rotate_enable && !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable) {
+      else if (!trot_controller.trot_enable && rotate_controller.rotate_enable && 
+               !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
         Rotate_FSM(&rotate_controller);
       }
-      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && jump_up_controller.jump_enable && !jump_forward_controller.jump_enable) {
+      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && 
+               jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
         JumpUp_FSM(&jump_up_controller);
       }
-      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && !jump_up_controller.jump_enable && jump_forward_controller.jump_enable) {
+      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && 
+               !jump_up_controller.jump_enable && jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
         JumpForward_FSM(&jump_forward_controller);
+      }
+      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && 
+               !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && turn_controller.turn_enable) {
+        Turn_FSM(&turn_controller);
       }
 
       if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || 
-          jump_up_controller.jump_state != EndJump || jump_forward_controller.jump_state != EndJump) {
+          jump_up_controller.jump_state != EndJump || jump_forward_controller.jump_state != EndJump || turn_controller.turn_state != EndTurn) {
         last_t = t;
         __HAL_TIM_SET_COUNTER(&htim2, 0);
         HAL_TIM_Base_Start_IT(&htim2);

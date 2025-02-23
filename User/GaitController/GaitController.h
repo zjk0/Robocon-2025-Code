@@ -25,6 +25,10 @@
 #define ROTATING_LF_RB_SWING_RF_LB_SUPPORT 1
 #define NOT_ROTATING 2
 
+#define TURNING_LF_RB_SUPPORT_RF_LB_SWING 0
+#define TURNING_LF_RB_SWING_RF_LB_SUPPORT 1
+#define NOT_TURNING 2
+
 #define TORQUE_DEAD_AREA 0.01f
 #define POSITION_DEAD_AREA 0.01f
 
@@ -92,6 +96,33 @@ typedef struct {
     int jump_state_change;
 } JumpController;
 
+typedef enum {
+    PreTurn = 0, 
+    Turning, 
+    PreEndTurn, 
+    EndTurn
+} TurnState;
+
+typedef enum {
+    TurnLeft = 0, 
+    TurnRight
+} TurnAngularVelocityDirection;
+
+typedef enum {
+    LinearBack = -1, 
+    LinearForward = 1
+} TurnLinearVelocityDirection;
+
+typedef struct {
+    TurnState turn_state;
+    TurnAngularVelocityDirection turn_angular_direction;
+    TurnLinearVelocityDirection turn_linear_direction;
+    ThreeOrderBezierInformation turn_bezier[4];  // The bezier objects of four legs
+    float swing_duty_cycle;
+    int turn_enable;
+    int turn_state_change;
+} TurnController;
+
 typedef union {
     float real_motor_data[15];
     uint8_t send_motor_data[60];
@@ -104,6 +135,7 @@ extern TrotController trot_controller;
 extern RotateController rotate_controller;
 extern JumpController jump_up_controller;
 extern JumpController jump_forward_controller;
+extern TurnController turn_controller;
 
 extern usart_data usart_motor_data;
 
@@ -121,3 +153,6 @@ void Trot_FSM (TrotController* trot_controller);
 void Rotate_FSM (RotateController* rotate_controller);
 void JumpUp_FSM (JumpController* jump_up_controller);
 void JumpForward_FSM (JumpController* jump_forward_controller);
+void Turn_FSM (TurnController* turn_controller);
+void Trot_to_Turn (TrotController* trot_controller, TurnController* turn_controller, float trot_length, float shorter_length, float longer_length, float bezier_height, float trotting_state);
+void Turn_to_Trot (TrotController* trot_controller, TurnController* turn_controller, float trot_length, float shorter_length, float longer_length, float bezier_height, float turning_state);
