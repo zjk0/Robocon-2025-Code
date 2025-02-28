@@ -78,6 +78,20 @@ TurnController turn_controller = {
     .swing_duty_cycle = 0.5
 };
 
+WalkSlopeController walk_slope_controller = {
+    .walk_slope_state = EndWalk,
+    .walk_slope_direction = UpSlope,
+    .walk_slope_bezier = {  // lf, rf, rb, lb
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}, 
+        {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}
+    },
+    .walk_slope_enable = 0, 
+    .walk_slope_state_change = 0,
+    .swing_duty_cycle = 0.5
+};
+
 usart_data usart_motor_data;
 
 float angle[4][2] = {0};
@@ -623,7 +637,7 @@ void SetJumpUpBezierControlPoints (JumpController* jump_up_controller, float squ
  * @return none
  */
 void JumpUp_FSM (JumpController* jump_up_controller) {
-    float squat_length = 0.08;
+    float squat_length = 0.07;
     float jump_length = 0.1;
     float jump_torque = 0;
     float robot_height = 0.2295;
@@ -773,7 +787,7 @@ void SetJumpForwardBezierControlPoints (JumpController* jump_forward_controller,
     float control_points_x_2[4] = {-tilt_length_2, -tilt_length, 0, tilt_length};
     float control_points_x_3[4] = {tilt_length, tilt_length, 0, 0};
     float control_points_y_1[4] = {0, 0, squat_length, squat_length};
-    float control_points_y_2[4] = {-jump_length, squat_length, squat_length * 1.1, squat_length};
+    float control_points_y_2[4] = {-jump_length, squat_length, squat_length, squat_length};
     float control_points_y_3[4] = {squat_length, squat_length, 0, 0};
 
     if (jump_forward_controller->jump_state == Squat) {
@@ -797,7 +811,7 @@ void SetJumpForwardBezierControlPoints (JumpController* jump_forward_controller,
 }
 
 void JumpForward_FSM (JumpController* jump_forward_controller) {
-    float squat_length = 0.08;
+    float squat_length = 0.07;
     float jump_length = 0.1;
     float tilt_length = 0.03;
     float jump_torque = 0;
@@ -1039,7 +1053,7 @@ void SetTurnBezierControlPoints (TurnController* turn_controller, float shorter_
 
 void Turn_FSM (TurnController* turn_controller) {
     float bezier_height = 0.03;
-    float shorter_length = 0.06;
+    float shorter_length = 0.04;
     float longer_length = 0.1;
     float robot_height = 0.2295;
     float bezier_x[4] = {0};  // lf, rf, rb, lb
@@ -1241,4 +1255,274 @@ void Turn_to_Trot (TrotController* trot_controller, TurnController* turn_control
     }
 
     SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+}
+
+void Change_to_Slope (float tan_slope_theta) {
+    float origin_height = 0.2295;
+    float length_between_legs = 0;  // Not certain
+    float delta_height = length_between_legs * tan_slope_theta;
+    float delta_height_1 = delta_height * (1 / 3);
+    float delta_height_2 = -delta_height * (2 / 3);
+    float bezier_x[4];
+    float bezier_y[4];
+    float t_real = t / 1000;
+
+    float control_points_x[4] = {0, 0, 0, 0};
+    float control_points_y_1[4] = {0, delta_height_1 * (1 / 3), delta_height_1 * (2 / 3), delta_height_1};
+    float control_points_y_2[4] = {0, delta_height_2 * (1 / 3), delta_height_2 * (2 / 3), delta_height_2};
+
+    ThreeOrderBezierInformation bezier[4];
+
+    SetThreeOrderBezierControlPoints(&bezier[0], control_points_x, control_points_y_1);
+    SetThreeOrderBezierControlPoints(&bezier[1], control_points_x, control_points_y_1);
+    SetThreeOrderBezierControlPoints(&bezier[2], control_points_x, control_points_y_2);
+    SetThreeOrderBezierControlPoints(&bezier[3], control_points_x, control_points_y_2);
+
+    for (int i = 0; i < 4; i++) {
+        ThreeOrderBezierPlan(&bezier[i], t_real, &bezier_x[i], &bezier_y[i]);
+        IK_leg(bezier_x[i], bezier_y[i], &angle[i][0], &angle[i][1]);
+    }
+
+    SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+}
+
+void Restore_from_Slope (float tan_slope_theta) {
+    float origin_height = 0.2295;
+    float length_between_legs = 0;  // Not certain
+    float delta_height = length_between_legs * tan_slope_theta;
+    float delta_height_1 = delta_height * (1 / 3);
+    float delta_height_2 = -delta_height * (2 / 3);
+    float bezier_x[4];
+    float bezier_y[4];
+    float t_real = t / 1000;
+    
+    float control_points_x[4] = {0, 0, 0, 0};
+    float control_points_y_1[4] = {delta_height_1, delta_height_1 * (2 / 3), delta_height_1 * (1 / 3), 0};
+    float control_points_y_2[4] = {delta_height_2, delta_height_2 * (2 / 3), delta_height_2 * (1 / 3), 0};
+
+    ThreeOrderBezierInformation bezier[4];
+
+    SetThreeOrderBezierControlPoints(&bezier[0], control_points_x, control_points_y_1);
+    SetThreeOrderBezierControlPoints(&bezier[1], control_points_x, control_points_y_1);
+    SetThreeOrderBezierControlPoints(&bezier[2], control_points_x, control_points_y_2);
+    SetThreeOrderBezierControlPoints(&bezier[3], control_points_x, control_points_y_2);
+
+    for (int i = 0; i < 4; i++) {
+        ThreeOrderBezierPlan(&bezier[i], t_real, &bezier_x[i], &bezier_y[i]);
+        IK_leg(bezier_x[i], bezier_y[i], &angle[i][0], &angle[i][1]);
+    }
+
+    SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+}
+
+void SetWalkSlopeBezierControlPoints (WalkSlopeController* walk_slope_controller, float bezier_length, float delta_height, float max_height, int leg, int walking_state) {
+    if (3 * delta_height <= bezier_length - 0.001 || 3 * delta_height >= bezier_length + 0.001) {
+        return;
+    }
+    float control_points_x_1[4] = {0, 0, bezier_length, bezier_length};
+    float control_points_x_2[4] = {0, 0, -bezier_length, -bezier_length};
+    float control_points_x_3[4] = {-bezier_length / 2, -bezier_length / 2, bezier_length / 2, bezier_length / 2};
+    float control_points_x_4[4] = {bezier_length / 2, bezier_length / 2, -bezier_length / 2, -bezier_length / 2};
+    float control_points_x_5[4] = {bezier_length, bezier_length, 0, 0};
+    float control_points_x_6[4] = {-bezier_length, -bezier_length, 0 ,0};
+    float control_points_y_1[4] = {0, max_height, max_height, delta_height};
+    float control_points_y_2[4] = {0, 0, -delta_height, -delta_height};
+    float control_points_y_3[4] = {-delta_height / 2, max_height, max_height, delta_height / 2};
+    float control_points_y_4[4] = {delta_height / 2, delta_height / 2, -delta_height / 2, -delta_height / 2};
+    float control_points_y_5[4] = {delta_height, delta_height, 0, 0};
+    float control_points_y_6[4] = {-delta_height, max_height, max_height, 0};
+
+    if (walk_slope_controller->walk_slope_state == PreWalk) {
+        if (leg == LEFT_FRONT_LEG) {
+            SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[0]), control_points_x_1, control_points_y_1);
+        }
+        else if (leg == RIGHT_FRONT_LEG) {
+            SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[1]), control_points_x_2, control_points_y_2);
+        }
+        else if (leg == RIGHT_BACK_LEG) {
+            SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[2]), control_points_x_1, control_points_y_1);
+        }
+        else if (leg == LEFT_BACK_LEG) {
+            SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[3]), control_points_x_2, control_points_y_2);
+        }
+    }
+    else if (walk_slope_controller->walk_slope_state == Walking) {
+        if (walking_state == SLOPE_LF_RB_SUPPORT_RF_LB_SWING) {
+            if (leg == LEFT_FRONT_LEG) {
+                SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[0]), control_points_x_4, control_points_y_4);
+            }
+            else if (leg == RIGHT_FRONT_LEG) {
+                SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[1]), control_points_x_3, control_points_y_3);
+            }
+            else if (leg == RIGHT_BACK_LEG) {
+                SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[2]), control_points_x_4, control_points_y_4);
+            }
+            else if (leg == LEFT_BACK_LEG) {
+                SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[3]), control_points_x_3, control_points_y_3);
+            }
+        }
+        else if (walking_state == SLOPE_LF_RB_SWING_RF_LB_SUPPORT) {
+            if (leg == LEFT_FRONT_LEG) {
+                SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[0]), control_points_x_3, control_points_y_3);
+            }
+            else if (leg == RIGHT_FRONT_LEG) {
+                SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[1]), control_points_x_4, control_points_y_4);
+            }
+            else if (leg == RIGHT_BACK_LEG) {
+                SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[2]), control_points_x_3, control_points_y_3);
+            }
+            else if (leg == LEFT_BACK_LEG) {
+                SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[3]), control_points_x_4, control_points_y_4);
+            }
+        }
+        else {
+            return;
+        }
+    }
+    else if (walk_slope_controller->walk_slope_state == PreEndWalk) {
+        if (leg == LEFT_FRONT_LEG) {
+            SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[0]), control_points_x_5, control_points_y_5);
+        }
+        else if (leg == RIGHT_FRONT_LEG) {
+            SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[1]), control_points_x_6, control_points_y_6);
+        }
+        else if (leg == RIGHT_BACK_LEG) {
+            SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[2]), control_points_x_5, control_points_y_5);
+        }
+        else if (leg == LEFT_BACK_LEG) {
+            SetThreeOrderBezierControlPoints(&(walk_slope_controller->walk_slope_bezier[3]), control_points_x_6, control_points_y_6);
+        }
+    }
+    else {
+        return;
+    }
+}
+
+void WalkSlope_FSM (WalkSlopeController* walk_slope_controller) {
+    float t_real = t / 1000;
+    float t_real_2 = 0;
+    float tan_slope_theta = 1 / 3;
+    float origin_height = 0.2259;
+    float length_between_legs = 0;  // Not certain
+    float shorter_height = origin_height - length_between_legs * tan_slope_theta * (1 / 3);
+    float longer_height = origin_height + length_between_legs * tan_slope_theta * (2 / 3);
+    float bezier_length = 0.12;
+    float max_height_1 = 0.03;
+    float max_height_2 = 0.01;
+    float delta_height = 0.04;
+    for (int i = 0; i < 4; i++) {
+        SetThreeOrderBezierPeriod(&walk_slope_controller->walk_slope_bezier[i], 1.0);
+    }
+
+    float bezier_x[4];
+    float bezier_y[4];
+    float fai_swing = 1;
+    float fai_support = 1;
+
+    if (walk_slope_controller->walk_slope_state == PreWalk) {
+        SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length / 2, delta_height / 2, max_height_1, LEFT_FRONT_LEG, NOT_SLOPE);
+        SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length / 2, delta_height / 2, max_height_1, RIGHT_FRONT_LEG, NOT_SLOPE);
+        SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length / 2, delta_height / 2, max_height_1, RIGHT_BACK_LEG, NOT_SLOPE);
+        SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length / 2, delta_height / 2, max_height_1, LEFT_BACK_LEG, NOT_SLOPE);
+
+        for (int i = 0; i < 4; i++) {
+            ThreeOrderBezierPlan(&(walk_slope_controller->walk_slope_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
+            if (i < 2) {
+                IK_leg(bezier_x[i], shorter_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+            }
+            else {
+                IK_leg(bezier_x[i], longer_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+            }
+        }
+
+        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+
+        if (t >= 1000 && walk_slope_controller->walk_slope_state_change == 1) {
+            walk_slope_controller->walk_slope_state = Walking;
+            walk_slope_controller->walk_slope_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+    }
+    else if (walk_slope_controller->walk_slope_state == Walking) {
+        if (t_real >= 0 && t_real < fai_support) {
+            SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length, delta_height, max_height_1, LEFT_FRONT_LEG, SLOPE_LF_RB_SUPPORT_RF_LB_SWING);
+            SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length, delta_height, max_height_1, RIGHT_BACK_LEG, SLOPE_LF_RB_SUPPORT_RF_LB_SWING);
+            t_real_2 = t_real / fai_support;
+        }
+        else if (t_real >= fai_support && t_real <= 2.0) {
+            SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length, delta_height, max_height_1, LEFT_FRONT_LEG, SLOPE_LF_RB_SWING_RF_LB_SUPPORT);
+            SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length, delta_height, max_height_1, RIGHT_BACK_LEG, SLOPE_LF_RB_SWING_RF_LB_SUPPORT);
+            t_real_2 = (t_real - fai_support) / (2.0 - fai_support);
+        }
+        ThreeOrderBezierPlan(&(walk_slope_controller->walk_slope_bezier[0]), t_real_2, &bezier_x[0], &bezier_y[0]);
+        ThreeOrderBezierPlan(&(walk_slope_controller->walk_slope_bezier[2]), t_real_2, &bezier_x[2], &bezier_y[2]);
+
+        if (t_real >= 0 && t_real < (2.0 - fai_support)) {
+            SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length, delta_height, max_height_1, RIGHT_FRONT_LEG, SLOPE_LF_RB_SUPPORT_RF_LB_SWING);
+            SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length, delta_height, max_height_1, LEFT_BACK_LEG, SLOPE_LF_RB_SUPPORT_RF_LB_SWING);
+            t_real_2 = t_real / (2.0 - fai_support);
+        }
+        else if (t_real >= (2.0 - fai_support) && t_real <= 2.0) {
+            SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length, delta_height, max_height_1, RIGHT_FRONT_LEG, SLOPE_LF_RB_SWING_RF_LB_SUPPORT);
+            SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length, delta_height, max_height_1, LEFT_BACK_LEG, SLOPE_LF_RB_SWING_RF_LB_SUPPORT);
+            t_real_2 = (t_real + fai_support - 2.0) / fai_support;
+        }
+        ThreeOrderBezierPlan(&(walk_slope_controller->walk_slope_bezier[1]), t_real_2, &bezier_x[1], &bezier_y[1]);
+        ThreeOrderBezierPlan(&(walk_slope_controller->walk_slope_bezier[3]), t_real_2, &bezier_x[3], &bezier_y[3]);
+
+        for (int i = 0; i < 4; i++) {
+            if (i < 2) {
+                IK_leg(bezier_x[i], shorter_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+            }
+            else {
+                IK_leg(bezier_x[i], longer_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+            }
+        }
+
+        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+
+        if (t >= 2000 && walk_slope_controller->walk_slope_state_change == 1) {
+            walk_slope_controller->walk_slope_state = PreEndWalk;
+            walk_slope_controller->walk_slope_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+    }
+    else if (walk_slope_controller->walk_slope_state == PreEndWalk) {
+        SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length / 2, delta_height / 2, max_height_1, LEFT_FRONT_LEG, NOT_SLOPE);
+        SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length / 2, delta_height / 2, max_height_2, RIGHT_FRONT_LEG, NOT_SLOPE);
+        SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length / 2, delta_height / 2, max_height_1, RIGHT_BACK_LEG, NOT_SLOPE);
+        SetWalkSlopeBezierControlPoints(walk_slope_controller, bezier_length / 2, delta_height / 2, max_height_2, LEFT_BACK_LEG, NOT_SLOPE);
+
+        for (int i = 0; i < 4; i++) {
+            ThreeOrderBezierPlan(&(walk_slope_controller->walk_slope_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
+            if (i < 2) {
+                IK_leg(bezier_x[i], shorter_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+            }
+            else {
+                IK_leg(bezier_x[i], longer_height - bezier_y[i], &angle[i][0], &angle[i][1]);
+            }
+        }
+
+        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+
+        if (t >= 1000 && walk_slope_controller->walk_slope_state_change == 1) {
+            walk_slope_controller->walk_slope_state = EndWalk;
+            walk_slope_controller->walk_slope_state_change = 0;
+            t = 0;
+            last_t = -1;
+        }
+    }
+    else if (walk_slope_controller->walk_slope_state == EndWalk) {
+        walk_slope_controller->walk_slope_enable = 0;
+        Stand();
+    }
+    else {
+        return;
+    }
+}
+
+void Prostrate_FSM () {
+
 }

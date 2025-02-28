@@ -158,6 +158,14 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
                 }
             }
         }
+        else if (walk_slope_controller.walk_slope_state == PreWalk || walk_slope_controller.walk_slope_state == PreEndWalk) {
+            if (t < 1000) {
+                t += NORMAL_DELTA_T;
+                if (t >= 1000) {
+                    walk_slope_controller.walk_slope_state_change = 1;
+                }
+            }
+        }
         else {
             if (t < 2000) {
                 t += NORMAL_DELTA_T;

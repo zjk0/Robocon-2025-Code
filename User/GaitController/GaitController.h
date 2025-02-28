@@ -29,6 +29,10 @@
 #define TURNING_LF_RB_SWING_RF_LB_SUPPORT 1
 #define NOT_TURNING 2
 
+#define SLOPE_LF_RB_SUPPORT_RF_LB_SWING 0
+#define SLOPE_LF_RB_SWING_RF_LB_SUPPORT 1
+#define NOT_SLOPE 2
+
 #define TORQUE_DEAD_AREA 0.01f
 #define POSITION_DEAD_AREA 0.01f
 
@@ -123,6 +127,27 @@ typedef struct {
     int turn_state_change;
 } TurnController;
 
+typedef enum {
+    UpSlope = 0, 
+    DownSlope
+} WalkSlopeDirection;
+
+typedef enum {
+    PreWalk = 0,
+    Walking,
+    PreEndWalk,
+    EndWalk
+} WalkSlopeState;
+
+typedef struct {
+    WalkSlopeState walk_slope_state;
+    WalkSlopeDirection walk_slope_direction;
+    ThreeOrderBezierInformation walk_slope_bezier[4];  // The bezier objects of four legs
+    float swing_duty_cycle;
+    int walk_slope_enable;
+    int walk_slope_state_change;
+} WalkSlopeController;
+
 typedef union {
     float real_motor_data[15];
     uint8_t send_motor_data[60];
@@ -136,6 +161,7 @@ extern RotateController rotate_controller;
 extern JumpController jump_up_controller;
 extern JumpController jump_forward_controller;
 extern TurnController turn_controller;
+extern WalkSlopeController walk_slope_controller;
 
 extern usart_data usart_motor_data;
 
@@ -151,8 +177,12 @@ extern float J60Motor_StandUpData_CAN2[4];  // rb_out, rb_in, lb_out, lb_in
  */
 void Trot_FSM (TrotController* trot_controller);
 void Rotate_FSM (RotateController* rotate_controller);
-void JumpUp_FSM (JumpController* jump_up_controller);
+void SetJumpUpBezierControlPoints(JumpController *jump_up_controller, float squat_length, float jump_length);
+void JumpUp_FSM(JumpController *jump_up_controller);
 void JumpForward_FSM (JumpController* jump_forward_controller);
 void Turn_FSM (TurnController* turn_controller);
 void Trot_to_Turn (TrotController* trot_controller, TurnController* turn_controller, float trot_length, float shorter_length, float longer_length, float bezier_height, float trotting_state);
 void Turn_to_Trot (TrotController* trot_controller, TurnController* turn_controller, float trot_length, float shorter_length, float longer_length, float bezier_height, float turning_state);
+void Change_to_Slope (float tan_slope_theta);
+void Restore_from_Slope (float tan_slope_theta);
+void WalkSlope_FSM (WalkSlopeController* walk_slope_controller);
