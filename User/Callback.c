@@ -8,7 +8,7 @@
 #include "KinematicSolution.h"
 #include "GaitController.h"
 
-#define NORMAL_DELTA_T 40
+#define NORMAL_DELTA_T 10
 #define JUMP_LEGUP_DELTA_T 50
 #define JUMP_SQUAT_STANDUP_DELTA_T 20
 
@@ -20,8 +20,10 @@
 #define LEFT_END_SIGNAL    0x46
 #define RIGHT_SIGNAL 0x68
 #define RIGHT_END_SIGNAL   0x48
-#define IMMEDIATELY_STOP_SIGNAL 0x6E
+#define IMMEDIATELY_STOP_SIGNAL 0x6A
 #define JUMP_SIGNAL 0x64
+#define INCREASE_ROBOT_HEIGHT 0x6D
+#define DECREASE_ROBOT_HEIGHT 0x6E
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (hcan->Instance == CAN1) {
@@ -97,6 +99,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
                 case IMMEDIATELY_STOP_SIGNAL:
                     trot_controller.trot_state_change = 1;
                     rotate_controller.rotate_state_change = 1;
+                    break;
+                case INCREASE_ROBOT_HEIGHT:
+                    robot_height += 0.01;
+                    break;
+                case DECREASE_ROBOT_HEIGHT:
+                    robot_height -= 0.01;
                     break;
                 default:
                     break;

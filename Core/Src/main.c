@@ -141,11 +141,11 @@ int main(void)
     if (t != last_t) {
       if (trot_controller.trot_enable && !rotate_controller.rotate_enable && 
           !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
-        Trot_FSM(&trot_controller);
+        Trot_FSM(&trot_controller, 0.03, 0.12, robot_height);
       }
       else if (!trot_controller.trot_enable && rotate_controller.rotate_enable && 
                !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
-        Rotate_FSM(&rotate_controller);
+        Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
       }
       else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && 
                jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
@@ -157,7 +157,10 @@ int main(void)
       }
       else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && 
                !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && turn_controller.turn_enable) {
-        Turn_FSM(&turn_controller);
+        Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
+      }
+      else {
+        Stand();
       }
 
       if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || 
