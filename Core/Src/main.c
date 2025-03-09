@@ -139,32 +139,38 @@ int main(void)
   while (1)
   {
     if (t != last_t) {
-      if (trot_controller.trot_enable && !rotate_controller.rotate_enable && 
-          !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
-        Trot_FSM(&trot_controller, 0.03, 0.12, robot_height);
+      if (trot_controller.trot_enable || walk_slope_controller.trot_enable) {
+        if (isSlope == 0) {
+          Trot_FSM(&trot_controller, 0.03, 0.12, robot_height);
+        }
+        else if (isSlope == 1) {
+          WalkSlope_FSM(&walk_slope_controller, (1.0 / 3), 0.4, robot_height, 0.12, 0.04);
+        }
       }
-      else if (!trot_controller.trot_enable && rotate_controller.rotate_enable && 
-               !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
+      else if (rotate_controller.rotate_enable) {
         Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
       }
-      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && 
-               jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
+      else if (jump_up_controller.jump_enable) {
         JumpUp_FSM(&jump_up_controller);
       }
-      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && 
-               !jump_up_controller.jump_enable && jump_forward_controller.jump_enable && !turn_controller.turn_enable) {
+      else if (jump_forward_controller.jump_enable) {
         JumpForward_FSM(&jump_forward_controller);
       }
-      else if (!trot_controller.trot_enable && !rotate_controller.rotate_enable && 
-               !jump_up_controller.jump_enable && !jump_forward_controller.jump_enable && turn_controller.turn_enable) {
+      else if (turn_controller.turn_enable) {
         Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
       }
       else {
-        Stand();
+        if (isSlope == 0) {
+          Stand();
+        }
+        else if (isSlope == 1) {
+          Stand_on_slope((1.0 / 3));
+        }
       }
 
       if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || 
-          jump_up_controller.jump_state != EndJump || jump_forward_controller.jump_state != EndJump || turn_controller.turn_state != EndTurn) {
+          jump_up_controller.jump_state != EndJump || jump_forward_controller.jump_state != EndJump || 
+          turn_controller.turn_state != EndTurn || walk_slope_controller.trot_state != EndTrot) {
         last_t = t;
         __HAL_TIM_SET_COUNTER(&htim2, 0);
         HAL_TIM_Base_Start_IT(&htim2);

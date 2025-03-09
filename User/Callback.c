@@ -8,7 +8,7 @@
 #include "KinematicSolution.h"
 #include "GaitController.h"
 
-#define NORMAL_DELTA_T 10
+#define NORMAL_DELTA_T 40
 #define JUMP_LEGUP_DELTA_T 50
 #define JUMP_SQUAT_STANDUP_DELTA_T 20
 
@@ -20,10 +20,12 @@
 #define LEFT_END_SIGNAL    0x46
 #define RIGHT_SIGNAL 0x68
 #define RIGHT_END_SIGNAL   0x48
-#define IMMEDIATELY_STOP_SIGNAL 0x6A
+#define IMMEDIATELY_STOP_SIGNAL 0
 #define JUMP_SIGNAL 0x64
 #define INCREASE_ROBOT_HEIGHT 0x6D
 #define DECREASE_ROBOT_HEIGHT 0x6E
+#define FLATLAND_TO_SLOPE 0x6A
+#define SLOPE_TO_FLATLAND 0x6B
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (hcan->Instance == CAN1) {
@@ -38,12 +40,19 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == UART8) {
-        if(controller_signal[0] == 0xFF && controller_signal[1] == 0xFF){
-            switch(controller_signal[2]){
+        if(controller_signal[0] == 0xFF && controller_signal[1] == 0xFF) {
+            switch (controller_signal[2]) {
                 case FORWARD_SIGNAL:
-                    trot_controller.trot_state = PreTrot;
-                    trot_controller.trot_direction = Forward;
-                    trot_controller.trot_enable = 1;
+                    if (isSlope == 0) {
+                        trot_controller.trot_state = PreTrot;
+                        trot_controller.trot_direction = Forward;
+                        trot_controller.trot_enable = 1;
+                    }
+                    else if (isSlope == 1) {
+                        walk_slope_controller.trot_state = PreTrot;
+                        walk_slope_controller.trot_direction = Forward;
+                        walk_slope_controller.trot_enable = 1;
+                    }
                     t = 0;
                     last_t = -1;
                     break;
@@ -83,7 +92,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
                     last_t = -1;
                     break;
                 case FORWARD_END_SIGNAL:
-                    trot_controller.trot_state_change = 1;
+                    if (isSlope == 0) {
+                        trot_controller.trot_state_change = 1;
+                    }
+                    else if (isSlope == 1) {
+                        walk_slope_controller.trot_state_change = 1;
+                    }
                     break;
                 case BACK_END_SIGNAL:
                     trot_controller.trot_state_change = 1;
@@ -105,6 +119,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
                     break;
                 case DECREASE_ROBOT_HEIGHT:
                     robot_height -= 0.01;
+                    break;
+                case FLATLAND_TO_SLOPE:
+                    isSlope = 1;
+                    // Stand_on_slope((1 / 3));
+                    break;
+                case SLOPE_TO_FLATLAND:
+                    isSlope = 0;
+                    // Stand();
                     break;
                 default:
                     break;
@@ -166,11 +188,11 @@ void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
                 }
             }
         }
-        else if (walk_slope_controller.walk_slope_state == PreWalk || walk_slope_controller.walk_slope_state == PreEndWalk) {
+        else if (walk_slope_controller.trot_state == PreTrot || walk_slope_controller.trot_state == PreEndTrot) {
             if (t < 1000) {
                 t += NORMAL_DELTA_T;
                 if (t >= 1000) {
-                    walk_slope_controller.walk_slope_state_change = 1;
+                    walk_slope_controller.trot_state_change = 1;
                 }
             }
         }

@@ -161,7 +161,7 @@ extern RotateController rotate_controller;
 extern JumpController jump_up_controller;
 extern JumpController jump_forward_controller;
 extern TurnController turn_controller;
-extern WalkSlopeController walk_slope_controller;
+extern TrotController walk_slope_controller;
 
 extern usart_data usart_motor_data;
 
@@ -170,6 +170,7 @@ extern float t;
 extern float last_t;
 
 extern float robot_height;
+extern int isSlope;
 
 extern float J60Motor_StandUpData_CAN1[4];  // lf_out, lf_in, rf_out, rf_in
 extern float J60Motor_StandUpData_CAN2[4];  // rb_out, rb_in, lb_out, lb_in
@@ -185,6 +186,5 @@ void JumpForward_FSM (JumpController* jump_forward_controller);
 void Turn_FSM (TurnController* turn_controller, float shorter_gait_length, float longer_gait_length, float gait_height, float robot_height);
 void Trot_to_Turn (TrotController* trot_controller, TurnController* turn_controller, float trot_length, float shorter_length, float longer_length, float bezier_height, float trotting_state, float robot_height);
 void Turn_to_Trot (TrotController* trot_controller, TurnController* turn_controller, float trot_length, float shorter_length, float longer_length, float bezier_height, float turning_state, float robot_height);
-void Change_to_Slope (float tan_slope_theta, float robot_height);
-void Restore_from_Slope (float tan_slope_theta, float robot_height);
-void WalkSlope_FSM (WalkSlopeController* walk_slope_controller, float tan_slope_theta, float length_between_legs, float robot_height, float gait_length, float delta_height, float max_height_1, float max_height_2);
+void Stand_on_slope (float tan_slope_theta);
+void WalkSlope_FSM (TrotController* walk_slope_controller, float tan_slope_theta, float length_between_legs, float robot_height, float gait_length, float delta_height);
