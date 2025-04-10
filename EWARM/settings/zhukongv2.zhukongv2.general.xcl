@@ -1,0 +1,15 @@
+"D:\IAR8.3\arm\bin\armproc.dll" 
+
+"D:\IAR8.3\arm\bin\armJET.dll" 
+
+"D:\RTS_2025\2025_Canine_Mainboard_Drv _3.0_lcy2025.4.8\EWARM\zhukongv2\Exe\zhukongv2.out" 
+
+--plugin="D:\IAR8.3\arm\bin\armbat.dll" 
+
+--device_macro="D:\IAR8.3\arm\config\debugger\ST\STM32F4xx.dmac" 
+
+--flash_loader="D:\IAR8.3\arm\config\flashloader\ST\FlashSTM32F427xI.board" 
+
+
+
+

@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -66,11 +66,11 @@ void HAL_SD_MspInit(SD_HandleTypeDef* sdHandle)
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
     /**SDIO GPIO Configuration
+    PC8     ------> SDIO_D0
     PC12     ------> SDIO_CK
     PD2     ------> SDIO_CMD
-    PC8     ------> SDIO_D0
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_8;
+    GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_12;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -105,11 +105,11 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef* sdHandle)
     __HAL_RCC_SDIO_CLK_DISABLE();
 
     /**SDIO GPIO Configuration
+    PC8     ------> SDIO_D0
     PC12     ------> SDIO_CK
     PD2     ------> SDIO_CMD
-    PC8     ------> SDIO_D0
     */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_12|GPIO_PIN_8);
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8|GPIO_PIN_12);
 
     HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
 

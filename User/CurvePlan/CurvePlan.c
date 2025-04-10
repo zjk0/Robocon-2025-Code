@@ -71,7 +71,8 @@ void SetThreeOrderBezier (ThreeOrderBezierInformation* bezier, float* control_po
 }
 
 void ThreeOrderBezierPlan (ThreeOrderBezierInformation* bezier, float t, float* bezier_x, float* bezier_y) {
-    if (t <= bezier->period) {
+    if (t <= bezier->period) 
+    {
         t = t / bezier->period;
         *bezier_x = pow((1 - t), 3) * bezier->control_points_x[0] +
                     3 * pow((1 - t), 2) * t * bezier->control_points_x[1] + 
@@ -82,4 +83,14 @@ void ThreeOrderBezierPlan (ThreeOrderBezierInformation* bezier, float t, float* 
                     3 * (1 - t) * pow(t, 2) * bezier->control_points_y[2] + 
                     pow(t, 3) * bezier->control_points_y[3];
     }
+}
+
+void LinePlan(ThreeOrderBezierInformation* bezier, float t, float* bezier_x, float* bezier_y)
+{
+  if (t <= bezier->period) 
+  {
+      t = t / bezier->period;
+      *bezier_x = (bezier->control_points_x[3] - bezier->control_points_x[0]) * t + bezier->control_points_x[0];
+      *bezier_y = (bezier->control_points_y[3] - bezier->control_points_y[0]) * t + bezier->control_points_y[0];
+  }
 }

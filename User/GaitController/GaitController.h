@@ -6,6 +6,7 @@
 #include "DeepJ60_Motor.h"
 #include "KinematicSolution.h"
 #include "usart.h"
+#include "spi.h"
 #include "math.h"
 #include "CurvePlan.h"
 
@@ -42,9 +43,9 @@
 // The state of the process of trotting
 typedef enum {
     PreTrot = 0,
-    Trotting,
-    PreEndTrot,
-    EndTrot
+    Trotting = 1,
+    PreEndTrot = 2,
+    EndTrot = 3
 } TrotState;
 
 // The direction of trotting
@@ -85,12 +86,13 @@ typedef struct {
 } RotateController;
 
 typedef enum {
-    Squat = 0,
-    JumpUp,
-    LegUp,
-    Land,
-    StandUp,
-    EndJump
+    Recline = 0,
+    Squat = 1,
+    JumpUp = 2,
+    LegUp = 3,
+    Land = 4,
+    StandUp = 5,
+    EndJump = 6
 } JumpState;
 
 typedef struct {
@@ -151,7 +153,7 @@ typedef struct {
 typedef union {
     float real_motor_data[15];
     uint8_t send_motor_data[60];
-} usart_data;
+} spi_data;
 
 /**
  * ----------------------------------- Variables -----------------------------------
@@ -162,8 +164,8 @@ extern JumpController jump_up_controller;
 extern JumpController jump_forward_controller;
 extern TurnController turn_controller;
 extern TrotController walk_slope_controller;
-
-extern usart_data usart_motor_data;
+extern TrotController walk_LR_slope_controller;
+extern spi_data spi_motor_data;
 
 extern float angle[4][2];
 extern float t;
@@ -171,6 +173,8 @@ extern float last_t;
 
 extern float robot_height;
 extern int isSlope;
+
+extern float tan_LR_slope_theta;
 
 extern float J60Motor_StandUpData_CAN1[4];  // lf_out, lf_in, rf_out, rf_in
 extern float J60Motor_StandUpData_CAN2[4];  // rb_out, rb_in, lb_out, lb_in
@@ -188,3 +192,6 @@ void Trot_to_Turn (TrotController* trot_controller, TurnController* turn_control
 void Turn_to_Trot (TrotController* trot_controller, TurnController* turn_controller, float trot_length, float shorter_length, float longer_length, float bezier_height, float turning_state, float robot_height);
 void Stand_on_slope (float tan_slope_theta);
 void WalkSlope_FSM (TrotController* walk_slope_controller, float tan_slope_theta, float length_between_legs, float robot_height, float gait_length, float delta_height);
+void Stand_on_LR_slope (float tan_slope_theta);
+void SetWalk_LR_SlopeBezierControlPoints (TrotController* walk_LR_slope_controller, float bezier_length, float delta_height, int leg, int walking_state);
+void WalkSlope_LR_FSM (TrotController* walk_LR_slope_controller, float tan_slope_theta, float length_between_legs, float robot_height, float gait_length, float delta_height); 

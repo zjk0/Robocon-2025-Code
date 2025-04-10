@@ -1,36 +1,36 @@
 /* USER CODE BEGIN Header */
 /**
- ******************************************************************************
- * @file           : main.c
- * @brief          : Main program body
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2024 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2025 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "can.h"
+#include "dma.h"
 #include "fatfs.h"
 #include "sdio.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
 #include "DeepJ60_Motor.h"
 #include "GaitController.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,18 +94,19 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_CAN1_Init();
   MX_CAN2_Init();
+  MX_SPI4_Init();
+  MX_TIM2_Init();
   MX_SDIO_SD_Init();
   MX_FATFS_Init();
-  MX_USART6_UART_Init();
   MX_UART7_Init();
-  MX_UART8_Init();
-  MX_TIM2_Init();
   MX_USART3_UART_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
-
-  HAL_Delay(3000);
+  
+  HAL_Delay(4000);
 
   EnableJ60Motor(&J60Motor_CAN1[0], 1, 1); // lf out
   EnableJ60Motor(&J60Motor_CAN1[1], 2, 1); // lf in
@@ -122,61 +123,80 @@ int main(void)
   RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 20, 5, PositionMode);
 
   HAL_Delay(2000);
-
-  // HAL_Delay(1);
-  // RunJ60Motor(&J60Motor_CAN1[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
-  // HAL_Delay(1);
-  // RunJ60Motor(&J60Motor_CAN1[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
-  // HAL_Delay(1);
-  // RunJ60Motor(&J60Motor_CAN2[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
-  // HAL_Delay(1);
-  // RunJ60Motor(&J60Motor_CAN2[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    if (t != last_t) {
-      if (trot_controller.trot_enable || walk_slope_controller.trot_enable) {
-        if (isSlope == 0) {
-          Trot_FSM(&trot_controller, 0.03, 0.12, robot_height);
+//  RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 20, 5, ZeroTorqueMode);
+//  HAL_Delay(1);
+//  RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 20, 5, ZeroTorqueMode);
+//  HAL_Delay(1);
+//  RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN1[0], 0, 0, 20, 5, ZeroTorqueMode);
+//  HAL_Delay(1);
+//  RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN1[1], 0, 0, 20, 5, ZeroTorqueMode);
+//  HAL_Delay(1);
+    if (t != last_t) 
+    {
+      if (trot_controller.trot_enable || walk_slope_controller.trot_enable || walk_LR_slope_controller.trot_enable) 
+      {
+        if (isSlope == 0) 
+        {
+          Trot_FSM(&trot_controller, 0.03, 0.14, robot_height);//0.03,0.12
         }
-        else if (isSlope == 1) {
+        else if (isSlope == 1) 
+        {
           WalkSlope_FSM(&walk_slope_controller, (1.0 / 3), 0.4, robot_height, 0.12, 0.04);
         }
+        else if (isSlope == 2)
+        {
+          WalkSlope_LR_FSM(&walk_LR_slope_controller, 0.268, 0.4, robot_height, 0.12, 0.09378);
+        } 
       }
-      else if (rotate_controller.rotate_enable) {
+      else if (rotate_controller.rotate_enable) 
+      {
         Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
       }
-      else if (jump_up_controller.jump_enable) {
+      else if (jump_up_controller.jump_enable) 
+      {
         JumpUp_FSM(&jump_up_controller);
       }
-      else if (jump_forward_controller.jump_enable) {
+      else if (jump_forward_controller.jump_enable) 
+      {
         JumpForward_FSM(&jump_forward_controller);
       }
-      else if (turn_controller.turn_enable) {
+      else if (turn_controller.turn_enable) 
+      {
         Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
       }
-      else {
-        if (isSlope == 0) {
+      else 
+      {
+        if (isSlope == 0) 
+        {
           Stand();
         }
-        else if (isSlope == 1) {
+        else if (isSlope == 1) 
+        {
           Stand_on_slope((1.0 / 3));
         }
+        else if (isSlope == 2)
+        {
+          Stand_on_LR_slope(tan_LR_slope_theta);
+        }
+        
       }
 
       if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || 
           jump_up_controller.jump_state != EndJump || jump_forward_controller.jump_state != EndJump || 
-          turn_controller.turn_state != EndTurn || walk_slope_controller.trot_state != EndTrot) {
+          turn_controller.turn_state != EndTurn || walk_slope_controller.trot_state != EndTrot || 
+          walk_LR_slope_controller.trot_state != EndTrot) 
+      {
         last_t = t;
         __HAL_TIM_SET_COUNTER(&htim2, 0);
         HAL_TIM_Base_Start_IT(&htim2);
       }
     }
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -205,8 +225,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 6;
-  RCC_OscInitStruct.PLL.PLLN = 180;
+  RCC_OscInitStruct.PLL.PLLM = 15;
+  RCC_OscInitStruct.PLL.PLLN = 216;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 8;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)

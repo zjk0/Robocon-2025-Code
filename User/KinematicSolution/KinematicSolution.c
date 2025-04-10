@@ -6,7 +6,7 @@
 #include "usart.h"
 
 int IK_leg(float x_pos, float y_pos, float *angle_e, float *angle_i) {
-    float l1 = 0.12, l2 = 0.24, l3 = 0.025;                  // 并联腿的长度
+    float l1 = 0.15, l2 = 0.24, l3 = 0.025;                  // 并联腿的长度
     float lod2, lbd2, loc2;                                  // 逆解的并联腿之外的一些长度
     float angle_link_i, angle_link_e;                        // 定义求解的两个电机转动角度
     float cosgama, cosCOD;                                   // 定义一些逆解需要角的cos值

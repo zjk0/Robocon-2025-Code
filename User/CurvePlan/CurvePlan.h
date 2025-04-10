@@ -38,3 +38,4 @@ void SetThreeOrderBezierControlPoints (ThreeOrderBezierInformation* bezier, floa
 void SetThreeOrderBezierPeriod (ThreeOrderBezierInformation* bezier, float period);
 void SetThreeOrderBezier (ThreeOrderBezierInformation* bezier, float* control_points_x, float* control_points_y, float period);
 void ThreeOrderBezierPlan (ThreeOrderBezierInformation* bezier, float t, float* bezier_x, float* bezier_y);
+void LinePlan(ThreeOrderBezierInformation* bezier, float t, float* bezier_x, float* bezier_y);
