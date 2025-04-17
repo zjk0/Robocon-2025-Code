@@ -3,53 +3,16 @@
 #include "stm32f4xx_it.h"
 #include "stm32f4xx_hal_can.h"
 #include "can.h"
-#include "tim.h"
 #include "usart.h"
-#include "KinematicSolution.h"
 #include "GaitController.h"
+#include "Handle.h"
+#include "main.h"
+#include "string.h"
 
 #define NORMAL_DELTA_T 50
 #define SLOW_DELTA_T 10
 #define JUMP_LEGUP_DELTA_T 50
 #define JUMP_SQUAT_STANDUP_DELTA_T 20
-
-//#define FORWARD_SIGNAL 0x65
-//#define FORWARD_END_SIGNAL 0x45
-//#define BACK_SIGNAL 0x67
-//#define BACK_END_SIGNAL    0x47
-//#define LEFT_SIGNAL 0x66
-//#define LEFT_END_SIGNAL    0x46
-//#define RIGHT_SIGNAL 0x68
-//#define RIGHT_END_SIGNAL   0x48
-//#define IMMEDIATELY_STOP_SIGNAL 0
-//#define JUMP_SIGNAL 0x64
-//#define INCREASE_ROBOT_HEIGHT 0x6D
-//#define DECREASE_ROBOT_HEIGHT 0x6E
-//#define FLATLAND_TO_SLOPE 0x6A
-//#define SLOPE_TO_FLATLAND 0x6B
-//#define FLATLAND_TO_RL_SLOPE 0x6C
-
-#define FORWARD_SIGNAL 0x61
-#define FORWARD_END_SIGNAL 0x41
-#define BACK_SIGNAL 0x63
-#define BACK_END_SIGNAL    0x43
-#define LEFT_SIGNAL_0 0x62
-#define LEFT_END_SIGNAL_0    0x42
-#define RIGHT_SIGNAL_0 0x64
-#define RIGHT_END_SIGNAL_0   0x44
-#define IMMEDIATELY_STOP_SIGNAL 0
-#define JUMP_SIGNAL_0 0x65
-#define JUMP_SIGNAL_1 0x67
-#define LEFT_SIGNAL_1 0x66
-#define LEFT_END_SIGNAL_1    0x46
-#define RIGHT_SIGNAL_1 0x68
-#define RIGHT_END_SIGNAL_1   0x48
-#define INCREASE_ROBOT_HEIGHT 0x6D
-#define DECREASE_ROBOT_HEIGHT 0x6E
-#define FLATLAND_TO_SLOPE 0x6A
-#define SLOPE_TO_FLATLAND_0 0x4A
-#define FLATLAND_TO_RL_SLOPE 0x6B
-#define SLOPE_TO_FLATLAND_1 0x4B
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     if (hcan->Instance == CAN1) {
@@ -62,389 +25,36 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
     }
 }
 
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-//{
-//  if(huart->Instance == USART3)
-//  {
-//        if(rx_data[0] == 0xFF && rx_data[1] == 0xFF) 
-//        {
-//            switch (rx_data[2]) 
-//            {
-//                case FORWARD_SIGNAL:
-//                    if (isSlope == 0) 
-//                    {
-//                        trot_controller.trot_state = PreTrot;
-//                        trot_controller.trot_direction = Forward;
-//                        trot_controller.trot_enable = 1;
-//                    }
-//                    else if (isSlope == 1) 
-//                    {
-//                        walk_slope_controller.trot_state = PreTrot;
-//                        walk_slope_controller.trot_direction = Forward;
-//                        walk_slope_controller.trot_enable = 1;
-//                    }
-//                    else if(isSlope == 2)
-//                    {
-//                        walk_LR_slope_controller.trot_state = PreTrot;
-//                        walk_LR_slope_controller.trot_direction = Forward;
-//                        walk_LR_slope_controller.trot_enable = 1;
-//                    }
-//                    t = 0;
-//                    last_t = -1;
-//                    break;
-//                case BACK_SIGNAL:
-//                    trot_controller.trot_state = PreTrot;
-//                    trot_controller.trot_direction = Back;
-//                    trot_controller.trot_enable = 1;
-//                    t = 0;
-//                    last_t = -1;
-//                    break;
-//                case LEFT_SIGNAL_0:
-//                     rotate_controller.rotate_state = PreRotate;
-//                     rotate_controller.rotate_direction = Left;
-//                     rotate_controller.rotate_enable = 1;
-//                     t = 0;
-//                     last_t = -1;
-//                case LEFT_SIGNAL_1:
-//                    turn_controller.turn_state = PreTurn;
-//                    turn_controller.turn_angular_direction = TurnLeft;
-//                    turn_controller.turn_enable = 1;
-//                    t = 0;
-//                    last_t = -1;
-//                    break;
-//                case RIGHT_SIGNAL_0:
-//                     rotate_controller.rotate_state = PreRotate;
-//                     rotate_controller.rotate_direction = Right;
-//                     rotate_controller.rotate_enable = 1;
-//                     t = 0;
-//                     last_t = -1;
-//                     break;
-//                case RIGHT_SIGNAL_1:
-//                    turn_controller.turn_state = PreTurn;
-//                    turn_controller.turn_angular_direction = TurnRight;
-//                    turn_controller.turn_enable = 1;
-//                    t = 0;
-//                    last_t = -1;
-//                    break;
-//                case JUMP_SIGNAL_0:
-//                    jump_up_controller.jump_state = Squat;
-//                    jump_up_controller.jump_enable = 1;
-//                    t = 0;
-//                    last_t = -1;
-//                    break;
-//                case JUMP_SIGNAL_1:
-//                    jump_forward_controller.jump_state = Squat;
-//                    jump_forward_controller.jump_enable = 1;
-//                    t = 0;
-//                    last_t = -1;
-//                    break;
-//                case FORWARD_END_SIGNAL:
-//                    if (isSlope == 0) 
-//                    {
-//                        trot_controller.trot_state_change = 1;
-//                    }
-//                    else if (isSlope == 1) 
-//                    {
-//                        walk_slope_controller.trot_state_change = 1;
-//                    }
-//                    else if(isSlope == 2)
-//                    {
-//                        walk_LR_slope_controller.trot_state_change = 1;
-//                    }
-//                    break;
-//                case BACK_END_SIGNAL:
-//                    trot_controller.trot_state_change = 1;
-//                    break;
-//                case LEFT_END_SIGNAL_0:
-//                    rotate_controller.rotate_state_change = 1;
-//                    break;
-//                case LEFT_END_SIGNAL_1:
-//	             turn_controller.turn_state_change = 1;
-//                    break;
-//                case RIGHT_END_SIGNAL_0:
-//                     rotate_controller.rotate_state_change = 1;
-//                     break;
-//                case RIGHT_END_SIGNAL_1:
-//                    turn_controller.turn_state_change = 1;
-//                    break;
-//                case IMMEDIATELY_STOP_SIGNAL:
-//                    trot_controller.trot_state_change = 1;
-//                    rotate_controller.rotate_state_change = 1;
-//                    break;
-//                case INCREASE_ROBOT_HEIGHT:
-//                    robot_height += 0.01;
-//                    break;
-//                case DECREASE_ROBOT_HEIGHT:
-//                    robot_height -= 0.01;
-//                    break;
-//                case FLATLAND_TO_SLOPE:
-//                    isSlope = 1;
-//                    // Stand_on_slope((1 / 3));
-//                    break;
-//                case SLOPE_TO_FLATLAND_0:
-//                    isSlope = 0;
-//                    break;
-//                case SLOPE_TO_FLATLAND_1:
-//                    isSlope = 0;
-//                    // Stand();
-//                    break;
-//                case FLATLAND_TO_RL_SLOPE:
-//                    isSlope = 2;
-//                    // Stand_on_LR_slope(pi / 12);
-//                    break;    
-//                default:
-//                    break;
-//            }
-//        }
-////        HAL_UART_Receive_IT(&huart3, (uint8_t*)rx_data, 3);
-//        HAL_UART_Receive_DMA(&huart3, (uint8_t*)rx_data, 3);
-//  }
-//
-//}
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+    dma_pointer_pos = DMA_BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);
+    uint8_t rx_cmd[HANDLE_DATA_SIZE] = {0};
+    BaseType_t higher_priority_task_wake = pdFALSE;
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if (huart->Instance == USART6) 
-    {
-        if(controller_signal[0] == 0xFF && controller_signal[1] == 0xFF) 
-        {
-            switch (controller_signal[2]) 
-            {
-              case FORWARD_SIGNAL:
-                    if (isSlope == 0) 
-                    {
-                        trot_controller.trot_state = PreTrot;
-                        trot_controller.trot_direction = Forward;
-                        trot_controller.trot_enable = 1;
-                    }
-                    else if (isSlope == 1) 
-                    {
-                        walk_slope_controller.trot_state = PreTrot;
-                        walk_slope_controller.trot_direction = Forward;
-                        walk_slope_controller.trot_enable = 1;
-                    }
-                    else if(isSlope == 2)
-                    {
-                        walk_LR_slope_controller.trot_state = PreTrot;
-                        walk_LR_slope_controller.trot_direction = Forward;
-                        walk_LR_slope_controller.trot_enable = 1;
-                    }
-                    t = 0;
-                    last_t = -1;
-                    break;
-                case BACK_SIGNAL:
-                    trot_controller.trot_state = PreTrot;
-                    trot_controller.trot_direction = Back;
-                    trot_controller.trot_enable = 1;
-                    t = 0;
-                    last_t = -1;
-                    break;
-                case LEFT_SIGNAL_0:
-                     rotate_controller.rotate_state = PreRotate;
-                     rotate_controller.rotate_direction = Left;
-                     rotate_controller.rotate_enable = 1;
-                     t = 0;
-                     last_t = -1;
-                     break;
-                case LEFT_SIGNAL_1:
-                    turn_controller.turn_state = PreTurn;
-                    turn_controller.turn_angular_direction = TurnLeft;
-                    turn_controller.turn_enable = 1;
-                    t = 0;
-                    last_t = -1;
-                    break;
-                case RIGHT_SIGNAL_0:
-                     rotate_controller.rotate_state = PreRotate;
-                     rotate_controller.rotate_direction = Right;
-                     rotate_controller.rotate_enable = 1;
-                     t = 0;
-                     last_t = -1;
-                     break;
-                case RIGHT_SIGNAL_1:
-                    turn_controller.turn_state = PreTurn;
-                    turn_controller.turn_angular_direction = TurnRight;
-                    turn_controller.turn_enable = 1;
-                    t = 0;
-                    last_t = -1;
-                    break;
-                case JUMP_SIGNAL_0:
-                    jump_up_controller.jump_state = Squat;
-                    jump_up_controller.jump_enable = 1;
-                    t = 0;
-                    last_t = -1;
-                    break;
-                case JUMP_SIGNAL_1:
-                    jump_forward_controller.jump_state = Squat;
-                    jump_forward_controller.jump_enable = 1;
-                    t = 0;
-                    last_t = -1;
-                    break;
-                case FORWARD_END_SIGNAL:
-                    if (isSlope == 0) 
-                    {
-                        trot_controller.trot_state_change = 1;
-                    }
-                    else if (isSlope == 1) 
-                    {
-                        walk_slope_controller.trot_state_change = 1;
-                    }
-                    else if(isSlope == 2)
-                    {
-                        walk_LR_slope_controller.trot_state_change = 1;
-                    }
-                    break;
-                case BACK_END_SIGNAL:
-                    trot_controller.trot_state_change = 1;
-                    break;
-                case LEFT_END_SIGNAL_0:
-                    rotate_controller.rotate_state_change = 1;
-                    break;
-                case LEFT_END_SIGNAL_1:
-	             turn_controller.turn_state_change = 1;
-                    break;
-                case RIGHT_END_SIGNAL_0:
-                     rotate_controller.rotate_state_change = 1;
-                     break;
-                case RIGHT_END_SIGNAL_1:
-                    turn_controller.turn_state_change = 1;
-                    break;
-                case IMMEDIATELY_STOP_SIGNAL:
-                    trot_controller.trot_state_change = 1;
-                    rotate_controller.rotate_state_change = 1;
-                    break;
-                case INCREASE_ROBOT_HEIGHT:
-                    robot_height += 0.01;
-                    break;
-                case DECREASE_ROBOT_HEIGHT:
-                    robot_height -= 0.01;
-                    break;
-                case FLATLAND_TO_SLOPE:
-                    isSlope = 1;
-                    // Stand_on_slope((1 / 3));
-                    break;
-                case SLOPE_TO_FLATLAND_0:
-                    isSlope = 0;
-                    break;
-                case SLOPE_TO_FLATLAND_1:
-                    isSlope = 0;
-                    // Stand();
-                    break;
-                case FLATLAND_TO_RL_SLOPE:
-                    isSlope = 2;
-                    // Stand_on_LR_slope(pi / 12);
-                    break;    
-                default:
-                    break;
-            }
-        }
-        HAL_UART_Receive_IT(&huart6, (uint8_t*)controller_signal, 3);
-    }
-    
-    
-}
+    if (huart->Instance == USART6) {
+        memcpy(dma_buffer_copy, dma_buffer, DMA_BUFFER_SIZE);
 
-void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
-    if (htim->Instance == TIM2) {
-        if (trot_controller.trot_state == PreTrot || trot_controller.trot_state == PreEndTrot) {
-            if (t < 1000) {
-                t += NORMAL_DELTA_T;
-                if (t >= 1000) {
-                    trot_controller.trot_state_change = 1;
-                }
-            }
-        }
-        else if (rotate_controller.rotate_state == PreRotate || rotate_controller.rotate_state == PreEndRotate) {
-            if (t < 1000) 
-            {
-                t += NORMAL_DELTA_T;
-                if (t >= 1000) 
-                {
-                    rotate_controller.rotate_state_change = 1;
-                }
-            }
-        }
-        else if (jump_up_controller.jump_state == Squat || jump_up_controller.jump_state == StandUp || jump_up_controller.jump_state == LegUp) {
-            if (t < 1000) 
-            {
-                if (jump_up_controller.jump_state == LegUp) 
-                {
-                    t += JUMP_LEGUP_DELTA_T;
+        while ((dma_pointer_pos > parse_start_pos && dma_pointer_pos - parse_start_pos >= HANDLE_DATA_SIZE) || 
+               (dma_pointer_pos < parse_start_pos && DMA_BUFFER_SIZE + dma_pointer_pos - parse_start_pos >= HANDLE_DATA_SIZE)) {
+                
+            if (dma_buffer_copy[parse_start_pos] == CMD_FLAG_1 && dma_buffer_copy[(parse_start_pos + 1) % DMA_BUFFER_SIZE] == CMD_FLAG_1) {
+                if (parse_start_pos + HANDLE_DATA_SIZE < DMA_BUFFER_SIZE) {
+                    memcpy(rx_cmd, &dma_buffer_copy[parse_start_pos], HANDLE_DATA_SIZE);
                 }
                 else {
-                    t += JUMP_SQUAT_STANDUP_DELTA_T;
+                    uint16_t first_length = DMA_BUFFER_SIZE - parse_start_pos;
+                    uint16_t second_length = HANDLE_DATA_SIZE - first_length;
+                    memcpy(rx_cmd, &dma_buffer_copy[parse_start_pos], first_length);
+                    memcpy(&rx_cmd[first_length], &dma_buffer_copy[0], second_length);
                 }
-                if (t >= 1000) 
-                {
-                    jump_up_controller.jump_state_change = 1;
-                }
-            }
-        }
-        else if (jump_forward_controller.jump_state == Recline || jump_forward_controller.jump_state == Squat || jump_forward_controller.jump_state == StandUp || jump_forward_controller.jump_state == LegUp) {
-            if (t < 1000) {
-                if (jump_forward_controller.jump_state == LegUp) {
-                    t += JUMP_LEGUP_DELTA_T;
-                }
-                else if(jump_forward_controller.jump_state == Recline)
-                {
-                      t += 20;
-                }
-                else {
-                    t += JUMP_SQUAT_STANDUP_DELTA_T;
-                }
-                if (t >= 1000) {                
-                    jump_forward_controller.jump_state_change = 1;
-                }
-            }
-        }
-        else if (turn_controller.turn_state == PreTurn || turn_controller.turn_state == PreEndTurn) {
-            if (t < 1000) {
-                t += NORMAL_DELTA_T;
-                if (t >= 1000) {
-                    turn_controller.turn_state_change = 1;
-                }
-            }
-        }
-        else if (walk_slope_controller.trot_state == PreTrot || walk_slope_controller.trot_state == PreEndTrot) {
-            if (t < 1000) {
-                t += NORMAL_DELTA_T;
-                if (t >= 1000) {
-                    walk_slope_controller.trot_state_change = 1;
-                }
-            }
-        }
-       else if (walk_LR_slope_controller.trot_state == PreTrot || walk_LR_slope_controller.trot_state == PreEndTrot) 
-       {
-            if (t < 1000) 
-            {
-                t += SLOW_DELTA_T;
-                if (t >= 1000) 
-                {
-                    walk_LR_slope_controller.trot_state_change = 1;
-                }
-            }
-        }
-       else if (walk_LR_slope_controller.trot_state == Trotting) 
-       {
-            if (t < 2000) 
-            {
-                t += SLOW_DELTA_T;
-            }
-            else
-            {
-                t = 0;
-                last_t = -1;
-            }
-        }
-        else {
-            if (t < 2000) 
-            {
-                t += NORMAL_DELTA_T;
+                
+                xQueueSendFromISR(cmd_queue, rx_cmd, &higher_priority_task_wake);
+                portYIELD_FROM_ISR(higher_priority_task_wake);
+                
+                parse_start_pos = (parse_start_pos + HANDLE_DATA_SIZE) % DMA_BUFFER_SIZE;
             }
             else {
-                t = 0;
-                last_t = -1;
+                parse_start_pos = (parse_start_pos + 1) % DMA_BUFFER_SIZE;
             }
         }
-
-        HAL_TIM_Base_Stop_IT(&htim2);
     }
 }

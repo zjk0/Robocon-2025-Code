@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "can.h"
 #include "dma.h"
 #include "fatfs.h"
@@ -29,8 +30,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 #include "DeepJ60_Motor.h"
 #include "GaitController.h"
+#include "Handle.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,10 +56,13 @@
 
 /* USER CODE BEGIN PV */
 
+QueueHandle_t cmd_queue;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -123,80 +130,28 @@ int main(void)
   RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1], 0, 0, 20, 5, PositionMode);
 
   HAL_Delay(2000);
+
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart6, (uint8_t*)dma_buffer, DMA_BUFFER_SIZE);
+
+  cmd_queue = xQueueCreate(10, sizeof(uint8_t) * HANDLE_DATA_SIZE);
+
   /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();
+
+  /* Call init function for freertos objects (in cmsis_os2.c) */
+  MX_FREERTOS_Init();
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//  RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0], 0, 0, 20, 5, ZeroTorqueMode);
-//  HAL_Delay(1);
-//  RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1], 0, 0, 20, 5, ZeroTorqueMode);
-//  HAL_Delay(1);
-//  RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN1[0], 0, 0, 20, 5, ZeroTorqueMode);
-//  HAL_Delay(1);
-//  RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN1[1], 0, 0, 20, 5, ZeroTorqueMode);
-//  HAL_Delay(1);
-    if (t != last_t) 
-    {
-      if (trot_controller.trot_enable || walk_slope_controller.trot_enable || walk_LR_slope_controller.trot_enable) 
-      {
-        if (isSlope == 0) 
-        {
-          Trot_FSM(&trot_controller, 0.03, 0.14, robot_height);//0.03,0.12
-        }
-        else if (isSlope == 1) 
-        {
-          WalkSlope_FSM(&walk_slope_controller, (1.0 / 3), 0.4, robot_height, 0.12, 0.04);
-        }
-        else if (isSlope == 2)
-        {
-          WalkSlope_LR_FSM(&walk_LR_slope_controller, 0.268, 0.4, robot_height, 0.12, 0.09378);
-        } 
-      }
-      else if (rotate_controller.rotate_enable) 
-      {
-        Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
-      }
-      else if (jump_up_controller.jump_enable) 
-      {
-        JumpUp_FSM(&jump_up_controller);
-      }
-      else if (jump_forward_controller.jump_enable) 
-      {
-        JumpForward_FSM(&jump_forward_controller);
-      }
-      else if (turn_controller.turn_enable) 
-      {
-        Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
-      }
-      else 
-      {
-        if (isSlope == 0) 
-        {
-          Stand();
-        }
-        else if (isSlope == 1) 
-        {
-          Stand_on_slope((1.0 / 3));
-        }
-        else if (isSlope == 2)
-        {
-          Stand_on_LR_slope(tan_LR_slope_theta);
-        }
-        
-      }
-
-      if (trot_controller.trot_state != EndTrot || rotate_controller.rotate_state != EndRotate || 
-          jump_up_controller.jump_state != EndJump || jump_forward_controller.jump_state != EndJump || 
-          turn_controller.turn_state != EndTurn || walk_slope_controller.trot_state != EndTrot || 
-          walk_LR_slope_controller.trot_state != EndTrot) 
-      {
-        last_t = t;
-        __HAL_TIM_SET_COUNTER(&htim2, 0);
-        HAL_TIM_Base_Start_IT(&htim2);
-      }
-    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

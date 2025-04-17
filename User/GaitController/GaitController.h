@@ -9,6 +9,8 @@
 #include "spi.h"
 #include "math.h"
 #include "CurvePlan.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 /**
  * ----------------------------------- Marcos -----------------------------------
@@ -34,6 +36,13 @@
 #define SLOPE_LF_RB_SWING_RF_LB_SUPPORT 1
 #define NOT_SLOPE 2
 
+#define NO_SLOPE 0
+#define SLOPE 1
+#define SLOPE_LR 2
+
+#define NO_STOP 0
+#define NEED_TO_STOP 1
+
 #define TORQUE_DEAD_AREA 0.01f
 #define POSITION_DEAD_AREA 0.01f
 
@@ -43,9 +52,9 @@
 // The state of the process of trotting
 typedef enum {
     PreTrot = 0,
-    Trotting = 1,
-    PreEndTrot = 2,
-    EndTrot = 3
+    Trotting,
+    PreEndTrot,
+    EndTrot
 } TrotState;
 
 // The direction of trotting
@@ -60,8 +69,6 @@ typedef struct {
     TrotDirection trot_direction;
     ThreeOrderBezierInformation trot_bezier[4];  // The bezier objects of four legs
     float swing_duty_cycle;
-    int trot_enable;
-    int trot_state_change;
 } TrotController;
 
 typedef enum {
@@ -81,25 +88,21 @@ typedef struct {
     RotateDirection rotate_direction;
     ThreeOrderBezierInformation rotate_bezier[4];  // The bezier objects of four legs
     float swing_duty_cycle;
-    int rotate_enable;
-    int rotate_state_change;
 } RotateController;
 
 typedef enum {
     Recline = 0,
-    Squat = 1,
-    JumpUp = 2,
-    LegUp = 3,
-    Land = 4,
-    StandUp = 5,
-    EndJump = 6
+    Squat,
+    JumpUp,
+    LegUp,
+    Land,
+    StandUp,
+    EndJump
 } JumpState;
 
 typedef struct {
     JumpState jump_state;
     ThreeOrderBezierInformation jump_bezier[4];  // The bezier objects of four legs
-    int jump_enable;
-    int jump_state_change;
 } JumpController;
 
 typedef enum {
@@ -125,8 +128,6 @@ typedef struct {
     TurnLinearVelocityDirection turn_linear_direction;
     ThreeOrderBezierInformation turn_bezier[4];  // The bezier objects of four legs
     float swing_duty_cycle;
-    int turn_enable;
-    int turn_state_change;
 } TurnController;
 
 typedef enum {
@@ -146,8 +147,6 @@ typedef struct {
     WalkSlopeDirection walk_slope_direction;
     ThreeOrderBezierInformation walk_slope_bezier[4];  // The bezier objects of four legs
     float swing_duty_cycle;
-    int walk_slope_enable;
-    int walk_slope_state_change;
 } WalkSlopeController;
 
 typedef union {
@@ -165,15 +164,18 @@ extern JumpController jump_forward_controller;
 extern TurnController turn_controller;
 extern TrotController walk_slope_controller;
 extern TrotController walk_LR_slope_controller;
+
 extern spi_data spi_motor_data;
 
 extern float angle[4][2];
 extern float t;
-extern float last_t;
 
 extern float robot_height;
 extern int isSlope;
 
+extern int isStop;
+
+extern float tan_slope_theta;
 extern float tan_LR_slope_theta;
 
 extern float J60Motor_StandUpData_CAN1[4];  // lf_out, lf_in, rf_out, rf_in

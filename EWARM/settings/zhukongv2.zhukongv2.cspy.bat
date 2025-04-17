@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"D:\IAR8.3\common\bin\cspybat" -f "D:\RTS_2025\2025_Canine_Mainboard_Drv _3.0_lcy2025.4.8\EWARM\settings\zhukongv2.zhukongv2.general.xcl" --backend -f "D:\RTS_2025\2025_Canine_Mainboard_Drv _3.0_lcy2025.4.8\EWARM\settings\zhukongv2.zhukongv2.driver.xcl" 
+"F:\EWARM_8321\common\bin\cspybat" -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\settings\zhukongv2.zhukongv2.general.xcl" --backend -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\settings\zhukongv2.zhukongv2.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"D:\IAR8.3\common\bin\cspybat" -f "D:\RTS_2025\2025_Canine_Mainboard_Drv _3.0_lcy2025.4.8\EWARM\settings\zhukongv2.zhukongv2.general.xcl" "--debug_file=%~1" --backend -f "D:\RTS_2025\2025_Canine_Mainboard_Drv _3.0_lcy2025.4.8\EWARM\settings\zhukongv2.zhukongv2.driver.xcl" 
+"F:\EWARM_8321\common\bin\cspybat" -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\settings\zhukongv2.zhukongv2.general.xcl" "--debug_file=%~1" --backend -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\settings\zhukongv2.zhukongv2.driver.xcl" 
 
 @echo off 
 :end

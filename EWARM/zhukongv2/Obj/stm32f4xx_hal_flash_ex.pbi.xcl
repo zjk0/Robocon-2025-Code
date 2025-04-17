@@ -1,69 +1,85 @@
-"C:\Users\21500\Desktop\RTS\zhukongv2\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ex.c"
+"F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ex.c"
 -std=c11
 -ferror-limit=0
 -fbracket-depth=512
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\Drivers\STM32F4xx_HAL_Driver\Src
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Drivers\STM32F4xx_HAL_Driver\Src
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM/../Core/Inc
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../Core/Inc
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM/../Drivers/STM32F4xx_HAL_Driver/Inc
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../Drivers/STM32F4xx_HAL_Driver/Inc
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM/../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM/../Drivers/CMSIS/Device/ST/STM32F4xx/Include
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../Drivers/CMSIS/Device/ST/STM32F4xx/Include
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM/../Drivers/CMSIS/Include
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../Drivers/CMSIS/Include
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM\..\User
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM\..\User\CurvePlan
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\CurvePlan
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM\..\User\DeepJ60
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\DeepJ60
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM\..\User\GaitController
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\GaitController
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM\..\User\KinematicSolution
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\KinematicSolution
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM\..\User\LogSystem
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\LogSystem
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM/../FATFS/Target
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../FATFS/Target
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM/../FATFS/App
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../FATFS/App
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\EWARM/../Middlewares/Third_Party/FatFs/src
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../Middlewares/Third_Party/FatFs/src
 -I
-D:\IAR\arm\inc
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../Middlewares/Third_Party/FreeRTOS/Source/include
 -I
-D:\IAR\arm\inc\c
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\Core\Inc
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM/../Middlewares/Third_Party/FreeRTOS/Source/portable/IAR/ARM_CM4F
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\Drivers\STM32F4xx_HAL_Driver\Inc
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\Handle
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy
+F:\EWARM_8321\arm\inc
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+F:\EWARM_8321\arm\inc\c
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\Drivers\CMSIS\Include
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Core\Inc
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\User
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Drivers\STM32F4xx_HAL_Driver\Inc
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\User\CurvePlan
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\User\DeepJ60
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\User\GaitController
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Drivers\CMSIS\Include
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\User\KinematicSolution
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\User\LogSystem
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\CurvePlan
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\FATFS\Target
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\DeepJ60
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\FATFS\App
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\GaitController
 -I
-C:\Users\21500\Desktop\RTS\zhukongv2\Middlewares\Third_Party\FatFs\src
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\KinematicSolution
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\LogSystem
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\FATFS\Target
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\FATFS\App
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Middlewares\Third_Party\FatFs\src
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Middlewares\Third_Party\FreeRTOS\Source\include
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\Handle
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0
@@ -357,8 +373,8 @@ C:\Users\21500\Desktop\RTS\zhukongv2\Middlewares\Third_Party\FatFs\src
 -D__EDG_FLOAT128_ENABLING_POSSIBLE=0
 -DUSE_HAL_DRIVER=1
 -DSTM32F427xx=1
--D_DLIB_CONFIG_FILE_HEADER_NAME="D:\\IAR\\arm\\inc\\c\\DLib_Config_Full.h"
--D_DLIB_CONFIG_FILE_STRING="D:\\IAR\\arm\\inc\\c\\DLib_Config_Full.h"
+-D_DLIB_CONFIG_FILE_HEADER_NAME="F:\\EWARM_8321\\arm\\inc\\c\\DLib_Config_Full.h"
+-D_DLIB_CONFIG_FILE_STRING="F:\\EWARM_8321\\arm\\inc\\c\\DLib_Config_Full.h"
 -D__VERSION__="IAR ANSI C/C++ Compiler V8.32.1.169/W32 for ARM"
 -D__ICCARM_OLD_DEFINED_VAARGS__=1
 -D__VA_STACK_ALIGN__=8

@@ -6,7 +6,7 @@
 
 "-p" 
 
-"D:\IAR8.3\arm\CONFIG\debugger\ST\STM32F427VI.ddf" 
+"F:\EWARM_8321\arm\CONFIG\debugger\ST\STM32F427VI.ddf" 
 
 "--drv_verify_download" 
 

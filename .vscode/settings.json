@@ -9,6 +9,7 @@
         "kinematicsolution.h": "c",
         "gaitcontroller.h": "c",
         "curveplan.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "deepj60_can.h": "c"
     }
 }

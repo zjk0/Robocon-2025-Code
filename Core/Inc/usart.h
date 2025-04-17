@@ -30,6 +30,8 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 
+extern DMA_HandleTypeDef hdma_usart6_rx;
+
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart7;
@@ -47,8 +49,7 @@ void MX_USART3_UART_Init(void);
 void MX_USART6_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-extern uint8_t controller_signal[3];
-extern uint8_t rx_data[3];
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

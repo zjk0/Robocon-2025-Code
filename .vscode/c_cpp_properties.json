@@ -13,7 +13,9 @@
                 "${workspaceFolder}/User/LogSystem",
                 "${workspaceFolder}/User/KinematicSolution",
                 "${workspaceFolder}/User/GaitController",
-                "${workspaceFolder}/User/CurvePlan"
+                "${workspaceFolder}/User/CurvePlan",
+                "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/include",
+                "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2"
             ],
             "defines": [
                 "_DEBUG",
