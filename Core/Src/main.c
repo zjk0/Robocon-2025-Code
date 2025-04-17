@@ -56,7 +56,7 @@
 
 /* USER CODE BEGIN PV */
 
-QueueHandle_t cmd_queue;
+QueueHandle_t cmd_queue = NULL;
 
 /* USER CODE END PV */
 

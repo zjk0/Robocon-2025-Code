@@ -47,7 +47,9 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
                     memcpy(&rx_cmd[first_length], &dma_buffer_copy[0], second_length);
                 }
                 
-                xQueueSendFromISR(cmd_queue, rx_cmd, &higher_priority_task_wake);
+                if (cmd_queue != NULL) {
+                    xQueueSendFromISR(cmd_queue, rx_cmd, &higher_priority_task_wake);
+                }
                 portYIELD_FROM_ISR(higher_priority_task_wake);
                 
                 parse_start_pos = (parse_start_pos + HANDLE_DATA_SIZE) % DMA_BUFFER_SIZE;

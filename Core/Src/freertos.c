@@ -47,14 +47,15 @@
 #define START_ACTION 1
 #define END_ACTION 0
 
-#define NORMAL_DELTA_T 10
-#define JUMP_LEGUP_DELTA_T 50
-#define JUMP_SQUAT_STANDUP_DELTA_T 20
+#define NORMAL_DELTA_T 20
 
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
+
+osThreadId_t TaskHandle = NULL;
+int is_stack_overflow = 0;
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -68,70 +69,70 @@ const osThreadAttr_t defaultTask_attributes = {
 osThreadId_t TrotForwardHandle;
 const osThreadAttr_t TrotForward_attributes = {
   .name = "TrotForward",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for TrotBack */
 osThreadId_t TrotBackHandle;
 const osThreadAttr_t TrotBack_attributes = {
   .name = "TrotBack",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for RotateLeft */
 osThreadId_t RotateLeftHandle;
 const osThreadAttr_t RotateLeft_attributes = {
   .name = "RotateLeft",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for RotateRight */
 osThreadId_t RotateRightHandle;
 const osThreadAttr_t RotateRight_attributes = {
   .name = "RotateRight",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for TurnLeft */
 osThreadId_t TurnLeftHandle;
 const osThreadAttr_t TurnLeft_attributes = {
   .name = "TurnLeft",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityAboveNormal,
 };
 /* Definitions for TurnRight */
 osThreadId_t TurnRightHandle;
 const osThreadAttr_t TurnRight_attributes = {
   .name = "TurnRight",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for JumpUp */
 osThreadId_t JumpUpHandle;
 const osThreadAttr_t JumpUp_attributes = {
   .name = "JumpUp",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for JumpForward */
 osThreadId_t JumpForwardHandle;
 const osThreadAttr_t JumpForward_attributes = {
   .name = "JumpForward",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for WalkSlope */
 osThreadId_t WalkSlopeHandle;
 const osThreadAttr_t WalkSlope_attributes = {
   .name = "WalkSlope",
-  .stack_size = 128 * 4,
+  .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for WalkSlope_LR */
 osThreadId_t WalkSlope_LRHandle;
 const osThreadAttr_t WalkSlope_LR_attributes = {
   .name = "WalkSlope_LR",
-  .stack_size = 128 * 4,
+  .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for Stand */
@@ -169,6 +170,20 @@ void StandTask(void *argument);
 void ParseHandleTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+
+/* Hook prototypes */
+void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName);
+
+/* USER CODE BEGIN 4 */
+void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
+{
+   /* Run time stack overflow checking is performed if
+   configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
+   called if a stack overflow is detected. */
+   is_stack_overflow = 1;
+   while (1);
+}
+/* USER CODE END 4 */
 
 /**
   * @brief  FreeRTOS initialization
@@ -275,7 +290,7 @@ void TrotForwardTask(void *argument)
 {
   /* USER CODE BEGIN TrotForwardTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(100);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -321,7 +336,7 @@ void TrotBackTask(void *argument)
 {
   /* USER CODE BEGIN TrotBackTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(1);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -367,7 +382,7 @@ void RotateLeftTask(void *argument)
 {
   /* USER CODE BEGIN RotateLeftTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(1);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -413,7 +428,7 @@ void RotateRightTask(void *argument)
 {
   /* USER CODE BEGIN RotateRightTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(1);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -459,7 +474,7 @@ void TurnLeftTask(void *argument)
 {
   /* USER CODE BEGIN TurnLeftTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(1);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -505,7 +520,7 @@ void TurnRightTask(void *argument)
 {
   /* USER CODE BEGIN TurnRightTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(1);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -551,7 +566,7 @@ void JumpUpTask(void *argument)
 {
   /* USER CODE BEGIN JumpUpTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(1);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -590,7 +605,7 @@ void JumpForwardTask(void *argument)
 {
   /* USER CODE BEGIN JumpForwardTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(1);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -629,7 +644,7 @@ void WalkSlopeTask(void *argument)
 {
   /* USER CODE BEGIN WalkSlopeTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(1);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -675,7 +690,7 @@ void WalkSlopeLRTask(void *argument)
 {
   /* USER CODE BEGIN WalkSlopeLRTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(1);
+  const TickType_t freq = pdMS_TO_TICKS(10);
   TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
@@ -757,7 +772,6 @@ void ParseHandleTask(void *argument)
 
   uint8_t rx_cmd[HANDLE_DATA_SIZE];
   uint8_t last_handle_command[CMD_SIZE] = {0};
-  osThreadId_t TaskHandle = NULL;
 
   /* Infinite loop */
   for(;;)
