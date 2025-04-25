@@ -97,7 +97,7 @@ int isStop = NO_STOP;
 float tan_slope_theta = 1.0 / 3.0;
 float tan_LR_slope_theta = 0.2679;
 
-float J60Motor_StandUpData_CAN1[4] = {0.61, -2.2102, -0.308265686, 1.98978424};       // lf_out, lf_in, rf_out, rf_in
+float J60Motor_StandUpData_CAN1[4] = {0.52249908444, -1.5693283,  -0.255470275, 1.46427154};       // lf_out, lf_in, rf_out, rf_in
 float J60Motor_StandUpData_CAN2[4] = {2.23820, -0.61748, -2.4397697444, 0.523414611}; // rb_out, rb_in, lb_out, lb_in
 
 /**
@@ -1238,16 +1238,16 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
     float init_tilt_length = 0.07; // ���ڼ�����غ�������λ��
 
     float squat_length0 = 0.08;
-    float jump_length0 = 0.08;
-    float tilt_length0 = 0.09; // ���ڼ���ǰ�ȵ�λ�ã��������ȵĲ�̬һֱʱ��ֻ�����
+    float jump_length0 = 0.14;
+    float tilt_length0 = 0.05; // ���ڼ���ǰ�ȵ�λ�ã��������ȵĲ�̬һֱʱ��ֻ�����
 
-    float squat_length1 = 0.06;
-    float jump_length1 = 0.09;
-    float tilt_length1 = 0.09; // ���ڼ�����ȵ�λ��
+    float squat_length1 = 0.08;
+    float jump_length1 = 0.14;
+    float tilt_length1 = 0.05; // ���ڼ�����ȵ�λ��
+
     float jump_torque = 0;
-    float robot_height = 0.2069
+    float robot_height = 0.2069;
 
-        ;
     float bezier_x[4] = {0}; // lf, rf, rb, lb
     float bezier_y[4] = {0}; // lf, rf, rb, lb
     for (int i = 0; i < 4; i++)
@@ -1256,30 +1256,6 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
     }
 
     float t_real = t / 1000;
-
-    //     if (jump_forward_controller->jump_state == Recline)//����
-    //    {
-    //        SetJumpForwardBezierControlPoints0(jump_forward_controller, recline_squat_length, recline_jump_length, recline_tilt_length);
-    //
-    //        for (int i = 0; i < 4; i++)
-    //        {
-    //            ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);//����뱴�������ߵĺ���
-    //            if (IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN) //��������⺯���������ĺ����ŵ�angle����
-    //            {
-    //                jump_forward_controller->jump_state = EndJump;
-    //                t = 0;
-    //                return;
-    //            }
-    //        }
-
-    //        SetMotor(angle, Velocity, Torque, 25, 5, PositionMode);
-    //
-    //        if (t >= 1000) {
-    //            jump_forward_controller->jump_state = Squat;
-    //            t = 0;
-    //            HAL_Delay(10);
-    //        }
-    //    }
 
     if (jump_forward_controller->jump_state == Squat) // ����
     {
@@ -2287,13 +2263,7 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
 {
     float t_real = t / 1000;
     float t_real_2 = 0;
-    // float tan_slope_theta = 1 / 3;
-    // float origin_height = 0.2259;
-    // float length_between_legs = 0;  // Not certain
-    // float bezier_length = 0.12;
-    // float max_height_1 = 0.03;
-    // float max_height_2 = 0.01;
-    // float delta_height = 0.04;
+
     for (int i = 0; i < 4; i++)
     {
         SetThreeOrderBezierPeriod(&walk_LR_slope_controller->trot_bezier[i], 1.0);

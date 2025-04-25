@@ -49,6 +49,9 @@
 
 #define NORMAL_DELTA_T 20
 
+#define INIT_TROT_LENGTH 0.2f
+#define MAX_TROT_LENGTH 0.3f
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -56,6 +59,8 @@
 
 osThreadId_t TaskHandle = NULL;
 int is_stack_overflow = 0;
+
+float trot_length = INIT_TROT_LENGTH;
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -309,7 +314,7 @@ void TrotForwardTask(void *argument)
     }
 
     if (trot_controller.trot_state != EndTrot) {
-      Trot_FSM(&trot_controller, 0.03, 0.14, robot_height);
+      Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
 
       if (trot_controller.trot_state != EndTrot) {
         vTaskDelayUntil(&last_time, freq);
@@ -355,7 +360,7 @@ void TrotBackTask(void *argument)
     }
 
     if (trot_controller.trot_state != EndTrot) {
-      Trot_FSM(&trot_controller, 0.03, 0.14, robot_height);
+      Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
 
       if (trot_controller.trot_state != EndTrot) {
         vTaskDelayUntil(&last_time, freq);
@@ -781,7 +786,7 @@ void ParseHandleTask(void *argument)
         ParseHandle(rx_cmd, handle_command);
 
         if (CompareCommand(last_handle_command, handle_command) != 0) {
-          if (handle_command[0] == TROT_FORWARD_CMD && handle_command[1] == NO_CMD) {
+          if (handle_command[0] == TROT_FORWARD_CMD && (handle_command[1] == NO_CMD || handle_command[1] == TO_FASTEST)) {
             TaskHandle = TrotForwardHandle;
             xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithOverwrite);
           }
@@ -845,8 +850,21 @@ void ParseHandleTask(void *argument)
               xTaskNotify((TaskHandle_t)WalkSlope_LRHandle, END_ACTION, eSetValueWithOverwrite);
             }
           }
+          else if (handle_command[0] == STOP_CMD && handle_command[1] == TO_FASTEST) {
+            if (trot_length != MAX_TROT_LENGTH) {
+              trot_length = MAX_TROT_LENGTH;
+            }
+            else {
+              if (TaskHandle != NULL) {
+                xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
+              }
+            }
+          }
           else if (handle_command[0] == STOP_CMD && handle_command[1] == NO_CMD) {
-            if (isSlope != NO_SLOPE) {
+            if (trot_length != INIT_TROT_LENGTH) {
+              trot_length = INIT_TROT_LENGTH;
+            }
+            else if (isSlope != NO_SLOPE) {
               isSlope = NO_SLOPE;
             }
             else {

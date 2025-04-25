@@ -34,6 +34,7 @@
 #define SLOPE_LR_CMD 0x02
 #define BECOME_HIGHER 0x10
 #define BECOME_LOWWER 0x20
+#define TO_FASTEST 0x04
 #define STOP_CMD 0x00
 #define NO_CMD 0x00
 
