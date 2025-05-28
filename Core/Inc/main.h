@@ -33,6 +33,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 
 #include "FreeRTOS.h"
+#include "cmsis_os.h"
 #include "queue.h"
 
 /* USER CODE END Includes */
@@ -60,10 +61,21 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define NRF_CE_Pin GPIO_PIN_12
+#define NRF_CE_GPIO_Port GPIOE
+#define NRF_IRQ_Pin GPIO_PIN_13
+#define NRF_IRQ_GPIO_Port GPIOE
+#define NRF_CS_Pin GPIO_PIN_12
+#define NRF_CS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
 extern QueueHandle_t cmd_queue;
+extern QueueHandle_t imu_queue;
+extern QueueHandle_t camera_queue;
+
+extern osThreadId_t NotifyActionHandle;
+
 
 /* USER CODE END Private defines */
 

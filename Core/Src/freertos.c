@@ -28,6 +28,10 @@
 
 #include "GaitController.h"
 #include "Handle.h"
+#include "imu.h"
+#include "Camera.h"
+#include "nrf.h"
+#include "tim.h"
 
 /* USER CODE END Includes */
 
@@ -44,10 +48,10 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
-#define START_ACTION 1
-#define END_ACTION 0
+#define START_ACTION 2
+#define END_ACTION 1
 
-#define NORMAL_DELTA_T 20
+#define NORMAL_DELTA_T 40
 
 #define INIT_TROT_LENGTH 0.2f
 #define MAX_TROT_LENGTH 0.3f
@@ -61,6 +65,12 @@ osThreadId_t TaskHandle = NULL;
 int is_stack_overflow = 0;
 
 float trot_length = INIT_TROT_LENGTH;
+
+int tim_callback = 0;
+
+Quaternions Q_Value;
+Euler EulerAngle;
+//uint8_t rx_cmd[HANDLE_DATA_SIZE];
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -154,6 +164,27 @@ const osThreadAttr_t ParseHandle_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityAboveNormal,
 };
+/* Definitions for ParseIMU */
+osThreadId_t ParseIMUHandle;
+const osThreadAttr_t ParseIMU_attributes = {
+  .name = "ParseIMU",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+/* Definitions for NotifyAction */
+osThreadId_t NotifyActionHandle;
+const osThreadAttr_t NotifyAction_attributes = {
+  .name = "NotifyAction",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+/* Definitions for ParseCamera */
+osThreadId_t ParseCameraHandle;
+const osThreadAttr_t ParseCamera_attributes = {
+  .name = "ParseCamera",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -173,6 +204,9 @@ void WalkSlopeTask(void *argument);
 void WalkSlopeLRTask(void *argument);
 void StandTask(void *argument);
 void ParseHandleTask(void *argument);
+void ParseIMUTask(void *argument);
+void NotifyActionTask(void *argument);
+void ParseCameraTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -256,6 +290,15 @@ void MX_FREERTOS_Init(void) {
   /* creation of ParseHandle */
   ParseHandleHandle = osThreadNew(ParseHandleTask, NULL, &ParseHandle_attributes);
 
+  /* creation of ParseIMU */
+  ParseIMUHandle = osThreadNew(ParseIMUTask, NULL, &ParseIMU_attributes);
+
+  /* creation of NotifyAction */
+  NotifyActionHandle = osThreadNew(NotifyActionTask, NULL, &NotifyAction_attributes);
+
+  /* creation of ParseCamera */
+  ParseCameraHandle = osThreadNew(ParseCameraTask, NULL, &ParseCamera_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -295,8 +338,6 @@ void TrotForwardTask(void *argument)
 {
   /* USER CODE BEGIN TrotForwardTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(10);
-  TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
   /* Infinite loop */
@@ -304,24 +345,55 @@ void TrotForwardTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        trot_controller.trot_state = PreTrot;
-        trot_controller.trot_direction = Forward;
-        t = 0;
+        if (trot_controller.trot_state == EndTrot) {
+          trot_controller.trot_state = PreTrot;
+          trot_controller.trot_direction = Forward;
+          // turn_controller.turn_state = PreTurn;
+          t = 0;
+        }
       }
       else if (notify_value == END_ACTION) {
-        isStop = NEED_TO_STOP;
+        if (trot_controller.trot_state == Trotting) {
+          isStop = NEED_TO_STOP;
+        }
       }
     }
 
-    if (trot_controller.trot_state != EndTrot) {
-      Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
-
+    if (notify_value != 0) {
       if (trot_controller.trot_state != EndTrot) {
-        vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
-        if (t > 2000 && trot_controller.trot_state == Trotting) {
-          t = 0;
+        // int ret = compute_lengths(EulerAngle.yaw, &left_length, &right_length, INIT_TROT_LENGTH, 0.6, 0.6, 0.1);
+        // if (ret == LEFT) {
+        //   turn_controller.turn_angular_direction = TurnLeft;
+        //   Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
+        // }
+        // else if (ret == RIGHT) {
+        //   turn_controller.turn_angular_direction = TurnRight;
+        //   Turn_FSM(&turn_controller, right_length, left_length, 0.03, robot_height);
+        // }
+        // else if (ret == NO_TURN) {
+        //   Turn_FSM(&turn_controller, INIT_TROT_LENGTH, INIT_TROT_LENGTH, 0.03, robot_height);
+        // }
+
+        Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
+
+        if (trot_controller.trot_state != EndTrot) {
+          t += NORMAL_DELTA_T;
+          if (t > 2000 && trot_controller.trot_state == Trotting) {
+            t = 0;
+          }
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
         }
+
+        notify_value = 0;
+
+        // if (turn_controller.turn_state != EndTurn) {
+        //   vTaskDelayUntil(&last_time, freq);
+        //   t += NORMAL_DELTA_T;
+        //   if (t > 2000 && turn_controller.turn_state == Turning) {
+        //     t = 0;
+        //   }
+        // }
       }
     }
 
@@ -341,8 +413,6 @@ void TrotBackTask(void *argument)
 {
   /* USER CODE BEGIN TrotBackTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(10);
-  TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
   /* Infinite loop */
@@ -350,25 +420,34 @@ void TrotBackTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        trot_controller.trot_state = PreTrot;
-        trot_controller.trot_direction = Back;
-        t = 0;
-      }
-      else if (notify_value == END_ACTION) {
-        isStop = NEED_TO_STOP;
-      }
-    }
-
-    if (trot_controller.trot_state != EndTrot) {
-      Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
-
-      if (trot_controller.trot_state != EndTrot) {
-        vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
-        if (t > 2000 && trot_controller.trot_state == Trotting) {
+        if (trot_controller.trot_state == EndTrot) {
+          trot_controller.trot_state = PreTrot;
+          trot_controller.trot_direction = Back;
           t = 0;
         }
       }
+      else if (notify_value == END_ACTION) {
+        if (trot_controller.trot_state == Trotting) {
+          isStop = NEED_TO_STOP;
+        }
+      }
+    }
+
+    if (notify_value != 0) {
+      if (trot_controller.trot_state != EndTrot) {
+        Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
+
+        if (trot_controller.trot_state != EndTrot) {
+          t += NORMAL_DELTA_T;
+          if (t > 2000 && trot_controller.trot_state == Trotting) {
+            t = 0;
+          }
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
+        }
+      }
+
+      notify_value = 0;
     }
 
     osDelay(1);
@@ -387,8 +466,6 @@ void RotateLeftTask(void *argument)
 {
   /* USER CODE BEGIN RotateLeftTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(10);
-  TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
   /* Infinite loop */
@@ -396,25 +473,34 @@ void RotateLeftTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        rotate_controller.rotate_state = PreRotate;
-        rotate_controller.rotate_direction = Left;
-        t = 0;
-      }
-      else if (notify_value == END_ACTION) {
-        isStop = NEED_TO_STOP;
-      }
-    }
-
-    if (rotate_controller.rotate_state != EndRotate) {
-      Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
-
-      if (rotate_controller.rotate_state != EndRotate) {
-        vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
-        if (t > 2000 && rotate_controller.rotate_state == Rotating) {
+        if (rotate_controller.rotate_state == EndRotate) {
+          rotate_controller.rotate_state = PreRotate;
+          rotate_controller.rotate_direction = Left;
           t = 0;
         }
       }
+      else if (notify_value == END_ACTION) {
+        if (rotate_controller.rotate_state == Rotating) {
+          isStop = NEED_TO_STOP;
+        }
+      }
+    }
+
+    if (notify_value != 0) {
+      if (rotate_controller.rotate_state != EndRotate) {
+        Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
+
+        if (rotate_controller.rotate_state != EndRotate) {
+          t += NORMAL_DELTA_T;
+          if (t > 2000 && rotate_controller.rotate_state == Rotating) {
+            t = 0;
+          }
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
+        }
+      }
+
+      notify_value = 0;
     }
 
     osDelay(1);
@@ -433,8 +519,6 @@ void RotateRightTask(void *argument)
 {
   /* USER CODE BEGIN RotateRightTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(10);
-  TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
   /* Infinite loop */
@@ -442,25 +526,34 @@ void RotateRightTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        rotate_controller.rotate_state = PreRotate;
-        rotate_controller.rotate_direction = Right;
-        t = 0;
-      }
-      else if (notify_value == END_ACTION) {
-        isStop = NEED_TO_STOP;
-      }
-    }
-
-    if (rotate_controller.rotate_state != EndRotate) {
-      Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
-
-      if (rotate_controller.rotate_state != EndRotate) {
-        vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
-        if (t > 2000 && rotate_controller.rotate_state == Rotating) {
+        if (rotate_controller.rotate_state == EndRotate) {
+          rotate_controller.rotate_state = PreRotate;
+          rotate_controller.rotate_direction = Right;
           t = 0;
         }
       }
+      else if (notify_value == END_ACTION) {
+        if (rotate_controller.rotate_state == Rotating) {
+          isStop = NEED_TO_STOP;
+        }
+      }
+    }
+
+    if (notify_value != 0) {
+      if (rotate_controller.rotate_state != EndRotate) {
+        Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
+
+        if (rotate_controller.rotate_state != EndRotate) {
+          t += NORMAL_DELTA_T;
+          if (t > 2000 && rotate_controller.rotate_state == Rotating) {
+            t = 0;
+          }
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
+        }
+      }
+
+      notify_value = 0;
     }
 
     osDelay(1);
@@ -479,8 +572,6 @@ void TurnLeftTask(void *argument)
 {
   /* USER CODE BEGIN TurnLeftTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(10);
-  TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
   /* Infinite loop */
@@ -488,25 +579,34 @@ void TurnLeftTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        turn_controller.turn_state = PreTurn;
-        turn_controller.turn_angular_direction = TurnLeft;
-        t = 0;
-      }
-      else if (notify_value == END_ACTION) {
-        isStop = NEED_TO_STOP;
-      }
-    }
-
-    if (turn_controller.turn_state != EndTurn) {
-      Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
-
-      if (turn_controller.turn_state != EndTurn) {
-        vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
-        if (t > 2000 && turn_controller.turn_state == Turning) {
+        if (turn_controller.turn_state == EndTurn) {
+          turn_controller.turn_state = PreTurn;
+          turn_controller.turn_angular_direction = TurnLeft;
           t = 0;
         }
       }
+      else if (notify_value == END_ACTION) {
+        if (turn_controller.turn_state == Turning) {
+          isStop = NEED_TO_STOP;
+        }
+      }
+    }
+
+    if (notify_value != 0) {
+      if (turn_controller.turn_state != EndTurn) {
+        Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
+
+        if (turn_controller.turn_state != EndTurn) {
+          t += NORMAL_DELTA_T;
+          if (t > 2000 && turn_controller.turn_state == Turning) {
+            t = 0;
+          }
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
+        }
+      }
+
+      notify_value = 0;
     }
 
     osDelay(1);
@@ -525,8 +625,6 @@ void TurnRightTask(void *argument)
 {
   /* USER CODE BEGIN TurnRightTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(10);
-  TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
   /* Infinite loop */
@@ -534,25 +632,34 @@ void TurnRightTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        turn_controller.turn_state = PreTurn;
-        turn_controller.turn_angular_direction = TurnRight;
-        t = 0;
-      }
-      else if (notify_value == END_ACTION) {
-        isStop = NEED_TO_STOP;
-      }
-    }
-
-    if (turn_controller.turn_state != EndTurn) {
-      Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
-
-      if (turn_controller.turn_state != EndTurn) {
-        vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
-        if (t > 2000 && turn_controller.turn_state == Turning) {
+        if (turn_controller.turn_state == EndTurn) {
+          turn_controller.turn_state = PreTurn;
+          turn_controller.turn_angular_direction = TurnRight;
           t = 0;
         }
       }
+      else if (notify_value == END_ACTION) {
+        if (turn_controller.turn_state == Turning) {
+          isStop = NEED_TO_STOP;
+        }
+      }
+    }
+
+    if (notify_value != 0) {
+      if (turn_controller.turn_state != EndTurn) {
+        Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
+
+        if (turn_controller.turn_state != EndTurn) {
+          t += NORMAL_DELTA_T;
+          if (t > 2000 && turn_controller.turn_state == Turning) {
+            t = 0;
+          }
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
+        }
+      }
+
+      notify_value = 0;
     }
 
     osDelay(1);
@@ -580,8 +687,10 @@ void JumpUpTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        jump_up_controller.jump_state = Squat;
-        t = 0;
+        if (jump_up_controller.jump_state == EndJump) {
+          jump_up_controller.jump_state = Squat;
+          t = 0;
+        }
       }
     }
 
@@ -619,8 +728,10 @@ void JumpForwardTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        jump_forward_controller.jump_state = Squat;
-        t = 0;
+        if (jump_forward_controller.jump_state == EndJump) {
+          jump_forward_controller.jump_state = Squat;
+          t = 0;
+        }
       }
     }
 
@@ -649,8 +760,6 @@ void WalkSlopeTask(void *argument)
 {
   /* USER CODE BEGIN WalkSlopeTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(10);
-  TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
   /* Infinite loop */
@@ -658,25 +767,34 @@ void WalkSlopeTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        walk_slope_controller.trot_state = PreTrot;
-        walk_slope_controller.trot_direction = Forward;
-        t = 0;
-      }
-      else if (notify_value == END_ACTION) {
-        isStop = NEED_TO_STOP;
-      }
-    }
-
-    if (walk_slope_controller.trot_state != EndTrot) {
-      WalkSlope_FSM(&walk_slope_controller, (1.0 / 3), 0.4, robot_height, 0.12, 0.04);
-
-      if (walk_slope_controller.trot_state != EndTrot) {
-        vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
-        if (t > 2000 && walk_slope_controller.trot_state == Trotting) {
+        if (walk_slope_controller.trot_state == EndTrot) {
+          walk_slope_controller.trot_state = PreTrot;
+          walk_slope_controller.trot_direction = Forward;
           t = 0;
         }
       }
+      else if (notify_value == END_ACTION) {
+        if (walk_slope_controller.trot_state == Trotting) {
+          isStop = NEED_TO_STOP;
+        }
+      }
+    }
+
+    if (notify_value != 0) {
+      if (walk_slope_controller.trot_state != EndTrot) {
+        WalkSlope_FSM(&walk_slope_controller, (1.0 / 3), 0.4, robot_height, 0.12, 0.04);
+
+        if (walk_slope_controller.trot_state != EndTrot) {
+          t += NORMAL_DELTA_T;
+          if (t > 2000 && walk_slope_controller.trot_state == Trotting) {
+            t = 0;
+          }
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
+        }
+      }
+
+      notify_value = 0;
     }
 
     osDelay(1);
@@ -695,8 +813,6 @@ void WalkSlopeLRTask(void *argument)
 {
   /* USER CODE BEGIN WalkSlopeLRTask */
 
-  const TickType_t freq = pdMS_TO_TICKS(10);
-  TickType_t last_time = xTaskGetTickCount();
   uint32_t notify_value = 0;
 
   /* Infinite loop */
@@ -704,25 +820,34 @@ void WalkSlopeLRTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        walk_LR_slope_controller.trot_state = PreTrot;
-        walk_LR_slope_controller.trot_direction = Forward;
-        t = 0;
-      }
-      else if (notify_value == END_ACTION) {
-        isStop = NEED_TO_STOP;
-      }
-    }
-
-    if (walk_LR_slope_controller.trot_state != EndTrot) {
-      WalkSlope_LR_FSM(&walk_LR_slope_controller, 0.268, 0.4, robot_height, 0.12, 0.09378);
-
-      if (walk_LR_slope_controller.trot_state != EndTrot) {
-        vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
-        if (t > 2000 && walk_LR_slope_controller.trot_state == Trotting) {
+        if (walk_LR_slope_controller.trot_state == EndTrot) {
+          walk_LR_slope_controller.trot_state = PreTrot;
+          walk_LR_slope_controller.trot_direction = Forward;
           t = 0;
         }
       }
+      else if (notify_value == END_ACTION) {
+        if (walk_LR_slope_controller.trot_state == Trotting) {
+          isStop = NEED_TO_STOP;
+        }
+      }
+    }
+
+    if (notify_value != 0) {
+      if (walk_LR_slope_controller.trot_state != EndTrot) {
+        WalkSlope_LR_FSM(&walk_LR_slope_controller, 0.268, 0.4, robot_height, 0.12, 0.09378);
+
+        if (walk_LR_slope_controller.trot_state != EndTrot) {
+          t += NORMAL_DELTA_T;
+          if (t > 2000 && walk_LR_slope_controller.trot_state == Trotting) {
+            t = 0;
+          }
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
+        }
+      }
+
+      notify_value = 0;
     }
 
     osDelay(1);
@@ -784,95 +909,13 @@ void ParseHandleTask(void *argument)
     if (xQueueReceive(cmd_queue, rx_cmd, portMAX_DELAY) == pdPASS) {
       if (CheckRxData(rx_cmd) == CMD_NORMAL) {
         ParseHandle(rx_cmd, handle_command);
-
-        if (CompareCommand(last_handle_command, handle_command) != 0) {
-          if (handle_command[0] == TROT_FORWARD_CMD && (handle_command[1] == NO_CMD || handle_command[1] == TO_FASTEST)) {
-            TaskHandle = TrotForwardHandle;
-            xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == TROT_BACK_CMD && handle_command[1] == NO_CMD) {
-            TaskHandle = TrotBackHandle;
-            xTaskNotify((TaskHandle_t)TrotBackHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == ROTATE_LEFT_CMD && handle_command[1] == NO_CMD) {
-            TaskHandle = RotateLeftHandle;
-            xTaskNotify((TaskHandle_t)RotateLeftHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == ROTATE_RIGHT_CMD && handle_command[1] == NO_CMD) {
-            TaskHandle = RotateRightHandle;
-            xTaskNotify((TaskHandle_t)RotateRightHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == TURN_LEFT_CMD && handle_command[1] == NO_CMD) {
-            TaskHandle = TurnLeftHandle;
-            xTaskNotify((TaskHandle_t)TurnLeftHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == TURN_RIGHT_CMD && handle_command[1] == NO_CMD) {
-            TaskHandle = TurnRightHandle;
-            xTaskNotify((TaskHandle_t)TurnRightHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == JUMP_UP_CMD && handle_command[1] == NO_CMD) {
-            TaskHandle = JumpUpHandle;
-            xTaskNotify((TaskHandle_t)JumpUpHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == JUMP_FORWARD_CMD && handle_command[1] == NO_CMD) {
-            TaskHandle = JumpForwardHandle;
-            xTaskNotify((TaskHandle_t)JumpForwardHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == TROT_FORWARD_CMD && handle_command[1] == SLOPE_CMD) {
-            TaskHandle = WalkSlopeHandle;
-            xTaskNotify((TaskHandle_t)WalkSlopeHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == TROT_FORWARD_CMD && handle_command[1] == SLOPE_LR_CMD) {
-            TaskHandle = WalkSlope_LRHandle;
-            xTaskNotify((TaskHandle_t)WalkSlope_LRHandle, START_ACTION, eSetValueWithOverwrite);
-          }
-          else if (handle_command[0] == STOP_CMD && handle_command[1] == BECOME_HIGHER) {
-            robot_height += 0.01;
-            TaskHandle = NULL;
-          }
-          else if (handle_command[0] == STOP_CMD && handle_command[1] == BECOME_LOWWER) {
-            robot_height -= 0.01;
-            TaskHandle = NULL;
-          }
-          else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_CMD) {
-            if (isSlope != SLOPE) {
-              isSlope = SLOPE;
-            }
-            else {
-              xTaskNotify((TaskHandle_t)WalkSlopeHandle, END_ACTION, eSetValueWithOverwrite);
-            }
-          }
-          else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_LR_CMD) {
-            if (isSlope != SLOPE_LR) {
-              isSlope = SLOPE_LR;
-            }
-            else {
-              xTaskNotify((TaskHandle_t)WalkSlope_LRHandle, END_ACTION, eSetValueWithOverwrite);
-            }
-          }
-          else if (handle_command[0] == STOP_CMD && handle_command[1] == TO_FASTEST) {
-            if (trot_length != MAX_TROT_LENGTH) {
-              trot_length = MAX_TROT_LENGTH;
-            }
-            else {
-              if (TaskHandle != NULL) {
-                xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
-              }
-            }
-          }
-          else if (handle_command[0] == STOP_CMD && handle_command[1] == NO_CMD) {
-            if (trot_length != INIT_TROT_LENGTH) {
-              trot_length = INIT_TROT_LENGTH;
-            }
-            else if (isSlope != NO_SLOPE) {
-              isSlope = NO_SLOPE;
-            }
-            else {
-              if (TaskHandle != NULL) {
-                xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
-              }
-            }
-          }
+        if (
+          last_handle_command[0] == STOP_CMD && handle_command[0] != STOP_CMD && 
+          handle_command[0] != JUMP_UP_CMD && handle_command[0] != JUMP_FORWARD_CMD) {
+          
+		  __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
         }
 
         memcpy(last_handle_command, handle_command, sizeof(handle_command));
@@ -882,6 +925,181 @@ void ParseHandleTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END ParseHandleTask */
+}
+
+/* USER CODE BEGIN Header_ParseIMUTask */
+/**
+* @brief Function implementing the ParseIMU thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ParseIMUTask */
+void ParseIMUTask(void *argument)
+{
+  /* USER CODE BEGIN ParseIMUTask */
+
+  uint8_t rx_imu[IMU_DATA_SIZE];
+
+  /* Infinite loop */
+  for(;;)
+  {
+    if (xQueueReceive(imu_queue, rx_imu, portMAX_DELAY) == pdPASS) {
+      Q_Value.x.val_32bit=u8_to_u32(rx_imu[7],rx_imu[6],rx_imu[5],rx_imu[4]);
+		  Q_Value.y.val_32bit=u8_to_u32(rx_imu[11],rx_imu[10],rx_imu[9],rx_imu[8]);
+		  Q_Value.z.val_32bit=u8_to_u32(rx_imu[15],rx_imu[14],rx_imu[13],rx_imu[12]);
+		  Q_Value.w.val_32bit=u8_to_u32(rx_imu[19],rx_imu[18],rx_imu[17],rx_imu[16]);
+
+		  IMU_quaterToEulerianAngles();
+    }
+
+    osDelay(1);
+  }
+  /* USER CODE END ParseIMUTask */
+}
+
+/* USER CODE BEGIN Header_NotifyActionTask */
+/**
+* @brief Function implementing the NotifyAction thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_NotifyActionTask */
+void NotifyActionTask(void *argument)
+{
+  /* USER CODE BEGIN NotifyActionTask */
+
+  uint8_t last_handle_command[CMD_SIZE] = {0};
+
+  /* Infinite loop */
+  for(;;)
+  {
+    if (ulTaskNotifyTake(pdTRUE, 0) > 0) {
+      // HAL_TIM_Base_Stop_IT(&htim2);
+	    // __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+
+      if (handle_command[0] == TROT_FORWARD_CMD && (handle_command[1] == NO_CMD || handle_command[1] == TO_FASTEST)) {
+        TaskHandle = TrotForwardHandle;
+        xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == TROT_BACK_CMD && handle_command[1] == NO_CMD) {
+        TaskHandle = TrotBackHandle;
+        xTaskNotify((TaskHandle_t)TrotBackHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == ROTATE_LEFT_CMD && handle_command[1] == NO_CMD) {
+        TaskHandle = RotateLeftHandle;
+        xTaskNotify((TaskHandle_t)RotateLeftHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == ROTATE_RIGHT_CMD && handle_command[1] == NO_CMD) {
+        TaskHandle = RotateRightHandle;
+        xTaskNotify((TaskHandle_t)RotateRightHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == TURN_LEFT_CMD && handle_command[1] == NO_CMD) {
+        TaskHandle = TurnLeftHandle;
+        xTaskNotify((TaskHandle_t)TurnLeftHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == TURN_RIGHT_CMD && handle_command[1] == NO_CMD) {
+        TaskHandle = TurnRightHandle;
+        xTaskNotify((TaskHandle_t)TurnRightHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == TROT_FORWARD_CMD && handle_command[1] == SLOPE_CMD) {
+        TaskHandle = WalkSlopeHandle;
+        xTaskNotify((TaskHandle_t)WalkSlopeHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == TROT_FORWARD_CMD && handle_command[1] == SLOPE_LR_CMD) {
+        TaskHandle = WalkSlope_LRHandle;
+        xTaskNotify((TaskHandle_t)WalkSlope_LRHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_CMD) {
+        xTaskNotify((TaskHandle_t)WalkSlopeHandle, END_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_LR_CMD) {
+        xTaskNotify((TaskHandle_t)WalkSlope_LRHandle, END_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == TO_FASTEST) {
+        if (TaskHandle != NULL) {
+          xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
+        }
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == NO_CMD) {
+        if (TaskHandle != NULL) {
+          xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
+        }
+      }
+    }
+
+    if (CompareCommand(last_handle_command, handle_command) != 0) {
+      if (handle_command[0] == JUMP_UP_CMD && handle_command[1] == NO_CMD) {
+        TaskHandle = JumpUpHandle;
+        xTaskNotify((TaskHandle_t)JumpUpHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == JUMP_FORWARD_CMD && handle_command[1] == NO_CMD) {
+        TaskHandle = JumpForwardHandle;
+        xTaskNotify((TaskHandle_t)JumpForwardHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == BECOME_HIGHER) {
+        robot_height += 0.01;
+        TaskHandle = NULL;
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == BECOME_LOWWER) {
+        robot_height -= 0.01;
+        TaskHandle = NULL;
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == TO_FASTEST) {
+        if (trot_length != MAX_TROT_LENGTH) {
+          trot_length = MAX_TROT_LENGTH;
+        }
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_CMD) {
+        if (isSlope != SLOPE) {
+          isSlope = SLOPE;
+        }
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_LR_CMD) {
+        if (isSlope != SLOPE_LR) {
+          isSlope = SLOPE_LR;
+        }
+      }
+      else if (handle_command[0] == STOP_CMD && handle_command[1] == NO_CMD) {
+        if (trot_length != INIT_TROT_LENGTH) {
+          trot_length = INIT_TROT_LENGTH;
+        }
+        else if (isSlope != NO_SLOPE) {
+          isSlope = NO_SLOPE;
+        }
+      }
+    }
+
+    memcpy(last_handle_command, handle_command, sizeof(handle_command));
+
+    osDelay(1);
+  }
+  /* USER CODE END NotifyActionTask */
+}
+
+/* USER CODE BEGIN Header_ParseCameraTask */
+/**
+* @brief Function implementing the ParseCamera thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ParseCameraTask */
+void ParseCameraTask(void *argument)
+{
+  /* USER CODE BEGIN ParseCameraTask */
+
+  uint8_t rx_camera[RX_BTYES_LENGTH];
+
+  /* Infinite loop */
+  for(;;)
+  {
+    // if (xQueueReceive(camera_queue, rx_camera, portMAX_DELAY) == pdPASS) {
+    //   if (check_rx_bytes(rx_camera) == RX_NORMAL) {
+    //     parse_camera_bytes(rx_camera);
+    //   }
+    // }
+    osDelay(1);
+  }
+  /* USER CODE END ParseCameraTask */
 }
 
 /* Private application code --------------------------------------------------*/

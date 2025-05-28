@@ -60,7 +60,8 @@ TurnController turn_controller = {
                     {{0, 0, 0, 0}, {0, 0, 0, 0}, 1},
                     {{0, 0, 0, 0}, {0, 0, 0, 0}, 1},
                     {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}},
-    .swing_duty_cycle = 0.5};
+    .swing_duty_cycle = 0.5
+};
 
 TrotController walk_slope_controller = {
     .trot_state = EndTrot,
@@ -70,7 +71,8 @@ TrotController walk_slope_controller = {
                     {{0, 0, 0, 0}, {0, 0, 0, 0}, 1},
                     {{0, 0, 0, 0}, {0, 0, 0, 0}, 1},
                     {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}},
-    .swing_duty_cycle = 0.5};
+    .swing_duty_cycle = 0.5
+};
 
 TrotController walk_LR_slope_controller = {
     .trot_state = EndTrot,
@@ -80,7 +82,8 @@ TrotController walk_LR_slope_controller = {
                     {{0, 0, 0, 0}, {0, 0, 0, 0}, 1},
                     {{0, 0, 0, 0}, {0, 0, 0, 0}, 1},
                     {{0, 0, 0, 0}, {0, 0, 0, 0}, 1}},
-    .swing_duty_cycle = 0.5};
+    .swing_duty_cycle = 0.5
+};
 
 spi_data spi_motor_data;
 
@@ -100,6 +103,9 @@ float tan_LR_slope_theta = 0.2679;
 float J60Motor_StandUpData_CAN1[4] = {0.52249908444, -1.5693283,  -0.255470275, 1.46427154};       // lf_out, lf_in, rf_out, rf_in
 float J60Motor_StandUpData_CAN2[4] = {2.23820, -0.61748, -2.4397697444, 0.523414611}; // rb_out, rb_in, lb_out, lb_in
 
+float left_length = 0.2;
+float right_length = 0.2;
+
 /**
  * ----------------------------------- Functions -----------------------------------
  */
@@ -117,6 +123,14 @@ float J60Motor_StandUpData_CAN2[4] = {2.23820, -0.61748, -2.4397697444, 0.523414
  */
 void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float Kp, float Kd, enum MotorMode motor_mode)
 {
+    static int last_time_init = 0;
+    static TickType_t last_time;
+
+    if (last_time_init == 0) {
+        last_time_init = 1;
+        last_time = xTaskGetTickCount();
+    }
+
     spi_motor_data.real_motor_data[0] = angle[1][0];
     spi_motor_data.real_motor_data[1] = angle[1][1];
     spi_motor_data.real_motor_data[2] = angle[3][0];
@@ -136,31 +150,30 @@ void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float
     HAL_SPI_Transmit(&hspi4, spi_motor_data.send_motor_data, 60, 1000);
 
     // while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
-    while (__HAL_SPI_GET_FLAG(&hspi4, SPI_FLAG_BSY) == SET)
-        ;
+    while (__HAL_SPI_GET_FLAG(&hspi4, SPI_FLAG_BSY) == SET);
 
     // Only send the command of lf and rb
     if (motor_mode == PositionMode || motor_mode == PositionTorqueMode)
     {
         RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], Velocity[0][1], Torque[0][1], Kp, Kd, motor_mode);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], Velocity[0][0], Torque[0][0], Kp, Kd, motor_mode);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], Velocity[2][1], Torque[2][1], Kp, Kd, motor_mode);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], Velocity[2][0], Torque[2][0], Kp, Kd, motor_mode);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
     }
     else
     {
         RunJ60Motor(&J60Motor_CAN1[0], 0, Velocity[0][1], Torque[0][1], Kp, Kd, motor_mode);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN1[1], 0, Velocity[0][0], Torque[0][0], Kp, Kd, motor_mode);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN2[0], 0, Velocity[2][1], Torque[2][1], Kp, Kd, motor_mode);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN2[1], 0, Velocity[2][0], Torque[2][0], Kp, Kd, motor_mode);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
     }
 }
 
@@ -173,6 +186,14 @@ void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float
  */
 void Stand(void)
 {
+    static int last_time_init = 0;
+    static TickType_t last_time;
+
+    if (last_time_init == 0) {
+        last_time_init = 1;
+        last_time = xTaskGetTickCount();
+    }
+
     for (int i = 0; i < 4; i++)
     {
         if (IK_leg(0, robot_height, &angle[i][0], &angle[i][1]) != NO_NAN)
@@ -193,17 +214,16 @@ void Stand(void)
     spi_motor_data.real_motor_data[14] = PositionMode;
 
     HAL_SPI_Transmit(&hspi4, spi_motor_data.send_motor_data, 60, 1000);
-    while (__HAL_SPI_GET_FLAG(&hspi4, SPI_FLAG_BSY) == SET)
-        ;
+    while (__HAL_SPI_GET_FLAG(&hspi4, SPI_FLAG_BSY) == SET);
 
     RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-    vTaskDelay(pdMS_TO_TICKS(1));
+    vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
     RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-    vTaskDelay(pdMS_TO_TICKS(1));
+    vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
     RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-    vTaskDelay(pdMS_TO_TICKS(1));
+    vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
     RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-    vTaskDelay(pdMS_TO_TICKS(1));
+    vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
 }
 
 /**
@@ -994,166 +1014,6 @@ void SetJumpForwardBezierControlPoints0(JumpController *jump_forward_controller,
         return;
     }
 }
-
-// void JumpForward_FSM (JumpController* jump_forward_controller) {
-//     float squat_length = 0.07;
-//     float jump_length = 0.07;
-//     float tilt_length = 0.07;
-//     float jump_torque = 0;
-//     float robot_height = 0.2295;
-//     float bezier_x[4] = {0};  // lf, rf, rb, lb
-//     float bezier_y[4] = {0};  // lf, rf, rb, lb
-//     for (int i = 0; i < 4; i++) {
-//         SetThreeOrderBezierPeriod(&jump_forward_controller->jump_bezier[i], 1.0);
-//     }
-//
-//     float t_real = t / 1000;
-//
-//     if (jump_forward_controller->jump_state == Squat)//����
-//     {
-//         SetJumpForwardBezierControlPoints(jump_forward_controller, squat_length, jump_length, tilt_length);
-//
-//         for (int i = 0; i < 4; i++) {
-//             ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
-//             if (IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
-//             {
-//                 jump_forward_controller->jump_state = EndJump;
-//                 t = 0;
-//                 return;
-//             }
-//         }
-//
-//         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
-//
-//         if (t >= 1000) {
-//             jump_forward_controller->jump_state = JumpUp;
-//             t = 0;
-//             HAL_Delay(10);
-//         }
-//     }
-//     else if (jump_forward_controller->jump_state == JumpUp) //����
-//     {
-//         float tilt_length_2 = tilt_length * ((robot_height + jump_length) / (robot_height - squat_length));
-//         for (int i = 0; i < 4; i++) {
-//             if (IK_leg(-tilt_length_2, robot_height + jump_length, &angle[i][0], &angle[i][1]) != NO_NAN) {
-//                 jump_forward_controller->jump_state = EndJump;
-//                 t = 0;
-//                 return;
-//             }
-//         }
-//
-//         jump_torque = 10 * (fabs(J60Motor_CAN1[0].ReceiveMotorData.CurrentPosition - J60Motor_StandUpData_CAN1[0]) + fabs(angle[0][1]));
-//         if (jump_torque > TORQUE_MAX) {
-//             jump_torque = TORQUE_MAX;
-//         }
-//
-//         for (int i = 0; i < 4; i++) {
-//             for (int j = 0; j < 2; j++) {
-//                 Velocity[i][j] = 0;
-//                 if (angle[i][j] > 0) {
-//                     if ( i == 0 || i == 3) {  // left foot
-//                         if (j == 1) {  // out leg
-//                             Torque[i][j] = -jump_torque;
-//                         }
-//                         else {  // in leg
-//                             Torque[i][j] = jump_torque;
-//                         }
-//                     }
-//                     else {  // right foot
-//                         if (j == 1) {  // out leg
-//                             Torque[i][j] = jump_torque;
-//                         }
-//                         else {  // in leg
-//                             Torque[i][j] = -jump_torque;
-//                         }
-//                     }
-//                 }
-//                 else {
-//                     if (i == 0 || i == 3) {  // left foot
-//                         if (j == 1) {  // out leg
-//                             Torque[i][j] = jump_torque;
-//                         }
-//                         else {  // in leg
-//                             Torque[i][j] = -jump_torque;
-//                         }
-//                     }
-//                     else {  // right foot
-//                         if (j == 1) {  // out leg
-//                             Torque[i][j] = -jump_torque;
-//                         }
-//                         else {  // in leg
-//                             Torque[i][j] = jump_torque;
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//
-//         SetMotor(angle, Velocity, Torque, 400, 5, PositionTorqueMode);
-//
-//         for (int i = 0; i < 4; i++) {
-//             for (int j = 0; j < 2; j++) {
-//                 Velocity[i][j] = 0;
-//                 Torque[i][j] = 0;
-//             }
-//         }
-//
-//         HAL_Delay(200);
-//         jump_forward_controller->jump_state = LegUp;
-//     }
-//     else if (jump_forward_controller->jump_state == LegUp)
-//     {
-//         SetJumpForwardBezierControlPoints(jump_forward_controller, squat_length, jump_length, tilt_length);
-//
-//         for (int i = 0; i < 4; i++) {
-//             ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
-//             if (IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN) {
-//                 jump_forward_controller->jump_state = EndJump;
-//                 t = 0;
-//                 return;
-//             }
-//         }
-//
-//         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
-//
-//         if (t >= 1000) {
-//             jump_forward_controller->jump_state = Land;
-//             t = 0;
-//         }
-//
-//     }
-//     else if (jump_forward_controller->jump_state == Land) {
-//         SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
-//         HAL_Delay(2000);
-//
-//         jump_forward_controller->jump_state = StandUp;
-//     }
-//     else if (jump_forward_controller->jump_state == StandUp) {
-//         SetJumpForwardBezierControlPoints(jump_forward_controller, squat_length, jump_length, tilt_length);
-//
-//         for (int i = 0; i < 4; i++) {
-//             ThreeOrderBezierPlan(&(jump_forward_controller->jump_bezier[i]), t_real, &bezier_x[i], &bezier_y[i]);
-//             if (IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN) {
-//                 jump_forward_controller->jump_state = EndJump;
-//                 t = 0;
-//                 return;
-//             }
-//         }
-//
-//         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
-//
-//         if (t >= 1000) {
-//             jump_forward_controller->jump_state = EndJump;
-//             t = 0;
-//         }
-//     }
-//     else if (jump_forward_controller->jump_state == EndJump) {
-//         Stand();
-//     }
-//     else {
-//         return;
-//     }
-// }
 
 void SetJumpForwardBezierControlPoints1(JumpController *jump_forward_controller, float squat_length0, float jump_length0, float tilt_length0, float squat_length1, float jump_length1, float tilt_length1) // ��0�������������ǰ���ȷֱ����
 {

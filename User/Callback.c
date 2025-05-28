@@ -4,8 +4,10 @@
 #include "stm32f4xx_hal_can.h"
 #include "can.h"
 #include "usart.h"
+#include "tim.h"
 #include "GaitController.h"
 #include "Handle.h"
+#include "imu.h"
 #include "main.h"
 #include "string.h"
 
@@ -59,4 +61,31 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
             }
         }
     }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    uint8_t rx_imu[IMU_DATA_SIZE] = {0};
+    BaseType_t higher_priority_task_wake = pdFALSE;
+
+    if (huart->Instance == USART2) {
+        memcpy(rx_imu, imu_rx_data, IMU_DATA_SIZE);
+		if (imu_queue != NULL) {
+            xQueueSendFromISR(imu_queue, rx_imu, &higher_priority_task_wake);
+        }
+        portYIELD_FROM_ISR(higher_priority_task_wake);
+
+        HAL_UART_Receive_IT(&huart2, (uint8_t*)imu_rx_data, IMU_DATA_SIZE);
+    }
+}
+
+void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
+    BaseType_t higher_priority_task_wake = pdFALSE;
+
+    if (htim->Instance == TIM2) {
+        vTaskNotifyGiveFromISR((TaskHandle_t)NotifyActionHandle, &higher_priority_task_wake);
+        portYIELD_FROM_ISR(higher_priority_task_wake);
+    }
+
+    HAL_TIM_Base_Stop_IT(&htim2);
+	__HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
 }

@@ -1398,6 +1398,9 @@
             <name>$PROJ_DIR$\..\User\Callback.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\User\Camera\Camera.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\User\CurvePlan\CurvePlan.c</name>
         </file>
         <file>
@@ -1407,10 +1410,16 @@
             <name>$PROJ_DIR$\..\User\Handle\Handle.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\User\IMU\imu.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\User\KinematicSolution\KinematicSolution.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\User\LogSystem\LogSystem.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\User\NRF\nrf.c</name>
         </file>
     </group>
 </project>

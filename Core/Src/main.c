@@ -34,6 +34,9 @@
 #include "DeepJ60_Motor.h"
 #include "GaitController.h"
 #include "Handle.h"
+#include "imu.h"
+#include "Camera.h"
+#include "nrf.h"
 
 /* USER CODE END Includes */
 
@@ -57,6 +60,9 @@
 /* USER CODE BEGIN PV */
 
 QueueHandle_t cmd_queue = NULL;
+QueueHandle_t imu_queue = NULL;
+QueueHandle_t camera_queue = NULL;
+uint8_t rx_cmd[HANDLE_DATA_SIZE];
 
 /* USER CODE END PV */
 
@@ -111,6 +117,8 @@ int main(void)
   MX_UART7_Init();
   MX_USART3_UART_Init();
   MX_USART6_UART_Init();
+  MX_USART2_UART_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
   
   HAL_Delay(4000);
@@ -132,8 +140,15 @@ int main(void)
   HAL_Delay(2000);
 
   HAL_UARTEx_ReceiveToIdle_DMA(&huart6, (uint8_t*)dma_buffer, DMA_BUFFER_SIZE);
+  HAL_UART_Receive_IT(&huart2, (uint8_t*)imu_rx_data, IMU_DATA_SIZE);
+
+  // NRF24L01_Init();
+  // while(NRF24L01_check());
+  // NRF24L01_Set_Mode(MODE_RX);
 
   cmd_queue = xQueueCreate(10, sizeof(uint8_t) * HANDLE_DATA_SIZE);
+  imu_queue = xQueueCreate(10, sizeof(uint8_t) * IMU_DATA_SIZE);
+  camera_queue = xQueueCreate(10, sizeof(uint8_t) * RX_BTYES_LENGTH);
 
   /* USER CODE END 2 */
 
@@ -152,6 +167,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    // NRF24L01_RxPacket((uint8_t*)rx_cmd);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -41,6 +41,12 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\Handle
 -I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\IMU
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\NRF
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\..\User\Camera
+-I
 F:\EWARM_8321\arm\inc
 -I
 F:\EWARM_8321\arm\inc\c
@@ -80,6 +86,12 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\Handle
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\IMU
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\NRF
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\User\Camera
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0
