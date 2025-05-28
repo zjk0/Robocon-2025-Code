@@ -169,6 +169,7 @@ extern spi_data spi_motor_data;
 
 extern float angle[4][2];
 extern float t;
+extern float pre_t;
 
 extern float robot_height;
 extern int isSlope;

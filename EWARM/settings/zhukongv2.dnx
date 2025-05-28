@@ -14,7 +14,7 @@
         <MemConfigValue>F:\EWARM_8321\arm\CONFIG\debugger\ST\STM32F427VI.ddf</MemConfigValue>
     </PlDriver>
     <DebugChecksum>
-        <Checksum>922675184</Checksum>
+        <Checksum>6214099</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -51,8 +51,8 @@
         <EnableCache>1</EnableCache>
     </ArmDriver>
     <Disassembly>
-        <MixedMode>1</MixedMode>
         <InstrCount>0</InstrCount>
+        <MixedMode>1</MixedMode>
     </Disassembly>
     <StLinkDriver>
         <stlinkserialNo>93740544</stlinkserialNo>

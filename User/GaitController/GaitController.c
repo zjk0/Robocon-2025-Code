@@ -92,6 +92,7 @@ float Velocity[4][2] = {0};
 float Torque[4][2] = {0};
 
 float t = 0;
+float pre_t = 0;
 
 float robot_height = 0.2069;
 int isSlope = NO_SLOPE;
@@ -100,8 +101,8 @@ int isStop = NO_STOP;
 float tan_slope_theta = 1.0 / 3.0;
 float tan_LR_slope_theta = 0.2679;
 
-float J60Motor_StandUpData_CAN1[4] = {0.52249908444, -1.5693283,  -0.255470275, 1.46427154};       // lf_out, lf_in, rf_out, rf_in
-float J60Motor_StandUpData_CAN2[4] = {2.23820, -0.61748, -2.4397697444, 0.523414611}; // rb_out, rb_in, lb_out, lb_in
+float J60Motor_StandUpData_CAN1[4] = {0.48954, -2.214015,  -0.257377, 1.853065};       // lf_out, lf_in, rf_out, rf_in
+float J60Motor_StandUpData_CAN2[4] = {2.3810234, -0.597496, -1.96468, 0.409584}; // rb_out, rb_in, lb_out, lb_in
 
 float left_length = 0.2;
 float right_length = 0.2;
@@ -123,14 +124,6 @@ float right_length = 0.2;
  */
 void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float Kp, float Kd, enum MotorMode motor_mode)
 {
-    static int last_time_init = 0;
-    static TickType_t last_time;
-
-    if (last_time_init == 0) {
-        last_time_init = 1;
-        last_time = xTaskGetTickCount();
-    }
-
     spi_motor_data.real_motor_data[0] = angle[1][0];
     spi_motor_data.real_motor_data[1] = angle[1][1];
     spi_motor_data.real_motor_data[2] = angle[3][0];
@@ -156,24 +149,24 @@ void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float
     if (motor_mode == PositionMode || motor_mode == PositionTorqueMode)
     {
         RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], Velocity[0][1], Torque[0][1], Kp, Kd, motor_mode);
-        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+        vTaskDelay(pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], Velocity[0][0], Torque[0][0], Kp, Kd, motor_mode);
-        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+        vTaskDelay(pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], Velocity[2][1], Torque[2][1], Kp, Kd, motor_mode);
-        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+        vTaskDelay(pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], Velocity[2][0], Torque[2][0], Kp, Kd, motor_mode);
-        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
     else
     {
         RunJ60Motor(&J60Motor_CAN1[0], 0, Velocity[0][1], Torque[0][1], Kp, Kd, motor_mode);
-        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+        vTaskDelay(pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN1[1], 0, Velocity[0][0], Torque[0][0], Kp, Kd, motor_mode);
-        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+        vTaskDelay(pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN2[0], 0, Velocity[2][1], Torque[2][1], Kp, Kd, motor_mode);
-        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+        vTaskDelay(pdMS_TO_TICKS(1));
         RunJ60Motor(&J60Motor_CAN2[1], 0, Velocity[2][0], Torque[2][0], Kp, Kd, motor_mode);
-        vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
@@ -186,14 +179,6 @@ void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float
  */
 void Stand(void)
 {
-    static int last_time_init = 0;
-    static TickType_t last_time;
-
-    if (last_time_init == 0) {
-        last_time_init = 1;
-        last_time = xTaskGetTickCount();
-    }
-
     for (int i = 0; i < 4; i++)
     {
         if (IK_leg(0, robot_height, &angle[i][0], &angle[i][1]) != NO_NAN)
@@ -217,13 +202,13 @@ void Stand(void)
     while (__HAL_SPI_GET_FLAG(&hspi4, SPI_FLAG_BSY) == SET);
 
     RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
-    vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+    vTaskDelay(pdMS_TO_TICKS(1));
     RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
-    vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+    vTaskDelay(pdMS_TO_TICKS(1));
     RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
-    vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+    vTaskDelay(pdMS_TO_TICKS(1));
     RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
-    vTaskDelayUntil(&last_time, pdMS_TO_TICKS(1));
+    vTaskDelay(pdMS_TO_TICKS(1));
 }
 
 /**
@@ -374,6 +359,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             {
                 trot_controller->trot_state = EndTrot;
                 t = 0;
+                pre_t = 0;
                 return;
             }
         }
@@ -385,6 +371,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
         {
             trot_controller->trot_state = Trotting;
             t = 0;
+            pre_t = -1;
         }
     }
     else if (trot_controller->trot_state == Trotting)
@@ -425,6 +412,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             {
                 trot_controller->trot_state = EndTrot;
                 t = 0;
+                pre_t = 0;
                 return;
             }
         }
@@ -432,11 +420,15 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 
         // Change state
-        if (t >= 2000 && isStop == NEED_TO_STOP)
+        if (t >= 2000)
         {
-            trot_controller->trot_state = PreEndTrot;
-            isStop = NO_STOP;
+            if (isStop == NEED_TO_STOP)
+            {
+                trot_controller->trot_state = PreEndTrot;
+                isStop = NO_STOP;
+            }
             t = 0;
+            pre_t = -1;
         }
     }
     else if (trot_controller->trot_state == PreEndTrot)
@@ -453,6 +445,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             {
                 trot_controller->trot_state = EndTrot;
                 t = 0;
+                pre_t = 0;
                 return;
             }
         }
@@ -464,6 +457,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
         {
             trot_controller->trot_state = EndTrot;
             t = 0;
+            pre_t = 0;
         }
     }
     else if (trot_controller->trot_state == EndTrot)
@@ -624,6 +618,7 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
             {
                 rotate_controller->rotate_state = EndRotate;
                 t = 0;
+                pre_t = 0;
                 return;
             }
         }
@@ -635,6 +630,7 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
         {
             rotate_controller->rotate_state = Rotating;
             t = 0;
+            pre_t = -1;
         }
     }
     else if (rotate_controller->rotate_state == Rotating)
@@ -675,6 +671,7 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
             {
                 rotate_controller->rotate_state = EndRotate;
                 t = 0;
+                pre_t = 0;
                 return;
             }
         }
@@ -682,11 +679,15 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 
         // Change state
-        if (t >= 2000 && isStop == NEED_TO_STOP)
+        if (t >= 2000)
         {
-            rotate_controller->rotate_state = PreEndRotate;
-            isStop = NO_STOP;
+            if (isStop == NEED_TO_STOP)
+            {
+                rotate_controller->rotate_state = PreEndRotate;
+                isStop = NO_STOP;
+            }
             t = 0;
+            pre_t = -1;
         }
     }
     else if (rotate_controller->rotate_state == PreEndRotate)
@@ -703,6 +704,7 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
             {
                 rotate_controller->rotate_state = EndRotate;
                 t = 0;
+                pre_t = 0;
                 return;
             }
         }
@@ -714,6 +716,7 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
         {
             rotate_controller->rotate_state = EndRotate;
             t = 0;
+            pre_t = 0;
         }
     }
     else if (rotate_controller->rotate_state == EndRotate)
@@ -1456,6 +1459,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             {
                 turn_controller->turn_state = EndTurn;
                 t = 0;
+                pre_t = 0;
                 return;
             }
         }
@@ -1466,6 +1470,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
         {
             turn_controller->turn_state = Turning;
             t = 0;
+            pre_t = -1;
         }
     }
     else if (turn_controller->turn_state == Turning)
@@ -1506,17 +1511,22 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             {
                 turn_controller->turn_state = EndTurn;
                 t = 0;
+                pre_t = 0;
                 return;
             }
         }
 
         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 
-        if (t >= 2000 && isStop == NEED_TO_STOP)
+        if (t >= 2000)
         {
-            turn_controller->turn_state = PreEndTurn;
-            isStop = NO_STOP;
+            if (isStop == NEED_TO_STOP)
+            {
+                turn_controller->turn_state = PreEndTurn;
+                isStop = NO_STOP;
+            }
             t = 0;
+            pre_t = -1;
         }
     }
     else if (turn_controller->turn_state == PreEndTurn)
@@ -1533,6 +1543,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             {
                 turn_controller->turn_state = EndTurn;
                 t = 0;
+                pre_t = 0;
                 return;
             }
         }
@@ -1543,6 +1554,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
         {
             turn_controller->turn_state = EndTurn;
             t = 0;
+            pre_t = 0;
         }
     }
     else if (turn_controller->turn_state == EndTurn)
@@ -1851,7 +1863,9 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
             {
                 if (IK_leg(bezier_x[i], shorter_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_slope((1.0 / 3));
+                    walk_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -1859,7 +1873,9 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
             {
                 if (IK_leg(bezier_x[i], longer_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_slope((1.0 / 3));
+                    walk_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -1871,6 +1887,7 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
         {
             walk_slope_controller->trot_state = Trotting;
             t = 0;
+            pre_t = -1;
         }
     }
     else if (walk_slope_controller->trot_state == Trotting)
@@ -1911,7 +1928,9 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
             {
                 if (IK_leg(bezier_x[i], shorter_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_slope((1.0 / 3));
+                    walk_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -1919,7 +1938,9 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
             {
                 if (IK_leg(bezier_x[i], longer_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_slope((1.0 / 3));
+                    walk_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -1927,11 +1948,15 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
 
         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 
-        if (t >= 2000 && isStop == NEED_TO_STOP)
+        if (t >= 2000)
         {
-            walk_slope_controller->trot_state = PreEndTrot;
-            isStop = NO_STOP;
+            if (isStop == NEED_TO_STOP)
+            {
+                walk_slope_controller->trot_state = PreEndTrot;
+                isStop = NO_STOP;
+            }
             t = 0;
+            pre_t = -1;
         }
     }
     else if (walk_slope_controller->trot_state == PreEndTrot)
@@ -1948,7 +1973,9 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
             {
                 if (IK_leg(bezier_x[i], shorter_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_slope((1.0 / 3));
+                    walk_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -1956,7 +1983,9 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
             {
                 if (IK_leg(bezier_x[i], longer_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_slope((1.0 / 3));
+                    walk_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -1968,6 +1997,7 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
         {
             walk_slope_controller->trot_state = EndTrot;
             t = 0;
+            pre_t = 0;
         }
     }
     else if (walk_slope_controller->trot_state == EndTrot)
@@ -2147,7 +2177,9 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
             {
                 if (IK_leg(bezier_x[i], bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_LR_slope((0.2679));
+                    walk_LR_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -2155,7 +2187,9 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
             {
                 if (IK_leg(bezier_x[i], bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_LR_slope((0.2679));
+                    walk_LR_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -2167,6 +2201,7 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
         {
             walk_LR_slope_controller->trot_state = Trotting;
             t = 0;
+            pre_t = -1;
         }
     }
     else if (walk_LR_slope_controller->trot_state == Trotting)
@@ -2207,7 +2242,9 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
             {
                 if (IK_leg(bezier_x[i], bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_LR_slope((0.2679));
+                    walk_LR_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -2215,7 +2252,9 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
             {
                 if (IK_leg(bezier_x[i], bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_LR_slope((0.2679));
+                    walk_LR_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -2223,11 +2262,15 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
 
         SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 
-        if (t >= 2000 && isStop == NEED_TO_STOP)
+        if (t >= 2000)
         {
-            walk_LR_slope_controller->trot_state = PreEndTrot;
-            isStop = NO_STOP;
+            if (isStop == NEED_TO_STOP)
+            {
+                walk_LR_slope_controller->trot_state = PreEndTrot;
+                isStop = NO_STOP;
+            }
             t = 0;
+            pre_t = -1;
         }
     }
     else if (walk_LR_slope_controller->trot_state == PreEndTrot)
@@ -2244,7 +2287,9 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
             {
                 if (IK_leg(bezier_x[i], bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_LR_slope((0.2679));
+                    walk_LR_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -2252,7 +2297,9 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
             {
                 if (IK_leg(bezier_x[i], bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
                 {
-                    Stand_on_LR_slope((0.2679));
+                    walk_LR_slope_controller->trot_state = EndTrot;
+                    t = 0;
+                    pre_t = 0;
                     return;
                 }
             }
@@ -2264,6 +2311,7 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
         {
             walk_LR_slope_controller->trot_state = EndTrot;
             t = 0;
+            pre_t = 0;
         }
     }
     else if (walk_LR_slope_controller->trot_state == EndTrot)

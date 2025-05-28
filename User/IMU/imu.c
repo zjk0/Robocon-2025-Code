@@ -2,6 +2,9 @@
 
 uint8_t imu_rx_data[IMU_DATA_SIZE];
 
+Quaternions Q_Value;
+Euler EulerAngle;
+
 float yaw_error_filter = 0;
 float delta_length_filter = 0;
 

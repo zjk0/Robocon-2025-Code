@@ -68,8 +68,6 @@ float trot_length = INIT_TROT_LENGTH;
 
 int tim_callback = 0;
 
-Quaternions Q_Value;
-Euler EulerAngle;
 //uint8_t rx_cmd[HANDLE_DATA_SIZE];
 
 /* USER CODE END Variables */
@@ -357,9 +355,7 @@ void TrotForwardTask(void *argument)
           isStop = NEED_TO_STOP;
         }
       }
-    }
 
-    if (notify_value != 0) {
       if (trot_controller.trot_state != EndTrot) {
         // int ret = compute_lengths(EulerAngle.yaw, &left_length, &right_length, INIT_TROT_LENGTH, 0.6, 0.6, 0.1);
         // if (ret == LEFT) {
@@ -377,10 +373,7 @@ void TrotForwardTask(void *argument)
         Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
 
         if (trot_controller.trot_state != EndTrot) {
-          t += NORMAL_DELTA_T;
-          if (t > 2000 && trot_controller.trot_state == Trotting) {
-            t = 0;
-          }
+          __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
@@ -396,6 +389,41 @@ void TrotForwardTask(void *argument)
         // }
       }
     }
+
+    // if (notify_value != 0) {
+    //   if (trot_controller.trot_state != EndTrot) {
+    //     // int ret = compute_lengths(EulerAngle.yaw, &left_length, &right_length, INIT_TROT_LENGTH, 0.6, 0.6, 0.1);
+    //     // if (ret == LEFT) {
+    //     //   turn_controller.turn_angular_direction = TurnLeft;
+    //     //   Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
+    //     // }
+    //     // else if (ret == RIGHT) {
+    //     //   turn_controller.turn_angular_direction = TurnRight;
+    //     //   Turn_FSM(&turn_controller, right_length, left_length, 0.03, robot_height);
+    //     // }
+    //     // else if (ret == NO_TURN) {
+    //     //   Turn_FSM(&turn_controller, INIT_TROT_LENGTH, INIT_TROT_LENGTH, 0.03, robot_height);
+    //     // }
+
+    //     Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
+
+    //     if (trot_controller.trot_state != EndTrot) {
+    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
+    //       HAL_TIM_Base_Start_IT(&htim2);
+    //     }
+
+    //     notify_value = 0;
+
+    //     // if (turn_controller.turn_state != EndTurn) {
+    //     //   vTaskDelayUntil(&last_time, freq);
+    //     //   t += NORMAL_DELTA_T;
+    //     //   if (t > 2000 && turn_controller.turn_state == Turning) {
+    //     //     t = 0;
+    //     //   }
+    //     // }
+    //   }
+    // }
 
     osDelay(1);
   }
@@ -431,17 +459,12 @@ void TrotBackTask(void *argument)
           isStop = NEED_TO_STOP;
         }
       }
-    }
 
-    if (notify_value != 0) {
       if (trot_controller.trot_state != EndTrot) {
         Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
 
         if (trot_controller.trot_state != EndTrot) {
-          t += NORMAL_DELTA_T;
-          if (t > 2000 && trot_controller.trot_state == Trotting) {
-            t = 0;
-          }
+          __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
@@ -449,6 +472,20 @@ void TrotBackTask(void *argument)
 
       notify_value = 0;
     }
+
+    // if (notify_value != 0) {
+    //   if (trot_controller.trot_state != EndTrot) {
+    //     Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
+
+    //     if (trot_controller.trot_state != EndTrot) {
+    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
+    //       HAL_TIM_Base_Start_IT(&htim2);
+    //     }
+    //   }
+
+    //   notify_value = 0;
+    // }
 
     osDelay(1);
   }
@@ -484,17 +521,12 @@ void RotateLeftTask(void *argument)
           isStop = NEED_TO_STOP;
         }
       }
-    }
 
-    if (notify_value != 0) {
       if (rotate_controller.rotate_state != EndRotate) {
         Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
 
         if (rotate_controller.rotate_state != EndRotate) {
-          t += NORMAL_DELTA_T;
-          if (t > 2000 && rotate_controller.rotate_state == Rotating) {
-            t = 0;
-          }
+          __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
@@ -502,6 +534,20 @@ void RotateLeftTask(void *argument)
 
       notify_value = 0;
     }
+
+    // if (notify_value != 0) {
+    //   if (rotate_controller.rotate_state != EndRotate) {
+    //     Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
+
+    //     if (rotate_controller.rotate_state != EndRotate) {
+    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
+    //       HAL_TIM_Base_Start_IT(&htim2);
+    //     }
+    //   }
+
+    //   notify_value = 0;
+    // }
 
     osDelay(1);
   }
@@ -537,17 +583,12 @@ void RotateRightTask(void *argument)
           isStop = NEED_TO_STOP;
         }
       }
-    }
 
-    if (notify_value != 0) {
       if (rotate_controller.rotate_state != EndRotate) {
         Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
 
         if (rotate_controller.rotate_state != EndRotate) {
-          t += NORMAL_DELTA_T;
-          if (t > 2000 && rotate_controller.rotate_state == Rotating) {
-            t = 0;
-          }
+          __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
@@ -555,6 +596,20 @@ void RotateRightTask(void *argument)
 
       notify_value = 0;
     }
+
+    // if (notify_value != 0) {
+    //   if (rotate_controller.rotate_state != EndRotate) {
+    //     Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
+
+    //     if (rotate_controller.rotate_state != EndRotate) {
+    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
+    //       HAL_TIM_Base_Start_IT(&htim2);
+    //     }
+    //   }
+
+    //   notify_value = 0;
+    // }
 
     osDelay(1);
   }
@@ -590,17 +645,12 @@ void TurnLeftTask(void *argument)
           isStop = NEED_TO_STOP;
         }
       }
-    }
 
-    if (notify_value != 0) {
       if (turn_controller.turn_state != EndTurn) {
         Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
 
         if (turn_controller.turn_state != EndTurn) {
-          t += NORMAL_DELTA_T;
-          if (t > 2000 && turn_controller.turn_state == Turning) {
-            t = 0;
-          }
+          __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
@@ -608,6 +658,20 @@ void TurnLeftTask(void *argument)
 
       notify_value = 0;
     }
+
+    // if (notify_value != 0) {
+    //   if (turn_controller.turn_state != EndTurn) {
+    //     Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
+
+    //     if (turn_controller.turn_state != EndTurn) {
+    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
+    //       HAL_TIM_Base_Start_IT(&htim2);
+    //     }
+    //   }
+
+    //   notify_value = 0;
+    // }
 
     osDelay(1);
   }
@@ -643,17 +707,12 @@ void TurnRightTask(void *argument)
           isStop = NEED_TO_STOP;
         }
       }
-    }
 
-    if (notify_value != 0) {
       if (turn_controller.turn_state != EndTurn) {
         Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
 
         if (turn_controller.turn_state != EndTurn) {
-          t += NORMAL_DELTA_T;
-          if (t > 2000 && turn_controller.turn_state == Turning) {
-            t = 0;
-          }
+          __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
@@ -661,6 +720,20 @@ void TurnRightTask(void *argument)
 
       notify_value = 0;
     }
+
+    // if (notify_value != 0) {
+    //   if (turn_controller.turn_state != EndTurn) {
+    //     Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
+
+    //     if (turn_controller.turn_state != EndTurn) {
+    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
+    //       HAL_TIM_Base_Start_IT(&htim2);
+    //     }
+    //   }
+
+    //   notify_value = 0;
+    // }
 
     osDelay(1);
   }
@@ -778,17 +851,12 @@ void WalkSlopeTask(void *argument)
           isStop = NEED_TO_STOP;
         }
       }
-    }
 
-    if (notify_value != 0) {
       if (walk_slope_controller.trot_state != EndTrot) {
         WalkSlope_FSM(&walk_slope_controller, (1.0 / 3), 0.4, robot_height, 0.12, 0.04);
 
         if (walk_slope_controller.trot_state != EndTrot) {
-          t += NORMAL_DELTA_T;
-          if (t > 2000 && walk_slope_controller.trot_state == Trotting) {
-            t = 0;
-          }
+          __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
@@ -796,6 +864,20 @@ void WalkSlopeTask(void *argument)
 
       notify_value = 0;
     }
+
+    // if (notify_value != 0) {
+    //   if (walk_slope_controller.trot_state != EndTrot) {
+    //     WalkSlope_FSM(&walk_slope_controller, (1.0 / 3), 0.4, robot_height, 0.12, 0.04);
+
+    //     if (walk_slope_controller.trot_state != EndTrot) {
+    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
+    //       HAL_TIM_Base_Start_IT(&htim2);
+    //     }
+    //   }
+
+    //   notify_value = 0;
+    // }
 
     osDelay(1);
   }
@@ -831,17 +913,12 @@ void WalkSlopeLRTask(void *argument)
           isStop = NEED_TO_STOP;
         }
       }
-    }
 
-    if (notify_value != 0) {
       if (walk_LR_slope_controller.trot_state != EndTrot) {
         WalkSlope_LR_FSM(&walk_LR_slope_controller, 0.268, 0.4, robot_height, 0.12, 0.09378);
 
         if (walk_LR_slope_controller.trot_state != EndTrot) {
-          t += NORMAL_DELTA_T;
-          if (t > 2000 && walk_LR_slope_controller.trot_state == Trotting) {
-            t = 0;
-          }
+          __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
@@ -849,6 +926,20 @@ void WalkSlopeLRTask(void *argument)
 
       notify_value = 0;
     }
+
+    // if (notify_value != 0) {
+    //   if (walk_LR_slope_controller.trot_state != EndTrot) {
+    //     WalkSlope_LR_FSM(&walk_LR_slope_controller, 0.268, 0.4, robot_height, 0.12, 0.09378);
+
+    //     if (walk_LR_slope_controller.trot_state != EndTrot) {
+    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
+    //       HAL_TIM_Base_Start_IT(&htim2);
+    //     }
+    //   }
+
+    //   notify_value = 0;
+    // }
 
     osDelay(1);
   }
@@ -913,7 +1004,7 @@ void ParseHandleTask(void *argument)
           last_handle_command[0] == STOP_CMD && handle_command[0] != STOP_CMD && 
           handle_command[0] != JUMP_UP_CMD && handle_command[0] != JUMP_FORWARD_CMD) {
           
-		  __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+		      __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
@@ -938,19 +1029,19 @@ void ParseIMUTask(void *argument)
 {
   /* USER CODE BEGIN ParseIMUTask */
 
-  uint8_t rx_imu[IMU_DATA_SIZE];
-
   /* Infinite loop */
   for(;;)
   {
-    if (xQueueReceive(imu_queue, rx_imu, portMAX_DELAY) == pdPASS) {
-      Q_Value.x.val_32bit=u8_to_u32(rx_imu[7],rx_imu[6],rx_imu[5],rx_imu[4]);
-		  Q_Value.y.val_32bit=u8_to_u32(rx_imu[11],rx_imu[10],rx_imu[9],rx_imu[8]);
-		  Q_Value.z.val_32bit=u8_to_u32(rx_imu[15],rx_imu[14],rx_imu[13],rx_imu[12]);
-		  Q_Value.w.val_32bit=u8_to_u32(rx_imu[19],rx_imu[18],rx_imu[17],rx_imu[16]);
+    // for(uint8_t i = 0; i < 23; i++) {
+		// 	HAL_UART_Receive(&huart2, imu_rx_data + i, 1, 10);
+		// }
 
-		  IMU_quaterToEulerianAngles();
-    }
+    // Q_Value.x.val_32bit=u8_to_u32(imu_rx_data[7],imu_rx_data[6],imu_rx_data[5],imu_rx_data[4]);
+		// Q_Value.y.val_32bit=u8_to_u32(imu_rx_data[11],imu_rx_data[10],imu_rx_data[9],imu_rx_data[8]);
+		// Q_Value.z.val_32bit=u8_to_u32(imu_rx_data[15],imu_rx_data[14],imu_rx_data[13],imu_rx_data[12]);
+		// Q_Value.w.val_32bit=u8_to_u32(imu_rx_data[19],imu_rx_data[18],imu_rx_data[17],imu_rx_data[16]);
+
+		// IMU_quaterToEulerianAngles();
 
     osDelay(1);
   }
@@ -973,7 +1064,7 @@ void NotifyActionTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    if (ulTaskNotifyTake(pdTRUE, 0) > 0) {
+    if (t != pre_t) {
       // HAL_TIM_Base_Stop_IT(&htim2);
 	    // __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
 
@@ -1025,6 +1116,8 @@ void NotifyActionTask(void *argument)
           xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
         }
       }
+
+      pre_t = t;
     }
 
     if (CompareCommand(last_handle_command, handle_command) != 0) {
