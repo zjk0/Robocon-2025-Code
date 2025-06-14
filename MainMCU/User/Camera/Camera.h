@@ -9,7 +9,7 @@
 #define CAMERA_RX_FOOTER_1 0x0A
 #define CAMERA_RX_FOOTER_2 0x0D
 
-#define RX_BTYES_LENGTH 26
+#define RX_BTYES_LENGTH 6
 
 #define RX_NORMAL 1
 #define RX_ERROR 0
@@ -25,10 +25,7 @@ typedef union {
 } RxInt;
 
 typedef struct {
-    float roll;
-    float pitch;
     float yaw;
-    float yaw_angle;
     int stop_flag;
 } Camera;
 

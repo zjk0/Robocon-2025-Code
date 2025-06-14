@@ -36,6 +36,10 @@
 #define SLOPE_LF_RB_SWING_RF_LB_SUPPORT 1
 #define NOT_SLOPE 2
 
+#define LEFT_UP 0
+#define RIGHT_UP 1
+#define NOT_MOVING 2
+
 #define NO_SLOPE 0
 #define SLOPE 1
 #define SLOPE_LR 2
@@ -149,6 +153,25 @@ typedef struct {
     float swing_duty_cycle;
 } WalkSlopeController;
 
+typedef enum {
+    PreMove = 0,
+    Moving, 
+    PreEndMove,
+    EndMove
+} HorizontalMoveState;
+
+typedef enum {
+    MoveLeft = 0,
+    MoveRight
+} HorizontalMoveDirection;
+
+typedef struct {
+    HorizontalMoveState move_state;
+    HorizontalMoveDirection move_direction;
+    ThreeOrderBezierInformation move_bezier[4];
+    float swing_duty_cycle;
+} HorizontalMoveController;
+
 typedef union {
     float real_motor_data[15];
     uint8_t send_motor_data[60];
@@ -164,6 +187,7 @@ extern JumpController jump_forward_controller;
 extern TurnController turn_controller;
 extern TrotController walk_slope_controller;
 extern TrotController walk_LR_slope_controller;
+extern HorizontalMoveController move_controller;
 
 extern spi_data spi_motor_data;
 
@@ -200,4 +224,5 @@ void Stand_on_slope (float tan_slope_theta);
 void WalkSlope_FSM (TrotController* walk_slope_controller, float tan_slope_theta, float length_between_legs, float robot_height, float gait_length, float delta_height);
 void Stand_on_LR_slope (float tan_slope_theta);
 void SetWalk_LR_SlopeBezierControlPoints (TrotController* walk_LR_slope_controller, float bezier_length, float delta_height, int leg, int walking_state);
-void WalkSlope_LR_FSM (TrotController* walk_LR_slope_controller, float tan_slope_theta, float length_between_legs, float robot_height, float gait_length, float delta_height); 
+void WalkSlope_LR_FSM (TrotController* walk_LR_slope_controller, float tan_slope_theta, float length_between_legs, float robot_height, float gait_length, float delta_height);
+void HorizontalMove_FSM (HorizontalMoveController* move_controller, float longer_height, float shorter_height, float robot_height, float delta_height);

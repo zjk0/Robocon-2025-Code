@@ -23,9 +23,9 @@
 
 if ($debugfile -eq "")
 {
-& "F:\EWARM_8321\common\bin\cspybat" -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\settings\zhukongv2.zhukongv2.general.xcl" --backend -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\settings\zhukongv2.zhukongv2.driver.xcl" 
+& "F:\EWARM_8321\common\bin\cspybat" -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\settings\zhukongv2.zhukongv2.general.xcl" --backend -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\settings\zhukongv2.zhukongv2.driver.xcl" 
 }
 else
 {
-& "F:\EWARM_8321\common\bin\cspybat" -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\settings\zhukongv2.zhukongv2.general.xcl" --debug_file=$debugfile --backend -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Quadruped_Robot_20241025_backup\EWARM\settings\zhukongv2.zhukongv2.driver.xcl" 
+& "F:\EWARM_8321\common\bin\cspybat" -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\settings\zhukongv2.zhukongv2.general.xcl" --debug_file=$debugfile --backend -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\settings\zhukongv2.zhukongv2.driver.xcl" 
 }

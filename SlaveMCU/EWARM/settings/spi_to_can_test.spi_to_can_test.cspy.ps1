@@ -23,9 +23,9 @@
 
 if ($debugfile -eq "")
 {
-& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "G:\云深处J60-6\2025_canine_Slaverboard_20250419\EWARM\settings\spi_to_can_test.spi_to_can_test.general.xcl" --backend -f "G:\云深处J60-6\2025_canine_Slaverboard_20250419\EWARM\settings\spi_to_can_test.spi_to_can_test.driver.xcl" 
+& "F:\EWARM_8321\common\bin\cspybat" -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\SlaveMCU\EWARM\settings\spi_to_can_test.spi_to_can_test.general.xcl" --backend -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\SlaveMCU\EWARM\settings\spi_to_can_test.spi_to_can_test.driver.xcl" 
 }
 else
 {
-& "D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "G:\云深处J60-6\2025_canine_Slaverboard_20250419\EWARM\settings\spi_to_can_test.spi_to_can_test.general.xcl" --debug_file=$debugfile --backend -f "G:\云深处J60-6\2025_canine_Slaverboard_20250419\EWARM\settings\spi_to_can_test.spi_to_can_test.driver.xcl" 
+& "F:\EWARM_8321\common\bin\cspybat" -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\SlaveMCU\EWARM\settings\spi_to_can_test.spi_to_can_test.general.xcl" --debug_file=$debugfile --backend -f "F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\SlaveMCU\EWARM\settings\spi_to_can_test.spi_to_can_test.driver.xcl" 
 }

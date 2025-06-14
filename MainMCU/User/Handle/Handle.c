@@ -34,10 +34,10 @@ int CheckRxData (uint8_t* rx_data) {
 void ParseHandle (uint8_t* rx_data, uint8_t* cmd) {
     cmd[0] = rx_data[2];
     cmd[1] = rx_data[5];
-    cmd[2] = rx_data[7];
-    cmd[3] = rx_data[8];
-    cmd[4] = rx_data[10];
-    cmd[5] = rx_data[11];
+    cmd[2] = rx_data[7];  // 纵向
+    cmd[3] = rx_data[8];  // 横向
+    cmd[4] = rx_data[10];  // 纵向
+    cmd[5] = rx_data[11];  // 横向
 }
 
 int CompareCommand (uint8_t* last_cmd, uint8_t* cmd) {

@@ -1,14 +1,14 @@
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\bin\armproc.dll" 
+"F:\EWARM_8321\arm\bin\armproc.dll" 
 
-"D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\bin\armstlink2.dll" 
+"F:\EWARM_8321\arm\bin\armJET.dll" 
 
-"G:\云深处J60-6\2025_canine_Slaverboard_20250419\EWARM\spi_to_can_test\Exe\spi_to_can_test.out" 
+"F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\SlaveMCU\EWARM\spi_to_can_test\Exe\spi_to_can_test.out" 
 
---plugin="D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\bin\armbat.dll" 
+--plugin="F:\EWARM_8321\arm\bin\armbat.dll" 
 
---device_macro="D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\config\debugger\ST\STM32F4xx.dmac" 
+--device_macro="F:\EWARM_8321\arm\config\debugger\ST\STM32F4xx.dmac" 
 
---flash_loader="D:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\config\flashloader\ST\FlashSTM32F4xxx.board" 
+--flash_loader="F:\EWARM_8321\arm\config\flashloader\ST\FlashSTM32F4xxx.board" 
 
 
 

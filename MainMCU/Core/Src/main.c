@@ -140,7 +140,8 @@ int main(void)
   HAL_Delay(2000);
 
   HAL_UARTEx_ReceiveToIdle_DMA(&huart6, (uint8_t*)dma_buffer, DMA_BUFFER_SIZE);
-  // HAL_UART_Receive_IT(&huart2, (uint8_t*)imu_rx_data, IMU_DATA_SIZE);
+  // HAL_UARTEx_Receive_DMA(&huart6, (uint8_t*)dma_buffer, DMA_BUFFER_SIZE);
+  HAL_UART_Receive_IT(&huart2, (uint8_t*)rx_bytes, RX_BTYES_LENGTH);
 
   // NRF24L01_Init();
   // while(NRF24L01_check());

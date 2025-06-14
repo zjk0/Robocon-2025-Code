@@ -32,6 +32,7 @@
 #include "Camera.h"
 #include "nrf.h"
 #include "tim.h"
+#include "math.h"
 
 /* USER CODE END Includes */
 
@@ -343,21 +344,27 @@ void TrotForwardTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        if (trot_controller.trot_state == EndTrot) {
-          trot_controller.trot_state = PreTrot;
-          trot_controller.trot_direction = Forward;
-          // turn_controller.turn_state = PreTurn;
+        if (turn_controller.turn_state == EndTurn) {
+          turn_controller.turn_state = PreTurn;
           t = 0;
         }
+        // if (trot_controller.trot_state == EndTrot) {
+        //   trot_controller.trot_state = PreTrot;
+        //   trot_controller.trot_direction = Forward;
+        //   t = 0;
+        // }
       }
       else if (notify_value == END_ACTION) {
-        if (trot_controller.trot_state == Trotting) {
+        if (turn_controller.turn_state == Turning) {
           isStop = NEED_TO_STOP;
         }
+        // if (trot_controller.trot_state == Trotting) {
+        //   isStop = NEED_TO_STOP;
+        // }
       }
 
-      if (trot_controller.trot_state != EndTrot) {
-        // int ret = compute_lengths(EulerAngle.yaw, &left_length, &right_length, INIT_TROT_LENGTH, 0.6, 0.6, 0.1);
+      if (turn_controller.turn_state != EndTurn) {
+        // int ret = compute_lengths((camera.yaw - 90), &left_length, &right_length, INIT_TROT_LENGTH, 0.6, 0.6, 0.1);
         // if (ret == LEFT) {
         //   turn_controller.turn_angular_direction = TurnLeft;
         //   Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
@@ -370,60 +377,44 @@ void TrotForwardTask(void *argument)
         //   Turn_FSM(&turn_controller, INIT_TROT_LENGTH, INIT_TROT_LENGTH, 0.03, robot_height);
         // }
 
-        Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
+        trot_length = 0.0024 * abs(handle_command[2] - 125);
 
-        if (trot_controller.trot_state != EndTrot) {
+        if (handle_command[3] - 125 > 0) {
+          turn_controller.turn_angular_direction = TurnRight;
+          left_length = trot_length + 0.0004 * abs(handle_command[3] - 125) / 2;
+          right_length = trot_length - 0.0004 * abs(handle_command[3] - 125) / 2;
+          Turn_FSM(&turn_controller, right_length, left_length, 0.03, robot_height);
+        }
+        else if (handle_command[3] - 125 < 0) {
+          turn_controller.turn_angular_direction = TurnLeft;
+          left_length = trot_length - 0.0004 * abs(handle_command[3] - 125) / 2;
+          right_length = trot_length + 0.0004 * abs(handle_command[3] - 125) / 2;
+          Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
+        }
+        else {
+          Turn_FSM(&turn_controller, trot_length, trot_length, 0.03, robot_height);
+        }
+
+        if (turn_controller.turn_state != EndTurn) {
           __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
         }
-
-        notify_value = 0;
-
-        // if (turn_controller.turn_state != EndTurn) {
-        //   vTaskDelayUntil(&last_time, freq);
-        //   t += NORMAL_DELTA_T;
-        //   if (t > 2000 && turn_controller.turn_state == Turning) {
-        //     t = 0;
-        //   }
-        // }
       }
+
+      // if (trot_controller.trot_state != EndTrot) {
+      //   Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
+      //   // Trot_FSM(&trot_controller, 0.03, (0.0024 * abs(handle_command[2] - 125)), robot_height);
+
+      //   if (trot_controller.trot_state != EndTrot) {
+      //     __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+      //     __HAL_TIM_SET_COUNTER(&htim2, 0);
+      //     HAL_TIM_Base_Start_IT(&htim2);
+      //   }
+      // }
+
+      notify_value = 0;
     }
-
-    // if (notify_value != 0) {
-    //   if (trot_controller.trot_state != EndTrot) {
-    //     // int ret = compute_lengths(EulerAngle.yaw, &left_length, &right_length, INIT_TROT_LENGTH, 0.6, 0.6, 0.1);
-    //     // if (ret == LEFT) {
-    //     //   turn_controller.turn_angular_direction = TurnLeft;
-    //     //   Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
-    //     // }
-    //     // else if (ret == RIGHT) {
-    //     //   turn_controller.turn_angular_direction = TurnRight;
-    //     //   Turn_FSM(&turn_controller, right_length, left_length, 0.03, robot_height);
-    //     // }
-    //     // else if (ret == NO_TURN) {
-    //     //   Turn_FSM(&turn_controller, INIT_TROT_LENGTH, INIT_TROT_LENGTH, 0.03, robot_height);
-    //     // }
-
-    //     Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
-
-    //     if (trot_controller.trot_state != EndTrot) {
-    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
-    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
-    //       HAL_TIM_Base_Start_IT(&htim2);
-    //     }
-
-    //     notify_value = 0;
-
-    //     // if (turn_controller.turn_state != EndTurn) {
-    //     //   vTaskDelayUntil(&last_time, freq);
-    //     //   t += NORMAL_DELTA_T;
-    //     //   if (t > 2000 && turn_controller.turn_state == Turning) {
-    //     //     t = 0;
-    //     //   }
-    //     // }
-    //   }
-    // }
 
     osDelay(1);
   }
@@ -461,7 +452,8 @@ void TrotBackTask(void *argument)
       }
 
       if (trot_controller.trot_state != EndTrot) {
-        Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
+        // Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
+        Trot_FSM(&trot_controller, 0.03, (0.0024 * abs(handle_command[2] - 125)), robot_height);
 
         if (trot_controller.trot_state != EndTrot) {
           __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
@@ -472,20 +464,6 @@ void TrotBackTask(void *argument)
 
       notify_value = 0;
     }
-
-    // if (notify_value != 0) {
-    //   if (trot_controller.trot_state != EndTrot) {
-    //     Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
-
-    //     if (trot_controller.trot_state != EndTrot) {
-    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
-    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
-    //       HAL_TIM_Base_Start_IT(&htim2);
-    //     }
-    //   }
-
-    //   notify_value = 0;
-    // }
 
     osDelay(1);
   }
@@ -535,20 +513,6 @@ void RotateLeftTask(void *argument)
       notify_value = 0;
     }
 
-    // if (notify_value != 0) {
-    //   if (rotate_controller.rotate_state != EndRotate) {
-    //     Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
-
-    //     if (rotate_controller.rotate_state != EndRotate) {
-    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
-    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
-    //       HAL_TIM_Base_Start_IT(&htim2);
-    //     }
-    //   }
-
-    //   notify_value = 0;
-    // }
-
     osDelay(1);
   }
   /* USER CODE END RotateLeftTask */
@@ -597,20 +561,6 @@ void RotateRightTask(void *argument)
       notify_value = 0;
     }
 
-    // if (notify_value != 0) {
-    //   if (rotate_controller.rotate_state != EndRotate) {
-    //     Rotate_FSM(&rotate_controller, 0.03, 0.12, robot_height);
-
-    //     if (rotate_controller.rotate_state != EndRotate) {
-    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
-    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
-    //       HAL_TIM_Base_Start_IT(&htim2);
-    //     }
-    //   }
-
-    //   notify_value = 0;
-    // }
-
     osDelay(1);
   }
   /* USER CODE END RotateRightTask */
@@ -634,22 +584,40 @@ void TurnLeftTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        if (turn_controller.turn_state == EndTurn) {
-          turn_controller.turn_state = PreTurn;
-          turn_controller.turn_angular_direction = TurnLeft;
+        // if (turn_controller.turn_state == EndTurn) {
+        //   turn_controller.turn_state = PreTurn;
+        //   turn_controller.turn_angular_direction = TurnLeft;
+        //   t = 0;
+        // }
+        if (move_controller.move_state == EndMove) {
+          move_controller.move_state = PreMove;
+          move_controller.move_direction = MoveLeft;
           t = 0;
         }
       }
       else if (notify_value == END_ACTION) {
-        if (turn_controller.turn_state == Turning) {
+        // if (turn_controller.turn_state == Turning) {
+        //   isStop = NEED_TO_STOP;
+        // }
+        if (move_controller.move_state == Moving) {
           isStop = NEED_TO_STOP;
         }
       }
 
-      if (turn_controller.turn_state != EndTurn) {
-        Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
+      // if (turn_controller.turn_state != EndTurn) {
+      //   Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
 
-        if (turn_controller.turn_state != EndTurn) {
+      //   if (turn_controller.turn_state != EndTurn) {
+      //     __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+      //     __HAL_TIM_SET_COUNTER(&htim2, 0);
+      //     HAL_TIM_Base_Start_IT(&htim2);
+      //   }
+      // }
+      
+      if (move_controller.move_state != EndMove) {
+        HorizontalMove_FSM(&move_controller, robot_height + 0.03, robot_height - 0.03, robot_height, 0.04);
+
+        if (move_controller.move_state != EndMove) {
           __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
@@ -658,20 +626,6 @@ void TurnLeftTask(void *argument)
 
       notify_value = 0;
     }
-
-    // if (notify_value != 0) {
-    //   if (turn_controller.turn_state != EndTurn) {
-    //     Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
-
-    //     if (turn_controller.turn_state != EndTurn) {
-    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
-    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
-    //       HAL_TIM_Base_Start_IT(&htim2);
-    //     }
-    //   }
-
-    //   notify_value = 0;
-    // }
 
     osDelay(1);
   }
@@ -696,22 +650,40 @@ void TurnRightTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        if (turn_controller.turn_state == EndTurn) {
-          turn_controller.turn_state = PreTurn;
-          turn_controller.turn_angular_direction = TurnRight;
+        // if (turn_controller.turn_state == EndTurn) {
+        //   turn_controller.turn_state = PreTurn;
+        //   turn_controller.turn_angular_direction = TurnRight;
+        //   t = 0;
+        // }
+        if (move_controller.move_state == EndMove) {
+          move_controller.move_state = PreMove;
+          move_controller.move_direction = MoveRight;
           t = 0;
         }
       }
       else if (notify_value == END_ACTION) {
-        if (turn_controller.turn_state == Turning) {
+        // if (turn_controller.turn_state == Turning) {
+        //   isStop = NEED_TO_STOP;
+        // }
+        if (move_controller.move_state == Moving) {
           isStop = NEED_TO_STOP;
         }
       }
 
-      if (turn_controller.turn_state != EndTurn) {
-        Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
+      // if (turn_controller.turn_state != EndTurn) {
+      //   Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
 
-        if (turn_controller.turn_state != EndTurn) {
+      //   if (turn_controller.turn_state != EndTurn) {
+      //     __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+      //     __HAL_TIM_SET_COUNTER(&htim2, 0);
+      //     HAL_TIM_Base_Start_IT(&htim2);
+      //   }
+      // }
+
+      if (move_controller.move_state != EndMove) {
+        HorizontalMove_FSM(&move_controller, robot_height + 0.03, robot_height - 0.03, robot_height, 0.04);
+
+        if (move_controller.move_state != EndMove) {
           __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
           HAL_TIM_Base_Start_IT(&htim2);
@@ -720,20 +692,6 @@ void TurnRightTask(void *argument)
 
       notify_value = 0;
     }
-
-    // if (notify_value != 0) {
-    //   if (turn_controller.turn_state != EndTurn) {
-    //     Turn_FSM(&turn_controller, 0.04, 0.1, 0.03, robot_height);
-
-    //     if (turn_controller.turn_state != EndTurn) {
-    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
-    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
-    //       HAL_TIM_Base_Start_IT(&htim2);
-    //     }
-    //   }
-
-    //   notify_value = 0;
-    // }
 
     osDelay(1);
   }
@@ -865,20 +823,6 @@ void WalkSlopeTask(void *argument)
       notify_value = 0;
     }
 
-    // if (notify_value != 0) {
-    //   if (walk_slope_controller.trot_state != EndTrot) {
-    //     WalkSlope_FSM(&walk_slope_controller, (1.0 / 3), 0.4, robot_height, 0.12, 0.04);
-
-    //     if (walk_slope_controller.trot_state != EndTrot) {
-    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
-    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
-    //       HAL_TIM_Base_Start_IT(&htim2);
-    //     }
-    //   }
-
-    //   notify_value = 0;
-    // }
-
     osDelay(1);
   }
   /* USER CODE END WalkSlopeTask */
@@ -927,20 +871,6 @@ void WalkSlopeLRTask(void *argument)
       notify_value = 0;
     }
 
-    // if (notify_value != 0) {
-    //   if (walk_LR_slope_controller.trot_state != EndTrot) {
-    //     WalkSlope_LR_FSM(&walk_LR_slope_controller, 0.268, 0.4, robot_height, 0.12, 0.09378);
-
-    //     if (walk_LR_slope_controller.trot_state != EndTrot) {
-    //       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
-    //       __HAL_TIM_SET_COUNTER(&htim2, 0);
-    //       HAL_TIM_Base_Start_IT(&htim2);
-    //     }
-    //   }
-
-    //   notify_value = 0;
-    // }
-
     osDelay(1);
   }
   /* USER CODE END WalkSlopeLRTask */
@@ -962,7 +892,7 @@ void StandTask(void *argument)
     if (trot_controller.trot_state == EndTrot && rotate_controller.rotate_state == EndRotate &&
         jump_up_controller.jump_state == EndJump && jump_forward_controller.jump_state == EndJump &&
         turn_controller.turn_state == EndTurn && walk_slope_controller.trot_state == EndTrot &&
-        walk_LR_slope_controller.trot_state == EndTrot) {
+        walk_LR_slope_controller.trot_state == EndTrot && move_controller.move_state == EndMove) {
 
       if (isSlope == NO_SLOPE) {
         Stand();
@@ -1001,8 +931,9 @@ void ParseHandleTask(void *argument)
       if (CheckRxData(rx_cmd) == CMD_NORMAL) {
         ParseHandle(rx_cmd, handle_command);
         if (
-          last_handle_command[0] == STOP_CMD && handle_command[0] != STOP_CMD && 
-          handle_command[0] != JUMP_UP_CMD && handle_command[0] != JUMP_FORWARD_CMD) {
+          (last_handle_command[0] == STOP_CMD && handle_command[0] != STOP_CMD && 
+          handle_command[0] != JUMP_UP_CMD && handle_command[0] != JUMP_FORWARD_CMD) ||
+          (last_handle_command[2] == 125 && handle_command[2] != 125)) {
           
 		      __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
@@ -1068,11 +999,13 @@ void NotifyActionTask(void *argument)
       // HAL_TIM_Base_Stop_IT(&htim2);
 	    // __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
 
-      if (handle_command[0] == TROT_FORWARD_CMD && (handle_command[1] == NO_CMD || handle_command[1] == TO_FASTEST)) {
+      if ((handle_command[0] == TROT_FORWARD_CMD && (handle_command[1] == NO_CMD || handle_command[1] == TO_FASTEST)) ||
+          (handle_command[2] - 125 < 0 && handle_command[1] == NO_CMD)) {
         TaskHandle = TrotForwardHandle;
         xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithOverwrite);
       }
-      else if (handle_command[0] == TROT_BACK_CMD && handle_command[1] == NO_CMD) {
+      else if ((handle_command[0] == TROT_BACK_CMD && handle_command[1] == NO_CMD) ||
+               (handle_command[2] - 125 > 0 && handle_command[1] == NO_CMD)) {
         TaskHandle = TrotBackHandle;
         xTaskNotify((TaskHandle_t)TrotBackHandle, START_ACTION, eSetValueWithOverwrite);
       }
@@ -1111,7 +1044,8 @@ void NotifyActionTask(void *argument)
           xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
         }
       }
-      else if (handle_command[0] == STOP_CMD && handle_command[1] == NO_CMD) {
+      else if ((handle_command[0] == STOP_CMD && handle_command[1] == NO_CMD) || 
+               (handle_command[2] == 125 && handle_command[1] == NO_CMD)) {
         if (TaskHandle != NULL) {
           xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
         }
@@ -1190,6 +1124,9 @@ void ParseCameraTask(void *argument)
     //     parse_camera_bytes(rx_camera);
     //   }
     // }
+    if (check_rx_bytes(rx_bytes)) {
+      parse_camera_bytes(rx_bytes);
+    }
     osDelay(1);
   }
   /* USER CODE END ParseCameraTask */

@@ -10,7 +10,7 @@
 /**
  * ----------------------------------- Marcos -----------------------------------
  */
-#define DMA_BUFFER_SIZE 128
+#define DMA_BUFFER_SIZE 12
 #define HANDLE_DATA_SIZE 12
 #define CMD_SIZE 6
 
@@ -26,10 +26,10 @@
 #define TROT_BACK_CMD 0x04
 #define ROTATE_LEFT_CMD 0x02
 #define ROTATE_RIGHT_CMD 0x08
-#define TURN_LEFT_CMD 0x20
-#define TURN_RIGHT_CMD 0x80
+#define TURN_LEFT_CMD 0x40
+#define TURN_RIGHT_CMD 0x20
 #define JUMP_UP_CMD 0x10
-#define JUMP_FORWARD_CMD 0x40
+#define JUMP_FORWARD_CMD 0x80
 #define SLOPE_CMD 0x01
 #define SLOPE_LR_CMD 0x02
 #define BECOME_HIGHER 0x10
