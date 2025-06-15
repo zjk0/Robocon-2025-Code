@@ -2375,7 +2375,7 @@ void SetMoveBezierControlPoints (HorizontalMoveController* move_controller, floa
         }
     }
     else if (move_controller->move_state == Moving) {
-        if (moving_state == LEFT_UP) {
+        if (moving_state == MOVE_STATE_0) {
             if (leg == LEFT_FRONT_LEG) {
                 SetThreeOrderBezierControlPoints(&move_controller->move_bezier[0], control_points_x, control_points_y_5);
             }
@@ -2389,7 +2389,7 @@ void SetMoveBezierControlPoints (HorizontalMoveController* move_controller, floa
                 SetThreeOrderBezierControlPoints(&move_controller->move_bezier[3], control_points_x, control_points_y_7);
             }
         }
-        else if (moving_state == RIGHT_UP) {
+        else if (moving_state == MOVE_STATE_1) {
             if (leg == LEFT_FRONT_LEG) {
                 SetThreeOrderBezierControlPoints(&move_controller->move_bezier[0], control_points_x, control_points_y_7);
             }
@@ -2466,14 +2466,14 @@ void HorizontalMove_FSM (HorizontalMoveController* move_controller, float longer
     else if (move_controller->move_state == Moving) {
         if (t_real >= 0 && t_real < fai_support)
         {
-            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, LEFT_FRONT_LEG, LEFT_UP);
-            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, LEFT_BACK_LEG, LEFT_UP);
+            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, LEFT_FRONT_LEG, MOVE_STATE_0);
+            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, LEFT_BACK_LEG, MOVE_STATE_0);
             t_real_2 = t_real / fai_support;
         }
         else if (t_real >= fai_support && t_real <= 2.0f)
         {
-            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, LEFT_FRONT_LEG, RIGHT_UP);
-            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, LEFT_BACK_LEG, RIGHT_UP);
+            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, LEFT_FRONT_LEG, MOVE_STATE_1);
+            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, LEFT_BACK_LEG, MOVE_STATE_1);
             t_real_2 = (t_real - fai_support) / (2.0f - fai_support);
         }
         ThreeOrderBezierPlan(&(move_controller->move_bezier[0]), t_real_2, &bezier_x[0], &bezier_y[0]);
@@ -2481,14 +2481,14 @@ void HorizontalMove_FSM (HorizontalMoveController* move_controller, float longer
 
         if (t_real >= 0 && t_real < (2.0f - fai_support))
         {
-            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, RIGHT_FRONT_LEG, LEFT_UP);
-            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, RIGHT_BACK_LEG, LEFT_UP);
+            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, RIGHT_FRONT_LEG, MOVE_STATE_0);
+            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, RIGHT_BACK_LEG, MOVE_STATE_0);
             t_real_2 = t_real / (2.0f - fai_support);
         }
         else if (t_real >= (2.0f - fai_support) && t_real <= 2.0f)
         {
-            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, RIGHT_FRONT_LEG, RIGHT_UP);
-            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, RIGHT_BACK_LEG, RIGHT_UP);
+            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, RIGHT_FRONT_LEG, MOVE_STATE_1);
+            SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, RIGHT_BACK_LEG, MOVE_STATE_1);
             t_real_2 = (t_real + fai_support - 2.0f) / fai_support;
         }
         ThreeOrderBezierPlan(&(move_controller->move_bezier[1]), t_real_2, &bezier_x[1], &bezier_y[1]);

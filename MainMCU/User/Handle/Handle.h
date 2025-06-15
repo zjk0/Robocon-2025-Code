@@ -26,8 +26,8 @@
 #define TROT_BACK_CMD 0x04
 #define ROTATE_LEFT_CMD 0x02
 #define ROTATE_RIGHT_CMD 0x08
-#define TURN_LEFT_CMD 0x40
-#define TURN_RIGHT_CMD 0x20
+#define MOVE_LEFT_CMD 0x40
+#define MOVE_RIGHT_CMD 0x20
 #define JUMP_UP_CMD 0x10
 #define JUMP_FORWARD_CMD 0x80
 #define SLOPE_CMD 0x01

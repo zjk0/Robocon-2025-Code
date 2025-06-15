@@ -36,8 +36,8 @@
 #define SLOPE_LF_RB_SWING_RF_LB_SUPPORT 1
 #define NOT_SLOPE 2
 
-#define LEFT_UP 0
-#define RIGHT_UP 1
+#define MOVE_STATE_0 0
+#define MOVE_STATE_1 1
 #define NOT_MOVING 2
 
 #define NO_SLOPE 0

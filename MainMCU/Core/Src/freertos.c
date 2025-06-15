@@ -107,17 +107,17 @@ const osThreadAttr_t RotateRight_attributes = {
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for TurnLeft */
-osThreadId_t TurnLeftHandle;
-const osThreadAttr_t TurnLeft_attributes = {
-  .name = "TurnLeft",
+/* Definitions for MoveLeft */
+osThreadId_t MoveLeftHandle;
+const osThreadAttr_t MoveLeft_attributes = {
+  .name = "MoveLeft",
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityAboveNormal,
 };
-/* Definitions for TurnRight */
-osThreadId_t TurnRightHandle;
-const osThreadAttr_t TurnRight_attributes = {
-  .name = "TurnRight",
+/* Definitions for MoveRight */
+osThreadId_t MoveRightHandle;
+const osThreadAttr_t MoveRight_attributes = {
+  .name = "MoveRight",
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
@@ -195,8 +195,8 @@ void TrotForwardTask(void *argument);
 void TrotBackTask(void *argument);
 void RotateLeftTask(void *argument);
 void RotateRightTask(void *argument);
-void TurnLeftTask(void *argument);
-void TurnRightTask(void *argument);
+void MoveLeftTask(void *argument);
+void MoveRightTask(void *argument);
 void JumpUpTask(void *argument);
 void JumpForwardTask(void *argument);
 void WalkSlopeTask(void *argument);
@@ -265,11 +265,11 @@ void MX_FREERTOS_Init(void) {
   /* creation of RotateRight */
   RotateRightHandle = osThreadNew(RotateRightTask, NULL, &RotateRight_attributes);
 
-  /* creation of TurnLeft */
-  TurnLeftHandle = osThreadNew(TurnLeftTask, NULL, &TurnLeft_attributes);
+  /* creation of MoveLeft */
+  MoveLeftHandle = osThreadNew(MoveLeftTask, NULL, &MoveLeft_attributes);
 
-  /* creation of TurnRight */
-  TurnRightHandle = osThreadNew(TurnRightTask, NULL, &TurnRight_attributes);
+  /* creation of MoveRight */
+  MoveRightHandle = osThreadNew(MoveRightTask, NULL, &MoveRight_attributes);
 
   /* creation of JumpUp */
   JumpUpHandle = osThreadNew(JumpUpTask, NULL, &JumpUp_attributes);
@@ -338,6 +338,8 @@ void TrotForwardTask(void *argument)
   /* USER CODE BEGIN TrotForwardTask */
 
   uint32_t notify_value = 0;
+  float coef = 0.0016;  // max trot length = 0.2 (0.0016 = 0.2 / 125)
+  float coef_turn = 0.0004;  // max difference length of two side is 0.05 (0.0004 = 0.05 / 125) 
 
   /* Infinite loop */
   for(;;)
@@ -377,18 +379,18 @@ void TrotForwardTask(void *argument)
         //   Turn_FSM(&turn_controller, INIT_TROT_LENGTH, INIT_TROT_LENGTH, 0.03, robot_height);
         // }
 
-        trot_length = 0.0024 * abs(handle_command[2] - 125);
+        trot_length = coef * abs(handle_command[2] - 125);
 
         if (handle_command[3] - 125 > 0) {
           turn_controller.turn_angular_direction = TurnRight;
-          left_length = trot_length + 0.0004 * abs(handle_command[3] - 125) / 2;
-          right_length = trot_length - 0.0004 * abs(handle_command[3] - 125) / 2;
+          left_length = trot_length + coef_turn * abs(handle_command[3] - 125) / 2;
+          right_length = trot_length - coef_turn * abs(handle_command[3] - 125) / 2;
           Turn_FSM(&turn_controller, right_length, left_length, 0.03, robot_height);
         }
         else if (handle_command[3] - 125 < 0) {
           turn_controller.turn_angular_direction = TurnLeft;
-          left_length = trot_length - 0.0004 * abs(handle_command[3] - 125) / 2;
-          right_length = trot_length + 0.0004 * abs(handle_command[3] - 125) / 2;
+          left_length = trot_length - coef_turn * abs(handle_command[3] - 125) / 2;
+          right_length = trot_length + coef_turn * abs(handle_command[3] - 125) / 2;
           Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
         }
         else {
@@ -433,6 +435,7 @@ void TrotBackTask(void *argument)
   /* USER CODE BEGIN TrotBackTask */
 
   uint32_t notify_value = 0;
+  float coef = 0.0016;  // max trot length = 0.2 (0.0016 = 0.2 / 125)
 
   /* Infinite loop */
   for(;;)
@@ -453,7 +456,7 @@ void TrotBackTask(void *argument)
 
       if (trot_controller.trot_state != EndTrot) {
         // Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
-        Trot_FSM(&trot_controller, 0.03, (0.0024 * abs(handle_command[2] - 125)), robot_height);
+        Trot_FSM(&trot_controller, 0.03, (coef * abs(handle_command[2] - 125)), robot_height);
 
         if (trot_controller.trot_state != EndTrot) {
           __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
@@ -566,16 +569,16 @@ void RotateRightTask(void *argument)
   /* USER CODE END RotateRightTask */
 }
 
-/* USER CODE BEGIN Header_TurnLeftTask */
+/* USER CODE BEGIN Header_MoveLeftTask */
 /**
-* @brief Function implementing the TurnLeft thread.
+* @brief Function implementing the MoveLeft thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_TurnLeftTask */
-void TurnLeftTask(void *argument)
+/* USER CODE END Header_MoveLeftTask */
+void MoveLeftTask(void *argument)
 {
-  /* USER CODE BEGIN TurnLeftTask */
+  /* USER CODE BEGIN MoveLeftTask */
 
   uint32_t notify_value = 0;
 
@@ -629,19 +632,19 @@ void TurnLeftTask(void *argument)
 
     osDelay(1);
   }
-  /* USER CODE END TurnLeftTask */
+  /* USER CODE END MoveLeftTask */
 }
 
-/* USER CODE BEGIN Header_TurnRightTask */
+/* USER CODE BEGIN Header_MoveRightTask */
 /**
-* @brief Function implementing the TurnRight thread.
+* @brief Function implementing the MoveRight thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_TurnRightTask */
-void TurnRightTask(void *argument)
+/* USER CODE END Header_MoveRightTask */
+void MoveRightTask(void *argument)
 {
-  /* USER CODE BEGIN TurnRightTask */
+  /* USER CODE BEGIN MoveRightTask */
 
   uint32_t notify_value = 0;
 
@@ -695,7 +698,7 @@ void TurnRightTask(void *argument)
 
     osDelay(1);
   }
-  /* USER CODE END TurnRightTask */
+  /* USER CODE END MoveRightTask */
 }
 
 /* USER CODE BEGIN Header_JumpUpTask */
@@ -1017,13 +1020,13 @@ void NotifyActionTask(void *argument)
         TaskHandle = RotateRightHandle;
         xTaskNotify((TaskHandle_t)RotateRightHandle, START_ACTION, eSetValueWithOverwrite);
       }
-      else if (handle_command[0] == TURN_LEFT_CMD && handle_command[1] == NO_CMD) {
-        TaskHandle = TurnLeftHandle;
-        xTaskNotify((TaskHandle_t)TurnLeftHandle, START_ACTION, eSetValueWithOverwrite);
+      else if (handle_command[0] == MOVE_LEFT_CMD && handle_command[1] == NO_CMD) {
+        TaskHandle = MoveLeftHandle;
+        xTaskNotify((TaskHandle_t)MoveLeftHandle, START_ACTION, eSetValueWithOverwrite);
       }
-      else if (handle_command[0] == TURN_RIGHT_CMD && handle_command[1] == NO_CMD) {
-        TaskHandle = TurnRightHandle;
-        xTaskNotify((TaskHandle_t)TurnRightHandle, START_ACTION, eSetValueWithOverwrite);
+      else if (handle_command[0] == MOVE_RIGHT_CMD && handle_command[1] == NO_CMD) {
+        TaskHandle = MoveRightHandle;
+        xTaskNotify((TaskHandle_t)MoveRightHandle, START_ACTION, eSetValueWithOverwrite);
       }
       else if (handle_command[0] == TROT_FORWARD_CMD && handle_command[1] == SLOPE_CMD) {
         TaskHandle = WalkSlopeHandle;
