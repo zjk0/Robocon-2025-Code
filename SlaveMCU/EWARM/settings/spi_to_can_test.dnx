@@ -20,7 +20,7 @@
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
     </StLinkDriver>
     <Jet>
-        <JetConnSerialNo>ATK CMSIS-DAP-Debugger:ATK-05022018</JetConnSerialNo>
+        <JetConnSerialNo>ATK-HS-V3-CMSIS-DAP:ATK-B42D3D99</JetConnSerialNo>
         <JetConnFoundProbes />
         <PrevWtdReset>System</PrevWtdReset>
         <OnlineReset>Software</OnlineReset>
@@ -33,7 +33,7 @@
         <MemConfigValue>F:\EWARM_8321\arm\CONFIG\debugger\ST\STM32F405RG.ddf</MemConfigValue>
     </PlDriver>
     <DebugChecksum>
-        <Checksum>1652411604</Checksum>
+        <Checksum>2511013714</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -49,8 +49,8 @@
     <SWOManager>
         <SamplingDivider>8192</SamplingDivider>
         <OverrideClock>0</OverrideClock>
-        <CpuClock>1</CpuClock>
-        <SwoClock>400970516</SwoClock>
+        <CpuClock>1867644944</CpuClock>
+        <SwoClock>1868787554</SwoClock>
         <DataLogMode>0</DataLogMode>
         <ItmPortsEnabled>63</ItmPortsEnabled>
         <ItmTermIOPorts>1</ItmTermIOPorts>

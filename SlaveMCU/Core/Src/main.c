@@ -151,13 +151,13 @@ int main(void)
   EnableJ60Motor(&J60Motor_CAN2[3], 4, 2);  // lb in
 
   HAL_Delay(1);
-  RunJ60Motor(&J60Motor_CAN1[2], J60Motor_StandUpData_CAN1[2], 0, 0, 20, 5, PositionMode);
+  RunJ60Motor(&J60Motor_CAN1[2], J60Motor_StandUpData_CAN1[2], 0, 0, 20, 4, PositionMode);
   HAL_Delay(1);
-  RunJ60Motor(&J60Motor_CAN1[3], J60Motor_StandUpData_CAN1[3], 0, 0, 20, 5, PositionMode);
+  RunJ60Motor(&J60Motor_CAN1[3], J60Motor_StandUpData_CAN1[3], 0, 0, 20, 4, PositionMode);
   HAL_Delay(1);
-  RunJ60Motor(&J60Motor_CAN2[2], J60Motor_StandUpData_CAN2[2], 0, 0, 20, 5, PositionMode);
+  RunJ60Motor(&J60Motor_CAN2[2], J60Motor_StandUpData_CAN2[2], 0, 0, 20, 4, PositionMode);
   HAL_Delay(1);
-  RunJ60Motor(&J60Motor_CAN2[3], J60Motor_StandUpData_CAN2[3], 0, 0, 20, 5, PositionMode);
+  RunJ60Motor(&J60Motor_CAN2[3], J60Motor_StandUpData_CAN2[3], 0, 0, 20, 4, PositionMode);
   
 //  HAL_Delay(1);
 //  RunJ60Motor(&J60Motor_CAN1[2], 0, 0, 0, 0, 0, ZeroTorqueMode);

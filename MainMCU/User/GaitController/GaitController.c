@@ -112,8 +112,8 @@ int isStop = NO_STOP;
 float tan_slope_theta = 1.0 / 3.0;
 float tan_LR_slope_theta = 0.2679;
 
-float J60Motor_StandUpData_CAN1[4] = {0.48954, -2.214015,  -0.257377, 1.853065};  // lf_out, lf_in, rf_out, rf_in
-float J60Motor_StandUpData_CAN2[4] = {2.3810234, -0.597496, -1.96468, 0.409584};  // rb_out, rb_in, lb_out, lb_in
+float J60Motor_StandUpData_CAN1[4] = {0.38954, -2.314015,  -0.257377, 1.853065};  // lf_out, lf_in, rf_out, rf_in
+float J60Motor_StandUpData_CAN2[4] = {2.3810234, -0.327496, -1.96468, 0.409584};  // rb_out, rb_in, lb_out, lb_in
 
 float left_length = 0.2;
 float right_length = 0.2;
@@ -133,7 +133,7 @@ float right_length = 0.2;
  *
  * @return none
  */
-void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float Kp, float Kd, enum MotorMode motor_mode)
+void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float Kp, float Kp_send, float Kd, enum MotorMode motor_mode)
 {
     spi_motor_data.real_motor_data[0] = angle[1][0];
     spi_motor_data.real_motor_data[1] = angle[1][1];
@@ -147,7 +147,7 @@ void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float
     spi_motor_data.real_motor_data[9] = Torque[1][1];
     spi_motor_data.real_motor_data[10] = Torque[3][0];
     spi_motor_data.real_motor_data[11] = Torque[3][1];
-    spi_motor_data.real_motor_data[12] = Kp;
+    spi_motor_data.real_motor_data[12] = Kp_send;
     spi_motor_data.real_motor_data[13] = Kd;
     spi_motor_data.real_motor_data[14] = motor_mode * 1.0;
 
@@ -206,19 +206,19 @@ void Stand(void)
         spi_motor_data.real_motor_data[i] = 0;
     }
     spi_motor_data.real_motor_data[12] = 100;
-    spi_motor_data.real_motor_data[13] = 5;
+    spi_motor_data.real_motor_data[13] = 4;
     spi_motor_data.real_motor_data[14] = PositionMode;
 
     HAL_SPI_Transmit(&hspi4, spi_motor_data.send_motor_data, 60, 1000);
     while (__HAL_SPI_GET_FLAG(&hspi4, SPI_FLAG_BSY) == SET);
 
-    RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 5, PositionMode);
+    RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 4, PositionMode);
     vTaskDelay(pdMS_TO_TICKS(1));
-    RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 5, PositionMode);
+    RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 4, PositionMode);
     vTaskDelay(pdMS_TO_TICKS(1));
-    RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 5, PositionMode);
+    RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 4, PositionMode);
     vTaskDelay(pdMS_TO_TICKS(1));
-    RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 5, PositionMode);
+    RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 4, PositionMode);
     vTaskDelay(pdMS_TO_TICKS(1));
 }
 
@@ -375,7 +375,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         // Change state
         if (t >= 1000)
@@ -387,17 +387,25 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
     }
     else if (trot_controller->trot_state == Trotting)
     {
+        if (t_real > 2.0) {
+            t_real = 2.0;
+        }
+
+        int swing_support_flag = 0;
+
         if (t_real >= 0 && t_real < fai_support)
         {
             SetTrotBezierControlPoints(trot_controller, gait_height, gait_length, LEFT_FRONT_LEG, TROTTING_LF_RB_SUPPORT_RF_LB_SWING);
             SetTrotBezierControlPoints(trot_controller, gait_height, gait_length, RIGHT_BACK_LEG, TROTTING_LF_RB_SUPPORT_RF_LB_SWING);
             t_real_2 = t_real / fai_support;
+            swing_support_flag = 1;
         }
         else if (t_real >= fai_support && t_real <= 2.0f)
         {
             SetTrotBezierControlPoints(trot_controller, gait_height, gait_length, LEFT_FRONT_LEG, TROTTING_LF_RB_SWING_RF_LB_SUPPORT);
             SetTrotBezierControlPoints(trot_controller, gait_height, gait_length, RIGHT_BACK_LEG, TROTTING_LF_RB_SWING_RF_LB_SUPPORT);
             t_real_2 = (t_real - fai_support) / (2.0f - fai_support);
+            swing_support_flag = 2;
         }
         ThreeOrderBezierPlan(&(trot_controller->trot_bezier[0]), t_real_2, &bezier_x[0], &bezier_y[0]);
         ThreeOrderBezierPlan(&(trot_controller->trot_bezier[2]), t_real_2, &bezier_x[2], &bezier_y[2]);
@@ -407,12 +415,14 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             SetTrotBezierControlPoints(trot_controller, gait_height, gait_length, RIGHT_FRONT_LEG, TROTTING_LF_RB_SUPPORT_RF_LB_SWING);
             SetTrotBezierControlPoints(trot_controller, gait_height, gait_length, LEFT_BACK_LEG, TROTTING_LF_RB_SUPPORT_RF_LB_SWING);
             t_real_2 = t_real / (2.0f - fai_support);
+            swing_support_flag = 1;
         }
         else if (t_real >= (2.0f - fai_support) && t_real <= 2.0f)
         {
             SetTrotBezierControlPoints(trot_controller, gait_height, gait_length, RIGHT_FRONT_LEG, TROTTING_LF_RB_SWING_RF_LB_SUPPORT);
             SetTrotBezierControlPoints(trot_controller, gait_height, gait_length, LEFT_BACK_LEG, TROTTING_LF_RB_SWING_RF_LB_SUPPORT);
             t_real_2 = (t_real + fai_support - 2.0f) / fai_support;
+            swing_support_flag = 2;
         }
         ThreeOrderBezierPlan(&(trot_controller->trot_bezier[1]), t_real_2, &bezier_x[1], &bezier_y[1]);
         ThreeOrderBezierPlan(&(trot_controller->trot_bezier[3]), t_real_2, &bezier_x[3], &bezier_y[3]);
@@ -428,7 +438,15 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        if (swing_support_flag == 1) {  // TROTTING_LF_RB_SUPPORT_RF_LB_SWING
+            SetMotor(angle, Velocity, Torque, 80, 100, 4, PositionMode);
+        }
+        else if (swing_support_flag == 2) {  // TROTTING_LF_RB_SWING_RF_LB_SUPPORT
+            SetMotor(angle, Velocity, Torque, 100, 80, 4, PositionMode);
+        }
+        else {
+            SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+        }
 
         // Change state
         if (t >= 2000)
@@ -461,7 +479,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         // Change state
         if (t >= 1000)
@@ -634,7 +652,7 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         // Change state
         if (t >= 1000)
@@ -646,6 +664,10 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
     }
     else if (rotate_controller->rotate_state == Rotating)
     {
+        if (t_real > 2.0) {
+            t_real = 2.0;
+        }
+
         if (t_real >= 0 && t_real < fai_support)
         {
             SetRotateBezierControlPoints(rotate_controller, gait_height, gait_length, LEFT_FRONT_LEG, ROTATING_LF_RB_SUPPORT_RF_LB_SWING);
@@ -687,7 +709,7 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         // Change state
         if (t >= 2000)
@@ -720,7 +742,7 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         // Change state
         if (t >= 1000)
@@ -820,7 +842,7 @@ void JumpUp_FSM(JumpController *jump_up_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -906,7 +928,7 @@ void JumpUp_FSM(JumpController *jump_up_controller)
         }
 
         //        SetMotor(angle, Velocity, Torque, 200, 5, PositionTorqueMode);
-        SetMotor(angle, Velocity, Torque, 200, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 200, 200, 4, PositionMode);
         for (int i = 0; i < 4; i++)
         {
             for (int j = 0; j < 2; j++)
@@ -934,7 +956,7 @@ void JumpUp_FSM(JumpController *jump_up_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -944,7 +966,7 @@ void JumpUp_FSM(JumpController *jump_up_controller)
     }
     else if (jump_up_controller->jump_state == Land)
     {
-        SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
+        SetMotor(angle, Velocity, Torque, 0, 0, 4, KdMode);
         vTaskDelay(pdMS_TO_TICKS(2000));
 
         jump_up_controller->jump_state = StandUp;
@@ -964,7 +986,7 @@ void JumpUp_FSM(JumpController *jump_up_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -1112,12 +1134,12 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
     float init_tilt_length = 0.07; // ���ڼ�����غ�������λ��
 
     float squat_length0 = 0.08;
-    float jump_length0 = 0.14;
-    float tilt_length0 = 0.05; // ���ڼ���ǰ�ȵ�λ�ã��������ȵĲ�̬һֱʱ��ֻ�����
+    float jump_length0 = 0.15;
+    float tilt_length0 = 0.07; // ���ڼ���ǰ�ȵ�λ�ã��������ȵĲ�̬һֱʱ��ֻ�����
 
     float squat_length1 = 0.08;
-    float jump_length1 = 0.14;
-    float tilt_length1 = 0.05; // ���ڼ�����ȵ�λ��
+    float jump_length1 = 0.15;
+    float tilt_length1 = 0.07; // ���ڼ�����ȵ�λ��
 
     float jump_torque = 0;
     float robot_height = 0.2069;
@@ -1146,7 +1168,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -1244,7 +1266,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 450, 5, PositionTorqueMode);
+        SetMotor(angle, Velocity, Torque, 450, 450, 4, PositionTorqueMode);
 
         for (int i = 0; i < 4; i++)
         {
@@ -1255,7 +1277,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(100));
         jump_forward_controller->jump_state = LegUp;
     }
     else if (jump_forward_controller->jump_state == LegUp)
@@ -1272,7 +1294,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -1283,7 +1305,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
 
     else if (jump_forward_controller->jump_state == Land)
     {
-        SetMotor(angle, Velocity, Torque, 0, 5, KdMode);
+        SetMotor(angle, Velocity, Torque, 0, 0, 4, KdMode);
         vTaskDelay(pdMS_TO_TICKS(2000));
 
         jump_forward_controller->jump_state = StandUp;
@@ -1301,7 +1323,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
                 return;
             }
         }
-        SetMotor(angle, Velocity, Torque, 40, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 40, 40, 4, PositionMode);
         if (t >= 1000)
         {
             jump_forward_controller->jump_state = EndJump;
@@ -1454,7 +1476,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
     float t_real = t / 1000;
     float t_real_2 = 0;
     float fai_swing = 1;
-    float fai_support = 1;
+    float fai_support = 1.2;
 
     if (turn_controller->turn_state == PreTurn)
     {
@@ -1475,7 +1497,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -1486,17 +1508,25 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
     }
     else if (turn_controller->turn_state == Turning)
     {
+        if (t_real > 2.0) {
+            t_real = 2.0;
+        }
+
+        int swing_support_flag = 0;
+
         if (t_real >= 0 && t_real < fai_support)
         {
             SetTurnBezierControlPoints(turn_controller, shorter_gait_length / 2, longer_gait_length / 2, gait_height, LEFT_FRONT_LEG, TURNING_LF_RB_SUPPORT_RF_LB_SWING);
             SetTurnBezierControlPoints(turn_controller, shorter_gait_length / 2, longer_gait_length / 2, gait_height, RIGHT_BACK_LEG, TURNING_LF_RB_SUPPORT_RF_LB_SWING);
             t_real_2 = t_real / fai_support;
+            swing_support_flag = 1;
         }
         else if (t_real >= fai_support && t_real <= 2.0)
         {
             SetTurnBezierControlPoints(turn_controller, shorter_gait_length / 2, longer_gait_length / 2, gait_height, LEFT_FRONT_LEG, TURNING_LF_RB_SWING_RF_LB_SUPPORT);
             SetTurnBezierControlPoints(turn_controller, shorter_gait_length / 2, longer_gait_length / 2, gait_height, RIGHT_BACK_LEG, TURNING_LF_RB_SWING_RF_LB_SUPPORT);
             t_real_2 = (t_real - fai_support) / (2.0 - fai_support);
+            swing_support_flag = 2;
         }
         ThreeOrderBezierPlan(&(turn_controller->turn_bezier[0]), t_real_2, &bezier_x[0], &bezier_y[0]);
         ThreeOrderBezierPlan(&(turn_controller->turn_bezier[2]), t_real_2, &bezier_x[2], &bezier_y[2]);
@@ -1506,12 +1536,14 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             SetTurnBezierControlPoints(turn_controller, shorter_gait_length / 2, longer_gait_length / 2, gait_height, RIGHT_FRONT_LEG, TURNING_LF_RB_SUPPORT_RF_LB_SWING);
             SetTurnBezierControlPoints(turn_controller, shorter_gait_length / 2, longer_gait_length / 2, gait_height, LEFT_BACK_LEG, TURNING_LF_RB_SUPPORT_RF_LB_SWING);
             t_real_2 = t_real / (2.0 - fai_support);
+            swing_support_flag = 1;
         }
         else if (t_real >= (2.0 - fai_support) && t_real <= 2.0)
         {
             SetTurnBezierControlPoints(turn_controller, shorter_gait_length / 2, longer_gait_length / 2, gait_height, RIGHT_FRONT_LEG, TURNING_LF_RB_SWING_RF_LB_SUPPORT);
             SetTurnBezierControlPoints(turn_controller, shorter_gait_length / 2, longer_gait_length / 2, gait_height, LEFT_BACK_LEG, TURNING_LF_RB_SWING_RF_LB_SUPPORT);
             t_real_2 = (t_real + fai_support - 2.0) / fai_support;
+            swing_support_flag = 2;
         }
         ThreeOrderBezierPlan(&(turn_controller->turn_bezier[1]), t_real_2, &bezier_x[1], &bezier_y[1]);
         ThreeOrderBezierPlan(&(turn_controller->turn_bezier[3]), t_real_2, &bezier_x[3], &bezier_y[3]);
@@ -1527,7 +1559,20 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        if (shorter_gait_length == longer_gait_length) {
+            if (swing_support_flag == 1) {
+                SetMotor(angle, Velocity, Torque, 80, 100, 4, PositionMode);
+            }
+            else if (swing_support_flag == 2) {
+                SetMotor(angle, Velocity, Torque, 100, 80, 4, PositionMode);
+            }
+            else {
+                SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+            }
+        }
+        else {
+            SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+        }
 
         if (t >= 2000)
         {
@@ -1559,7 +1604,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -1572,130 +1617,6 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
     {
         Stand();
     }
-}
-
-void Trot_to_Turn(TrotController *trot_controller, TurnController *turn_controller,
-                  float trot_length, float shorter_length, float longer_length, float bezier_height, float trotting_state, float robot_height)
-{
-    float t_real = t / 1000;
-    float bezier_x[4] = {0}; // lf, rf, rb, lb
-    float bezier_y[4] = {0}; // lf, rf, rb, lb
-
-    float left_length = 0;
-    float right_length = 0;
-    if (turn_controller->turn_angular_direction == TurnLeft)
-    {
-        left_length = shorter_length;
-        right_length = longer_length;
-    }
-    else if (turn_controller->turn_angular_direction == TurnRight)
-    {
-        left_length = longer_length;
-        right_length = shorter_length;
-    }
-    else
-    {
-        return;
-    }
-
-    float symbol = trot_controller->trot_direction;
-    float control_points_x_left_1[4] = {-trot_length * symbol, -trot_length * symbol, left_length * symbol, left_length * symbol};
-    float control_points_x_left_2[4] = {trot_length * symbol, trot_length * symbol, -left_length * symbol, -left_length * symbol};
-    float control_points_x_right_1[4] = {-trot_length * symbol, -trot_length * symbol, right_length * symbol, right_length * symbol};
-    float control_points_x_right_2[4] = {trot_length * symbol, trot_length * symbol, -right_length * symbol, -right_length * symbol};
-    float control_points_y_1[4] = {0, 0, 0, 0};
-    float control_points_y_2[4] = {0, bezier_height * 0.09 / 0.0675, bezier_height * 0.09 / 0.0675, 0};
-
-    ThreeOrderBezierInformation bezier[4];
-
-    if (trotting_state == TROTTING_LF_RB_SUPPORT_RF_LB_SWING)
-    {
-        SetThreeOrderBezierControlPoints(&bezier[0], control_points_x_left_1, control_points_y_2);
-        SetThreeOrderBezierControlPoints(&bezier[1], control_points_x_right_2, control_points_y_1);
-        SetThreeOrderBezierControlPoints(&bezier[2], control_points_x_right_1, control_points_y_2);
-        SetThreeOrderBezierControlPoints(&bezier[3], control_points_x_left_2, control_points_y_1);
-    }
-    else if (trotting_state == TROTTING_LF_RB_SWING_RF_LB_SUPPORT)
-    {
-        SetThreeOrderBezierControlPoints(&bezier[0], control_points_x_left_2, control_points_y_1);
-        SetThreeOrderBezierControlPoints(&bezier[1], control_points_x_right_1, control_points_y_2);
-        SetThreeOrderBezierControlPoints(&bezier[2], control_points_x_right_2, control_points_y_1);
-        SetThreeOrderBezierControlPoints(&bezier[3], control_points_x_left_1, control_points_y_2);
-    }
-
-    for (int i = 0; i < 4; i++)
-    {
-        ThreeOrderBezierPlan(&bezier[i], t_real, &bezier_x[i], &bezier_y[i]);
-        if (IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
-        {
-            Stand();
-            return;
-        }
-    }
-
-    SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
-}
-
-void Turn_to_Trot(TrotController *trot_controller, TurnController *turn_controller,
-                  float trot_length, float shorter_length, float longer_length, float bezier_height, float turning_state, float robot_height)
-{
-    float t_real = t / 1000;
-    float bezier_x[4] = {0}; // lf, rf, rb, lb
-    float bezier_y[4] = {0}; // lf, rf, rb, lb
-
-    float left_length = 0;
-    float right_length = 0;
-    if (turn_controller->turn_angular_direction == TurnLeft)
-    {
-        left_length = shorter_length;
-        right_length = longer_length;
-    }
-    else if (turn_controller->turn_angular_direction == TurnRight)
-    {
-        left_length = longer_length;
-        right_length = shorter_length;
-    }
-    else
-    {
-        return;
-    }
-
-    float symbol = trot_controller->trot_direction;
-    float control_points_x_left_1[4] = {-left_length * symbol, -left_length * symbol, trot_length * symbol, trot_length * symbol};
-    float control_points_x_left_2[4] = {left_length * symbol, left_length * symbol, -trot_length * symbol, -trot_length * symbol};
-    float control_points_x_right_1[4] = {-right_length * symbol, -right_length * symbol, trot_length * symbol, trot_length * symbol};
-    float control_points_x_right_2[4] = {right_length * symbol, right_length * symbol, -trot_length * symbol, -trot_length * symbol};
-    float control_points_y_1[4] = {0, 0, 0, 0};
-    float control_points_y_2[4] = {0, bezier_height * 0.09 / 0.0675, bezier_height * 0.09 / 0.0675, 0};
-
-    ThreeOrderBezierInformation bezier[4];
-
-    if (turning_state == TURNING_LF_RB_SUPPORT_RF_LB_SWING)
-    {
-        SetThreeOrderBezierControlPoints(&bezier[0], control_points_x_left_1, control_points_y_2);
-        SetThreeOrderBezierControlPoints(&bezier[1], control_points_x_right_2, control_points_y_1);
-        SetThreeOrderBezierControlPoints(&bezier[2], control_points_x_right_1, control_points_y_2);
-        SetThreeOrderBezierControlPoints(&bezier[3], control_points_x_left_2, control_points_y_1);
-    }
-    else if (turning_state == TURNING_LF_RB_SWING_RF_LB_SUPPORT)
-    {
-        SetThreeOrderBezierControlPoints(&bezier[0], control_points_x_left_2, control_points_y_1);
-        SetThreeOrderBezierControlPoints(&bezier[1], control_points_x_right_1, control_points_y_2);
-        SetThreeOrderBezierControlPoints(&bezier[2], control_points_x_right_2, control_points_y_1);
-        SetThreeOrderBezierControlPoints(&bezier[3], control_points_x_left_1, control_points_y_2);
-    }
-
-    for (int i = 0; i < 4; i++)
-    {
-        ThreeOrderBezierPlan(&bezier[i], t_real, &bezier_x[i], &bezier_y[i]);
-        if (IK_leg(bezier_x[i], robot_height - bezier_y[i], &angle[i][0], &angle[i][1]) != NO_NAN)
-        {
-            Stand();
-            return;
-        }
-    }
-
-    SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
 }
 
 void Stand_on_slope(float tan_slope_theta)
@@ -1725,7 +1646,7 @@ void Stand_on_slope(float tan_slope_theta)
         }
     }
 
-    SetMotor(angle, Velocity, Torque, 50, 5, PositionMode);
+    SetMotor(angle, Velocity, Torque, 50, 50, 4, PositionMode);
 }
 
 void SetWalkSlopeBezierControlPoints(TrotController *walk_slope_controller, float bezier_length, float delta_height, int leg, int walking_state)
@@ -1892,7 +1813,7 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -1903,6 +1824,10 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
     }
     else if (walk_slope_controller->trot_state == Trotting)
     {
+        if (t_real > 2.0) {
+            t_real = 2.0;
+        }
+
         if (t_real >= 0 && t_real < fai_support)
         {
             SetWalkSlopeBezierControlPoints(walk_slope_controller, gait_length, delta_height, LEFT_FRONT_LEG, SLOPE_LF_RB_SUPPORT_RF_LB_SWING);
@@ -1957,7 +1882,7 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 2000)
         {
@@ -2002,7 +1927,7 @@ void WalkSlope_FSM(TrotController *walk_slope_controller, float tan_slope_theta,
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -2049,7 +1974,7 @@ void Stand_on_LR_slope(float tan_slope_theta)
         }
     }
 
-    SetMotor(angle, Velocity, Torque, 50, 5, PositionMode);
+    SetMotor(angle, Velocity, Torque, 50, 50, 4, PositionMode);
 }
 
 void SetWalk_LR_SlopeBezierControlPoints(TrotController *walk_LR_slope_controller, float bezier_length, float delta_height, int leg, int walking_state)
@@ -2206,7 +2131,7 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -2217,6 +2142,10 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
     }
     else if (walk_LR_slope_controller->trot_state == Trotting)
     {
+        if (t_real > 2.0) {
+            t_real = 2.0;
+        }
+
         if (t_real >= 0 && t_real < fai_support)
         {
             SetWalk_LR_SlopeBezierControlPoints(walk_LR_slope_controller, gait_length, delta_height, LEFT_FRONT_LEG, SLOPE_LF_RB_SUPPORT_RF_LB_SWING);
@@ -2271,7 +2200,7 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 2000)
         {
@@ -2316,7 +2245,7 @@ void WalkSlope_LR_FSM(TrotController *walk_LR_slope_controller, float tan_slope_
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -2455,7 +2384,7 @@ void HorizontalMove_FSM (HorizontalMoveController* move_controller, float longer
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000) {
             move_controller->move_state = Moving;
@@ -2464,6 +2393,10 @@ void HorizontalMove_FSM (HorizontalMoveController* move_controller, float longer
         }
     }
     else if (move_controller->move_state == Moving) {
+        if (t_real > 2.0) {
+            t_real = 2.0;
+        }
+        
         if (t_real >= 0 && t_real < fai_support)
         {
             SetMoveBezierControlPoints(move_controller, longer_height, shorter_height, robot_height, delta_height, LEFT_FRONT_LEG, MOVE_STATE_0);
@@ -2505,7 +2438,7 @@ void HorizontalMove_FSM (HorizontalMoveController* move_controller, float longer
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 2000) {
             if (isStop == NEED_TO_STOP) {
@@ -2533,7 +2466,7 @@ void HorizontalMove_FSM (HorizontalMoveController* move_controller, float longer
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 5, PositionMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
 
         if (t >= 1000) {
             move_controller->move_state = EndMove;
