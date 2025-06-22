@@ -155,6 +155,7 @@ void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float
 
     // while (__HAL_UART_GET_FLAG(&huart6, UART_FLAG_TC) != SET);
     while (__HAL_SPI_GET_FLAG(&hspi4, SPI_FLAG_BSY) == SET);
+    // vTaskDelay(pdMS_TO_TICKS(10));
 
     // Only send the command of lf and rb
     if (motor_mode == PositionMode || motor_mode == PositionTorqueMode)
@@ -179,6 +180,7 @@ void SetMotor(float (*angle)[2], float (*Velocity)[2], float (*Torque)[2], float
         RunJ60Motor(&J60Motor_CAN2[1], 0, Velocity[2][0], Torque[2][0], Kp, Kd, motor_mode);
         vTaskDelay(pdMS_TO_TICKS(1));
     }
+    // vTaskDelay(pdMS_TO_TICKS(10));
 }
 
 /**
@@ -1266,7 +1268,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 450, 450, 4, PositionTorqueMode);
+        SetMotor(angle, Velocity, Torque, 500, 500, 5, PositionTorqueMode);
 
         for (int i = 0; i < 4; i++)
         {

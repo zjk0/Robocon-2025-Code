@@ -409,13 +409,13 @@ void TrotForwardTask(void *argument)
         // trot_length = 0.3;
         turn_controller.turn_angular_direction = TurnRight;
         if (turn_controller.turn_state == PreTurn) {
-          Turn_FSM(&turn_controller, trot_length_1, trot_length_1 + 0.02, 0.05, robot_height);
+          Turn_FSM(&turn_controller, trot_length_1, trot_length_1, 0.05, robot_height);
           if (turn_controller.turn_state == Turning) {
             trot_length_1 += 0.08;
           }
         }
         else {
-          Turn_FSM(&turn_controller, trot_length_1, trot_length_1 + 0.02, 0.05, robot_height);
+          Turn_FSM(&turn_controller, trot_length_1, trot_length_1, 0.05, robot_height);
           if (t == 0) {
             if (stage == 0) {
               trot_length_1 += 0.08;
