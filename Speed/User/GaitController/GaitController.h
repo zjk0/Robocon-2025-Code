@@ -50,6 +50,8 @@
 #define TORQUE_DEAD_AREA 0.01f
 #define POSITION_DEAD_AREA 0.01f
 
+#define NORMAL_DELTA_T 40
+
 /**
  * ----------------------------------- Typedef -----------------------------------
  */

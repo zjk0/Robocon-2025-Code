@@ -342,7 +342,8 @@ void TrotForwardTask(void *argument)
   float coef = 0.0016;  // max trot length = 0.2 (0.0016 = 0.2 / 125)
   float coef_turn = 0.0004;  // max difference length of two side is 0.05 (0.0004 = 0.05 / 125)
   int stage = 0;
-  float trot_length_1 = 0.05;
+  float trot_unit = 0.2 / 4;
+  float trot_length_1 = trot_unit;
   int buttom_joystick = 0;
 
   /* Infinite loop */
@@ -350,23 +351,27 @@ void TrotForwardTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        // if (turn_controller.turn_state == EndTurn) {
-        //   turn_controller.turn_state = PreTurn;
-        //   t = 0;
+        // if (handle_command[0] == TROT_FORWARD_CMD) {
+        //   if (trot_controller.trot_state == EndTrot) {
+        //     trot_controller.trot_state = PreTrot;
+        //     trot_controller.trot_direction = Forward;
+        //     t = 0;
+			  //     buttom_joystick = 0;
+        //   }
         // }
         if (handle_command[0] == TROT_FORWARD_CMD) {
           if (turn_controller.turn_state == EndTurn) {
             turn_controller.turn_state = PreTurn;
             // trot_controller.trot_direction = Forward;
             t = 0;
-			buttom_joystick = 0;
+			      buttom_joystick = 0;
           }
         }
         else {
           if (turn_controller.turn_state == EndTurn) {
             turn_controller.turn_state = PreTurn;
             t = 0;
-			buttom_joystick = 1;
+			      buttom_joystick = 1;
           }
         }
       }
@@ -387,16 +392,16 @@ void TrotForwardTask(void *argument)
           turn_controller.turn_angular_direction = TurnRight;
           left_length = trot_length + coef_turn * abs(handle_command[3] - 125) / 2;
           right_length = trot_length - coef_turn * abs(handle_command[3] - 125) / 2;
-          Turn_FSM(&turn_controller, right_length, left_length, 0.05, robot_height);
+          Turn_FSM(&turn_controller, right_length, left_length, 0.06, robot_height);
         }
         else if (handle_command[3] - 125 < 0) {
           turn_controller.turn_angular_direction = TurnLeft;
           left_length = trot_length - coef_turn * abs(handle_command[3] - 125) / 2;
           right_length = trot_length + coef_turn * abs(handle_command[3] - 125) / 2;
-          Turn_FSM(&turn_controller, left_length, right_length, 0.05, robot_height);
+          Turn_FSM(&turn_controller, left_length, right_length, 0.06, robot_height);
         }
         else {
-          Turn_FSM(&turn_controller, trot_length, trot_length, 0.05, robot_height);
+          Turn_FSM(&turn_controller, trot_length, trot_length, 0.06, robot_height);
         }
 
         if (turn_controller.turn_state != EndTurn) {
@@ -406,28 +411,60 @@ void TrotForwardTask(void *argument)
         }
       }
       else {
+//         // trot_length = 0.3;
+// //        turn_controller.turn_angular_direction = TurnRight;
+//         if (trot_controller.trot_state == PreTrot) {
+//           Trot_FSM(&trot_controller, 0.06, trot_length_1, robot_height);
+//           if (trot_controller.trot_state == Trotting) {
+//             trot_length_1 += 0.1;
+//           }
+//         }
+//         else {
+//           Trot_FSM(&trot_controller, 0.06, trot_length_1, robot_height);
+//           if (t == 0) {
+//             if (stage == 0) {
+//               trot_length_1 += 0.1;
+//               stage = 1;
+//             }
+//             else if (stage == 1) {
+//               trot_length_1 += 0.1;
+//               stage = 2;
+//             }
+//           }
+// 		      if (trot_controller.trot_state == EndTrot) {
+//             trot_length_1 = 0.1;
+//             stage = 0;
+//           }
+//         }
+//         // Turn_FSM(&turn_controller, trot_length, trot_length, 0.03, robot_height);
+
+//         if (trot_controller.trot_state != EndTrot) {
+//           __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+//           __HAL_TIM_SET_COUNTER(&htim2, 0);
+//           HAL_TIM_Base_Start_IT(&htim2);
+//         }
         // trot_length = 0.3;
         turn_controller.turn_angular_direction = TurnRight;
         if (turn_controller.turn_state == PreTurn) {
-          Turn_FSM(&turn_controller, trot_length_1, trot_length_1, 0.05, robot_height);
+          Turn_FSM(&turn_controller, trot_length_1, trot_length_1, 0.03, robot_height);
           if (turn_controller.turn_state == Turning) {
-            trot_length_1 += 0.08;
+            trot_length_1 += trot_unit;
           }
         }
         else {
-          Turn_FSM(&turn_controller, trot_length_1, trot_length_1, 0.05, robot_height);
+          Turn_FSM(&turn_controller, trot_length_1, trot_length_1, 0.03, robot_height);
           if (t == 0) {
             if (stage == 0) {
-              trot_length_1 += 0.08;
+              trot_length_1 += trot_unit;
               stage = 1;
             }
             else if (stage == 1) {
-              trot_length_1 += 0.09;
+              trot_length_1 += trot_unit;
               stage = 2;
             }
           }
 		      if (turn_controller.turn_state == EndTurn) {
-            trot_length_1 = 0.05;
+            trot_length_1 = trot_unit;
             stage = 0;
           }
         }
@@ -441,7 +478,7 @@ void TrotForwardTask(void *argument)
       }
       // if (trot_controller.trot_state != EndTrot) {
       //   trot_length = 0.3;
-      //   Trot_FSM(&trot_controller, 0.05, trot_length, robot_height);
+      //   Trot_FSM(&trot_controller, 0.05,rot_length, robot_height);
       //   // Trot_FSM(&trot_controller, 0.03, (0.0024 * abs(handle_command[2] - 125)), robot_height);
 
       //   if (trot_controller.trot_state != EndTrot) {
@@ -493,10 +530,10 @@ void TrotBackTask(void *argument)
       if (trot_controller.trot_state != EndTrot) {
         if (handle_command[0] == TROT_BACK_CMD) {
           trot_length = 0.2;
-          Trot_FSM(&trot_controller, 0.05, trot_length, robot_height);
+          Trot_FSM(&trot_controller, 0.06, trot_length, robot_height);
         }
         else {
-          Trot_FSM(&trot_controller, 0.05, (coef * abs(handle_command[2] - 125)), robot_height);
+          Trot_FSM(&trot_controller, 0.06, (coef * abs(handle_command[2] - 125)), robot_height);
         }
         // Trot_FSM(&trot_controller, 0.03, trot_length, robot_height);
         // Trot_FSM(&trot_controller, 0.03, (coef * abs(handle_command[2] - 125)), robot_height);

@@ -12,6 +12,7 @@
         "math.h": "c",
         "deepj60_can.h": "c",
         "handle.h": "c",
-        "freertos.h": "c"
+        "freertos.h": "c",
+        "string.h": "c"
     }
 }

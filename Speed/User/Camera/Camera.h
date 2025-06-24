@@ -9,7 +9,10 @@
 #define CAMERA_RX_FOOTER_1 0x0A
 #define CAMERA_RX_FOOTER_2 0x0D
 
-#define RX_BTYES_LENGTH 6
+#define CAMERA_RX_HEADER 0x0A
+#define CAMERA_RX_FOOTER 0x0D
+
+#define RX_BTYES_LENGTH 3
 
 #define RX_NORMAL 1
 #define RX_ERROR 0
@@ -31,6 +34,8 @@ typedef struct {
 
 extern uint8_t rx_bytes[RX_BTYES_LENGTH];
 extern Camera camera;
+
+extern uint8_t aver;
 
 int check_rx_bytes (uint8_t* rx_bytes);
 void parse_camera_bytes (uint8_t* rx_bytes);

@@ -12,7 +12,7 @@
 #include "string.h"
 #include "Camera.h"
 
-#define NORMAL_DELTA_T 25
+
 #define SLOW_DELTA_T 10
 #define JUMP_LEGUP_DELTA_T 50
 #define JUMP_SQUAT_STANDUP_DELTA_T 20
@@ -72,7 +72,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     // uint8_t rx_camera[RX_BTYES_LENGTH] = {0};
     // BaseType_t higher_priority_task_wake = pdFALSE;
 
-    if (huart->Instance == USART3) {
+    if (huart->Instance == USART2) {
         // memcpy(rx_camera, rx_bytes, IMU_DATA_SIZE);
 		// if (camera_queue != NULL) {
         //     xQueueSendFromISR(camera_queue, rx_camera, &higher_priority_task_wake);
@@ -80,7 +80,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
         // portYIELD_FROM_ISR(higher_priority_task_wake);
 
         // HAL_UART_Receive_IT(&huart2, (uint8_t*)rx_bytes, RX_BTYES_LENGTH);
-        HAL_UART_Receive_IT(&huart3, (uint8_t*)dma_buffer, DMA_BUFFER_SIZE);
+        HAL_UART_Receive_IT(&huart2, (uint8_t*)rx_bytes, RX_BTYES_LENGTH);
         
     }
     // else if (huart->Instance == USART6) {

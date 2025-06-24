@@ -112,8 +112,8 @@ int isStop = NO_STOP;
 float tan_slope_theta = 1.0 / 3.0;
 float tan_LR_slope_theta = 0.2679;
 
-float J60Motor_StandUpData_CAN1[4] = {0.38954, -2.314015,  -0.257377, 1.853065};  // lf_out, lf_in, rf_out, rf_in
-float J60Motor_StandUpData_CAN2[4] = {2.3810234, -0.327496, -1.96468, 0.409584};  // rb_out, rb_in, lb_out, lb_in
+float J60Motor_StandUpData_CAN1[4] = {0.45954, -1.744015,  -0.257377, 1.853065};  // lf_out, lf_in, rf_out, rf_in
+float J60Motor_StandUpData_CAN2[4] = {2.8410234, -0.327496, -1.96468, 0.409584};  // rb_out, rb_in, lb_out, lb_in
 
 float left_length = 0.2;
 float right_length = 0.2;
@@ -207,20 +207,20 @@ void Stand(void)
     {
         spi_motor_data.real_motor_data[i] = 0;
     }
-    spi_motor_data.real_motor_data[12] = 100;
+    spi_motor_data.real_motor_data[12] = 35;
     spi_motor_data.real_motor_data[13] = 4;
     spi_motor_data.real_motor_data[14] = PositionMode;
 
     HAL_SPI_Transmit(&hspi4, spi_motor_data.send_motor_data, 60, 1000);
     while (__HAL_SPI_GET_FLAG(&hspi4, SPI_FLAG_BSY) == SET);
 
-    RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 100, 4, PositionMode);
+    RunJ60Motor(&J60Motor_CAN1[0], J60Motor_StandUpData_CAN1[0] - angle[0][1], 0, 0, 35, 4, PositionMode);
     vTaskDelay(pdMS_TO_TICKS(1));
-    RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 100, 4, PositionMode);
+    RunJ60Motor(&J60Motor_CAN1[1], J60Motor_StandUpData_CAN1[1] + angle[0][0], 0, 0, 35, 4, PositionMode);
     vTaskDelay(pdMS_TO_TICKS(1));
-    RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 100, 4, PositionMode);
+    RunJ60Motor(&J60Motor_CAN2[0], J60Motor_StandUpData_CAN2[0] + angle[2][1], 0, 0, 35, 4, PositionMode);
     vTaskDelay(pdMS_TO_TICKS(1));
-    RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 100, 4, PositionMode);
+    RunJ60Motor(&J60Motor_CAN2[1], J60Motor_StandUpData_CAN2[1] - angle[2][0], 0, 0, 35, 4, PositionMode);
     vTaskDelay(pdMS_TO_TICKS(1));
 }
 
@@ -377,7 +377,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+        SetMotor(angle, Velocity, Torque, 25, 25, 4, PositionMode);
 
         // Change state
         if (t >= 1000)
@@ -441,13 +441,13 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
         }
 
         if (swing_support_flag == 1) {  // TROTTING_LF_RB_SUPPORT_RF_LB_SWING
-            SetMotor(angle, Velocity, Torque, 70, 100, 4, PositionMode);
+            SetMotor(angle, Velocity, Torque, 25, 35, 4, PositionMode);
         }
         else if (swing_support_flag == 2) {  // TROTTING_LF_RB_SWING_RF_LB_SUPPORT
-            SetMotor(angle, Velocity, Torque, 100, 70, 4, PositionMode);
+            SetMotor(angle, Velocity, Torque, 35, 25, 4, PositionMode);
         }
         else {
-            SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+            SetMotor(angle, Velocity, Torque, 25, 25, 4, PositionMode);
         }
 
         // Change state
@@ -481,7 +481,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+        SetMotor(angle, Velocity, Torque, 25, 25, 4, PositionMode);
 
         // Change state
         if (t >= 1000)
@@ -1302,6 +1302,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
         {
             jump_forward_controller->jump_state = Land;
             t = 0;
+            vTaskDelay(pdMS_TO_TICKS(20));
         }
     }
 
@@ -1371,7 +1372,7 @@ void SetTurnBezierControlPoints(TurnController *turn_controller, float shorter_l
     float control_points_x_right_5[4] = {-right_length * symbol, -right_length * symbol, right_length * symbol, right_length * symbol};
     float control_points_x_right_6[4] = {right_length * symbol, right_length * symbol, -right_length * symbol, -right_length * symbol};
     float control_points_y_1[4] = {0, 0, 0, 0};
-    float control_points_y_2[4] = {0, bezier_height * 0.09 / 0.0675, bezier_height * 0.09 / 0.0675, 0};
+    float control_points_y_2[4] = {0, bezier_height, bezier_height, 0};
 
     if (turn_controller->turn_state == PreTurn)
     {
@@ -1478,7 +1479,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
     float t_real = t / 1000;
     float t_real_2 = 0;
     float fai_swing = 1;
-    float fai_support = 1.2;
+    float fai_support = 1;
 
     if (turn_controller->turn_state == PreTurn)
     {
@@ -1499,7 +1500,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+        SetMotor(angle, Velocity, Torque, 25, 25, 4, PositionMode);
 
         if (t >= 1000)
         {
@@ -1560,20 +1561,30 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
                 return;
             }
         }
+        
+//        SetMotor(angle, Velocity, Torque, 25, 25, 4, PositionMode);
+        float Kp = 0;
+        float Kd = 4;
+        if ((t >= 0 && t < NORMAL_DELTA_T * 4) || (t >= 1000 - NORMAL_DELTA_T * 2 && t <= 1000 + NORMAL_DELTA_T * 2) || (t >= 2000 - NORMAL_DELTA_T * 4)) {
+            Kp = 25;
+        }
+        else {
+            Kp = 100;
+        }
 
         if (shorter_gait_length == longer_gait_length) {
             if (swing_support_flag == 1) {
-                SetMotor(angle, Velocity, Torque, 70, 100, 4, PositionMode);
+                SetMotor(angle, Velocity, Torque, Kp, Kp, Kd, PositionMode);
             }
             else if (swing_support_flag == 2) {
-                SetMotor(angle, Velocity, Torque, 100, 70, 4, PositionMode);
+                SetMotor(angle, Velocity, Torque, Kp, Kp, Kd, PositionMode);
             }
             else {
-                SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+                SetMotor(angle, Velocity, Torque, Kp, Kp, Kd, PositionMode);
             }
         }
         else {
-            SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+            SetMotor(angle, Velocity, Torque, Kp, Kp, Kd, PositionMode);
         }
 
         if (t >= 2000)
@@ -1606,7 +1617,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+        SetMotor(angle, Velocity, Torque, 25, 25, 4, PositionMode);
 
         if (t >= 1000)
         {
