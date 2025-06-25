@@ -33,7 +33,7 @@
         <MemConfigValue>F:\EWARM_8321\arm\CONFIG\debugger\ST\STM32F405RG.ddf</MemConfigValue>
     </PlDriver>
     <DebugChecksum>
-        <Checksum>2511013714</Checksum>
+        <Checksum>2139414041</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -49,8 +49,8 @@
     <SWOManager>
         <SamplingDivider>8192</SamplingDivider>
         <OverrideClock>0</OverrideClock>
-        <CpuClock>1867644944</CpuClock>
-        <SwoClock>1868787554</SwoClock>
+        <CpuClock>1</CpuClock>
+        <SwoClock>1</SwoClock>
         <DataLogMode>0</DataLogMode>
         <ItmPortsEnabled>63</ItmPortsEnabled>
         <ItmTermIOPorts>1</ItmTermIOPorts>

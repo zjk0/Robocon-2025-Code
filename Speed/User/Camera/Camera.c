@@ -2,7 +2,7 @@
 
 uint8_t rx_bytes[RX_BTYES_LENGTH];
 Camera camera;
-uint8_t aver = 0;
+int mid_value = -1;
 
 uint16_t crc16_ccitt(uint8_t *data, uint16_t length) {
     uint8_t i;
@@ -60,5 +60,5 @@ void parse_camera_bytes (uint8_t* rx_bytes) {
 
     // camera.yaw = rx_bytes[2];
     // camera.stop_flag = rx_bytes[3];
-    aver = rx_bytes[1];
+    mid_value = rx_bytes[1];
 }

@@ -35,7 +35,7 @@ typedef struct {
 extern uint8_t rx_bytes[RX_BTYES_LENGTH];
 extern Camera camera;
 
-extern uint8_t aver;
+extern int mid_value;
 
 int check_rx_bytes (uint8_t* rx_bytes);
 void parse_camera_bytes (uint8_t* rx_bytes);

@@ -112,8 +112,8 @@ int isStop = NO_STOP;
 float tan_slope_theta = 1.0 / 3.0;
 float tan_LR_slope_theta = 0.2679;
 
-float J60Motor_StandUpData_CAN1[4] = {0.45954, -1.744015,  -0.257377, 1.853065};  // lf_out, lf_in, rf_out, rf_in
-float J60Motor_StandUpData_CAN2[4] = {2.8410234, -0.327496, -1.96468, 0.409584};  // rb_out, rb_in, lb_out, lb_in
+float J60Motor_StandUpData_CAN1[4] = {0.466499328, -2.05166244,  -0.257377, 1.853065};  // lf_out, lf_in, rf_out, rf_in
+float J60Motor_StandUpData_CAN2[4] = {2.63729477, -0.138740539, -1.96468, 0.409584};  // rb_out, rb_in, lb_out, lb_in
 
 float left_length = 0.2;
 float right_length = 0.2;

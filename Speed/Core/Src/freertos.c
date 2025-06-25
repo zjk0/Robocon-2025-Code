@@ -341,10 +341,13 @@ void TrotForwardTask(void *argument)
   uint32_t notify_value = 0;
   float coef = 0.0016;  // max trot length = 0.2 (0.0016 = 0.2 / 125)
   float coef_turn = 0.0004;  // max difference length of two side is 0.05 (0.0004 = 0.05 / 125)
+  float coef_camera = 0.00039;  // max difference length of two side is 0.05 (0.00039 = 0.05 / 127), while using camera
   int stage = 0;
   float trot_unit = 0.2 / 4;
   float trot_length_1 = trot_unit;
   int buttom_joystick = 0;
+  float short_length = 0;
+  float long_length = 0;
 
   /* Infinite loop */
   for(;;)
@@ -444,15 +447,34 @@ void TrotForwardTask(void *argument)
 //           HAL_TIM_Base_Start_IT(&htim2);
 //         }
         // trot_length = 0.3;
-        turn_controller.turn_angular_direction = TurnRight;
+        if (mid_value != -1) {
+          if (mid_value - 127 < 0) {
+            turn_controller.turn_angular_direction = TurnRight;
+            short_length = trot_length_1 - coef_camera * abs(mid_value - 127) / 2;
+            long_length = trot_length_1 + coef_camera * abs(mid_value - 127) / 2;
+          }
+          else if (mid_value - 127 > 0) {
+            turn_controller.turn_angular_direction = TurnLeft;
+            short_length = trot_length_1 - coef_camera * abs(mid_value - 127) / 2;
+            long_length = trot_length_1 + coef_camera * abs(mid_value - 127) / 2;
+          }
+          else {
+            short_length = trot_length_1;
+            long_length = trot_length_1;
+          }
+        }
+        else {
+          short_length = trot_length_1;
+          long_length = trot_length_1;
+        }
         if (turn_controller.turn_state == PreTurn) {
-          Turn_FSM(&turn_controller, trot_length_1, trot_length_1, 0.03, robot_height);
+          Turn_FSM(&turn_controller, short_length, long_length, 0.03, robot_height);
           if (turn_controller.turn_state == Turning) {
             trot_length_1 += trot_unit;
           }
         }
         else {
-          Turn_FSM(&turn_controller, trot_length_1, trot_length_1, 0.03, robot_height);
+          Turn_FSM(&turn_controller, short_length, long_length, 0.03, robot_height);
           if (t == 0) {
             if (stage == 0) {
               trot_length_1 += trot_unit;
