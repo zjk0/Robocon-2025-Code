@@ -1,8 +1,8 @@
 "F:\EWARM_8321\arm\bin\armproc.dll" 
 
-"F:\EWARM_8321\arm\bin\armstlink2.dll" 
+"F:\EWARM_8321\arm\bin\armJET.dll" 
 
-"F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\zhukongv2\Exe\zhukongv2.out" 
+"F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\zhukongv2\Exe\zhukongv2.out" 
 
 --plugin="F:\EWARM_8321\arm\bin\armbat.dll" 
 

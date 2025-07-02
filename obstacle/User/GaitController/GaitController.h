@@ -50,6 +50,9 @@
 #define TORQUE_DEAD_AREA 0.01f
 #define POSITION_DEAD_AREA 0.01f
 
+#define NORMAL_DELTA_T 25
+#define JUMP_T 40
+
 /**
  * ----------------------------------- Typedef -----------------------------------
  */
@@ -208,6 +211,8 @@ extern float J60Motor_StandUpData_CAN2[4];  // rb_out, rb_in, lb_out, lb_in
 
 extern float left_length;
 extern float right_length;
+
+extern float tilt_length;
 
 /**
  * ----------------------------------- Functions -----------------------------------

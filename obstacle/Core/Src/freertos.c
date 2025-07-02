@@ -53,8 +53,6 @@
 #define START_ACTION 2
 #define END_ACTION 1
 
-#define NORMAL_DELTA_T 40
-
 #define INIT_TROT_LENGTH 0.2f
 #define MAX_TROT_LENGTH 0.3f
 
@@ -340,7 +338,8 @@ void TrotForwardTask(void *argument)
 
   uint32_t notify_value = 0;
   float coef = 0.0016;  // max trot length = 0.2 (0.0016 = 0.2 / 125)
-  float coef_turn = 0.0004;  // max difference length of two side is 0.05 (0.0004 = 0.05 / 125) 
+  float coef_turn = 0.0004;  // max difference length of two side is 0.05 (0.0004 = 0.05 / 125)
+  float trot_height = 0.3;
 
   /* Infinite loop */
   for(;;)
@@ -375,16 +374,16 @@ void TrotForwardTask(void *argument)
           turn_controller.turn_angular_direction = TurnRight;
           left_length = trot_length + coef_turn * abs(handle_command[3] - 125) / 2;
           right_length = trot_length - coef_turn * abs(handle_command[3] - 125) / 2;
-          Turn_FSM(&turn_controller, right_length, left_length, 0.05, robot_height);
+          Turn_FSM(&turn_controller, right_length, left_length, 0.03, robot_height);
         }
         else if (handle_command[3] - 125 < 0) {
           turn_controller.turn_angular_direction = TurnLeft;
           left_length = trot_length - coef_turn * abs(handle_command[3] - 125) / 2;
           right_length = trot_length + coef_turn * abs(handle_command[3] - 125) / 2;
-          Turn_FSM(&turn_controller, left_length, right_length, 0.05, robot_height);
+          Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
         }
         else {
-          Turn_FSM(&turn_controller, trot_length, trot_length, 0.05, robot_height);
+          Turn_FSM(&turn_controller, trot_length, trot_length, 0.03, robot_height);
         }
 
         if (turn_controller.turn_state != EndTurn) {
@@ -394,8 +393,15 @@ void TrotForwardTask(void *argument)
         }
       }
       if (trot_controller.trot_state != EndTrot) {
-        trot_length = 0.3;
-        Trot_FSM(&trot_controller, 0.05, trot_length, robot_height);
+        if (robot_height <= 0.2096) {
+          trot_length = 0.03 / 0.2096 * robot_height;
+          trot_height = 0.03 / 0.2096 * robot_height;
+        }
+        else {
+          trot_length = 0.03;
+          trot_height = 0.03;
+        }
+        Trot_FSM(&trot_controller, trot_height, trot_length, robot_height);
         // Trot_FSM(&trot_controller, 0.03, (0.0024 * abs(handle_command[2] - 125)), robot_height);
 
         if (trot_controller.trot_state != EndTrot) {
@@ -501,7 +507,7 @@ void RotateLeftTask(void *argument)
       }
 
       if (rotate_controller.rotate_state != EndRotate) {
-        Rotate_FSM(&rotate_controller, 0.03, 0.06, robot_height);
+        Rotate_FSM(&rotate_controller, 0.06, 0.02, robot_height);
 
         if (rotate_controller.rotate_state != EndRotate) {
           __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
@@ -549,7 +555,7 @@ void RotateRightTask(void *argument)
       }
 
       if (rotate_controller.rotate_state != EndRotate) {
-        Rotate_FSM(&rotate_controller, 0.03, 0.06, robot_height);
+        Rotate_FSM(&rotate_controller, 0.06, 0.02, robot_height);
 
         if (rotate_controller.rotate_state != EndRotate) {
           __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
@@ -730,7 +736,7 @@ void JumpUpTask(void *argument)
 
       if (jump_up_controller.jump_state != EndJump && jump_up_controller.jump_state != Land && jump_up_controller.jump_state != JumpUp) {
         vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
+        t += JUMP_T;
       }
     }
 
@@ -763,6 +769,10 @@ void JumpForwardTask(void *argument)
           jump_forward_controller.jump_state = Squat;
           t = 0;
         }
+        else if (jump_forward_controller.jump_state == Squat) {
+          jump_forward_controller.jump_state = JumpUp;
+          t = 0;
+        }
       }
     }
 
@@ -771,7 +781,7 @@ void JumpForwardTask(void *argument)
 
       if (jump_forward_controller.jump_state != EndJump && jump_forward_controller.jump_state != Land && jump_forward_controller.jump_state != JumpUp) {
         vTaskDelayUntil(&last_time, freq);
-        t += NORMAL_DELTA_T;
+        t += JUMP_T;
       }
     }
 
@@ -1059,8 +1069,10 @@ void NotifyActionTask(void *argument)
 
     if (CompareCommand(last_handle_command, handle_command) != 0) {
       if (handle_command[0] == JUMP_UP_CMD && handle_command[1] == NO_CMD) {
-        TaskHandle = JumpUpHandle;
-        xTaskNotify((TaskHandle_t)JumpUpHandle, START_ACTION, eSetValueWithOverwrite);
+        // TaskHandle = JumpUpHandle;
+        // xTaskNotify((TaskHandle_t)JumpUpHandle, START_ACTION, eSetValueWithOverwrite);
+        tilt_length += 0.01;
+        TaskHandle = NULL;
       }
       else if (handle_command[0] == JUMP_FORWARD_CMD && handle_command[1] == NO_CMD) {
         TaskHandle = JumpForwardHandle;

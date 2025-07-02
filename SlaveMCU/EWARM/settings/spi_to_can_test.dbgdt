@@ -782,7 +782,7 @@
                     <item>spi_rx_flag</item>
                     <item>J60Motor_CAN1</item>
                     <item>J60Motor_CAN2</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

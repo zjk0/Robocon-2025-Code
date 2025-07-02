@@ -12,7 +12,6 @@
 #include "string.h"
 #include "Camera.h"
 
-#define NORMAL_DELTA_T 25
 #define SLOW_DELTA_T 10
 #define JUMP_LEGUP_DELTA_T 50
 #define JUMP_SQUAT_STANDUP_DELTA_T 20
