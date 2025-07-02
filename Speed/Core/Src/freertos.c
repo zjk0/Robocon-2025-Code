@@ -53,8 +53,6 @@
 #define START_ACTION 2
 #define END_ACTION 1
 
-#define NORMAL_DELTA_T 40
-
 #define INIT_TROT_LENGTH 0.2f
 #define MAX_TROT_LENGTH 0.3f
 
@@ -339,11 +337,11 @@ void TrotForwardTask(void *argument)
   /* USER CODE BEGIN TrotForwardTask */
 
   uint32_t notify_value = 0;
-  float coef = 0.0016;  // max trot length = 0.2 (0.0016 = 0.2 / 125)
+  float coef = 0.3 / 125;  // max trot length = 0.5
   float coef_turn = 0.0004;  // max difference length of two side is 0.05 (0.0004 = 0.05 / 125)
   float coef_camera = 0.00039;  // max difference length of two side is 0.05 (0.00039 = 0.05 / 127), while using camera
   int stage = 0;
-  float trot_unit = 0.2 / 4;
+  float trot_unit = 0.3 / 4;
   float trot_length_1 = trot_unit;
   int buttom_joystick = 0;
   float short_length = 0;
@@ -395,16 +393,16 @@ void TrotForwardTask(void *argument)
           turn_controller.turn_angular_direction = TurnRight;
           left_length = trot_length + coef_turn * abs(handle_command[3] - 125) / 2;
           right_length = trot_length - coef_turn * abs(handle_command[3] - 125) / 2;
-          Turn_FSM(&turn_controller, right_length, left_length, 0.06, robot_height);
+          Turn_FSM(&turn_controller, right_length, left_length, 0.03, robot_height);
         }
         else if (handle_command[3] - 125 < 0) {
           turn_controller.turn_angular_direction = TurnLeft;
           left_length = trot_length - coef_turn * abs(handle_command[3] - 125) / 2;
           right_length = trot_length + coef_turn * abs(handle_command[3] - 125) / 2;
-          Turn_FSM(&turn_controller, left_length, right_length, 0.06, robot_height);
+          Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
         }
         else {
-          Turn_FSM(&turn_controller, trot_length, trot_length, 0.06, robot_height);
+          Turn_FSM(&turn_controller, trot_length, trot_length, 0.03, robot_height);
         }
 
         if (turn_controller.turn_state != EndTurn) {
@@ -414,7 +412,6 @@ void TrotForwardTask(void *argument)
         }
       }
       else {
-//         // trot_length = 0.3;
 // //        turn_controller.turn_angular_direction = TurnRight;
 //         if (trot_controller.trot_state == PreTrot) {
 //           Trot_FSM(&trot_controller, 0.06, trot_length_1, robot_height);
@@ -446,27 +443,29 @@ void TrotForwardTask(void *argument)
 //           __HAL_TIM_SET_COUNTER(&htim2, 0);
 //           HAL_TIM_Base_Start_IT(&htim2);
 //         }
-        // trot_length = 0.3;
-        if (mid_value != -1) {
-          if (mid_value - 127 < 0) {
-            turn_controller.turn_angular_direction = TurnRight;
-            short_length = trot_length_1 - coef_camera * abs(mid_value - 127) / 2;
-            long_length = trot_length_1 + coef_camera * abs(mid_value - 127) / 2;
-          }
-          else if (mid_value - 127 > 0) {
-            turn_controller.turn_angular_direction = TurnLeft;
-            short_length = trot_length_1 - coef_camera * abs(mid_value - 127) / 2;
-            long_length = trot_length_1 + coef_camera * abs(mid_value - 127) / 2;
-          }
-          else {
-            short_length = trot_length_1;
-            long_length = trot_length_1;
-          }
-        }
-        else {
-          short_length = trot_length_1;
-          long_length = trot_length_1;
-        }
+
+        // if (mid_value != -1) {
+        //   if (mid_value - 127 < 0) {
+        //     turn_controller.turn_angular_direction = TurnRight;
+        //     short_length = trot_length_1 - coef_camera * abs(mid_value - 127) / 2;
+        //     long_length = trot_length_1 + coef_camera * abs(mid_value - 127) / 2;
+        //   }
+        //   else if (mid_value - 127 > 0) {
+        //     turn_controller.turn_angular_direction = TurnLeft;
+        //     short_length = trot_length_1 - coef_camera * abs(mid_value - 127) / 2;
+        //     long_length = trot_length_1 + coef_camera * abs(mid_value - 127) / 2;
+        //   }
+        //   else {
+        //     short_length = trot_length_1;
+        //     long_length = trot_length_1;
+        //   }
+        // }
+        // else {
+        //   short_length = trot_length_1;
+        //   long_length = trot_length_1;
+        // }
+        short_length = trot_length_1;
+        long_length = trot_length_1;
         if (turn_controller.turn_state == PreTurn) {
           Turn_FSM(&turn_controller, short_length, long_length, 0.03, robot_height);
           if (turn_controller.turn_state == Turning) {

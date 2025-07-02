@@ -12,7 +12,7 @@
 #define CAMERA_RX_HEADER 0x0A
 #define CAMERA_RX_FOOTER 0x0D
 
-#define RX_BTYES_LENGTH 3
+#define RX_BTYES_LENGTH 4
 
 #define RX_NORMAL 1
 #define RX_ERROR 0
@@ -36,6 +36,7 @@ extern uint8_t rx_bytes[RX_BTYES_LENGTH];
 extern Camera camera;
 
 extern int mid_value;
+extern int slope;
 
 int check_rx_bytes (uint8_t* rx_bytes);
 void parse_camera_bytes (uint8_t* rx_bytes);

@@ -3,6 +3,7 @@
 uint8_t rx_bytes[RX_BTYES_LENGTH];
 Camera camera;
 int mid_value = -1;
+int slope = 0;
 
 uint16_t crc16_ccitt(uint8_t *data, uint16_t length) {
     uint8_t i;
@@ -38,7 +39,7 @@ int check_rx_bytes (uint8_t* rx_bytes) {
     //     return RX_ERROR;
     // }
 
-    if (rx_bytes[0] == CAMERA_RX_HEADER && rx_bytes[2] == CAMERA_RX_FOOTER) {
+    if (rx_bytes[0] == CAMERA_RX_HEADER && rx_bytes[RX_BTYES_LENGTH - 1] == CAMERA_RX_FOOTER) {
         return RX_NORMAL;
     }
     else {
@@ -61,4 +62,5 @@ void parse_camera_bytes (uint8_t* rx_bytes) {
     // camera.yaw = rx_bytes[2];
     // camera.stop_flag = rx_bytes[3];
     mid_value = rx_bytes[1];
+    slope = rx_bytes[2];
 }
