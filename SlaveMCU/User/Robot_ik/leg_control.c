@@ -2,8 +2,8 @@
 #include <stdio.h>    // 包含标准库
 #include <math.h>
 
-float J60Motor_StandUpData_CAN1[4] = {0.48954, -2.214015,  -0.48244476311, 1.68087005};  // lf_out, lf_in, rf_out, rf_in
-float J60Motor_StandUpData_CAN2[4] = {2.3810234, -0.597496, -1.7467880244, 0.12386322022};  // rb_out, rb_in, lb_out, lb_in
+float J60Motor_StandUpData_CAN1[4] = {0.48954, -2.214015,  -0.51151275633, 1.59770965};  // lf_out, lf_in, rf_out, rf_in
+float J60Motor_StandUpData_CAN2[4] = {2.3810234, -0.597496, -2.49439621, 0.26332855222};  // rb_out, rb_in, lb_out, lb_in
 
 float ReInit_can1[2] = {0};
 float ReInit_can2[2] = {0};

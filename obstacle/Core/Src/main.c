@@ -143,10 +143,6 @@ int main(void)
   // HAL_UARTEx_Receive_DMA(&huart6, (uint8_t*)dma_buffer, DMA_BUFFER_SIZE);
   HAL_UART_Receive_IT(&huart2, (uint8_t*)rx_bytes, RX_BTYES_LENGTH);
 
-  // NRF24L01_Init();
-  // while(NRF24L01_check());
-  // NRF24L01_Set_Mode(MODE_RX);
-
   cmd_queue = xQueueCreate(10, sizeof(uint8_t) * HANDLE_DATA_SIZE);
   imu_queue = xQueueCreate(10, sizeof(uint8_t) * IMU_DATA_SIZE);
   camera_queue = xQueueCreate(10, sizeof(uint8_t) * RX_BTYES_LENGTH);
@@ -168,6 +164,14 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+      // HAL_Delay(1);
+      // RunJ60Motor(&J60Motor_CAN1[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
+      // HAL_Delay(1);
+      // RunJ60Motor(&J60Motor_CAN1[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
+      // HAL_Delay(1);
+      // RunJ60Motor(&J60Motor_CAN2[0], 0, 0, 0, 0, 0, ZeroTorqueMode);
+      // HAL_Delay(1);
+      // RunJ60Motor(&J60Motor_CAN2[1], 0, 0, 0, 0, 0, ZeroTorqueMode);
     // HAL_UART_Receive(&huart3, (uint8_t*)dma_buffer, DMA_BUFFER_SIZE, 1000);
     // NRF24L01_RxPacket((uint8_t*)rx_cmd);
     /* USER CODE END WHILE */

@@ -337,11 +337,11 @@ void TrotForwardTask(void *argument)
   /* USER CODE BEGIN TrotForwardTask */
 
   uint32_t notify_value = 0;
-  float coef = 0.3 / 125;  // max trot length = 0.5
-  float coef_turn = 0.0004;  // max difference length of two side is 0.05 (0.0004 = 0.05 / 125)
-  float coef_camera = 0.00039;  // max difference length of two side is 0.05 (0.00039 = 0.05 / 127), while using camera
+  float coef = 0.4 / 125;  // max trot length = 0.5
+  float coef_turn = 0.00064;  // max difference length of two side is 0.05 (0.0004 = 0.05 / 125)
+  float coef_camera = 0.00063;  // max difference length of two side is 0.05 (0.00039 = 0.05 / 127), while using camera
   int stage = 0;
-  float trot_unit = 0.3 / 4;
+  float trot_unit = 0.4 / 4;
   float trot_length_1 = trot_unit;
   int buttom_joystick = 0;
   float short_length = 0;
@@ -465,7 +465,8 @@ void TrotForwardTask(void *argument)
         //   long_length = trot_length_1;
         // }
         short_length = trot_length_1;
-        long_length = trot_length_1;
+        long_length = trot_length_1 + 0.02;
+        turn_controller.turn_angular_direction = TurnLeft;
         if (turn_controller.turn_state == PreTurn) {
           Turn_FSM(&turn_controller, short_length, long_length, 0.03, robot_height);
           if (turn_controller.turn_state == Turning) {

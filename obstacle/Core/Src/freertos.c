@@ -393,7 +393,7 @@ void TrotForwardTask(void *argument)
         }
       }
       if (trot_controller.trot_state != EndTrot) {
-        if (robot_height <= 0.2096) {
+        if (robot_height < 0.2096) {
           trot_length = 0.03 / 0.2096 * robot_height;
           trot_height = 0.03 / 0.2096 * robot_height;
         }
