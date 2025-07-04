@@ -30,7 +30,6 @@
 #include "Handle.h"
 #include "imu.h"
 #include "Camera.h"
-#include "nrf.h"
 #include "tim.h"
 #include "math.h"
 #include "foot_attitude_calculation.h"
@@ -337,15 +336,21 @@ void TrotForwardTask(void *argument)
   /* USER CODE BEGIN TrotForwardTask */
 
   uint32_t notify_value = 0;
-  float coef = 0.4 / 125;  // max trot length = 0.5
-  float coef_turn = 0.00064;  // max difference length of two side is 0.05 (0.0004 = 0.05 / 125)
-  float coef_camera = 0.00063;  // max difference length of two side is 0.05 (0.00039 = 0.05 / 127), while using camera
+  float coef = 0.35 / 125;  // max trot length = 0.5
+  float coef_turn = 0.15 / 125;  // max difference length of two side is 0.15
+  // float coef_camera = 0.00078;  // max difference length of two side is 0.1, while using camera
   int stage = 0;
-  float trot_unit = 0.4 / 4;
+  float trot_unit = 0.35 / 4;
   float trot_length_1 = trot_unit;
   int buttom_joystick = 0;
-  float short_length = 0;
-  float long_length = 0;
+  float left_length = 0;
+  float right_length = 0;
+
+  float error_x = 0;
+  float error_slope = 0;
+  float coef_x = 0.15;
+  float coef_slope = 0.1;
+  float correct = 0;
 
   /* Infinite loop */
   for(;;)
@@ -393,7 +398,7 @@ void TrotForwardTask(void *argument)
           turn_controller.turn_angular_direction = TurnRight;
           left_length = trot_length + coef_turn * abs(handle_command[3] - 125) / 2;
           right_length = trot_length - coef_turn * abs(handle_command[3] - 125) / 2;
-          Turn_FSM(&turn_controller, right_length, left_length, 0.03, robot_height);
+          Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
         }
         else if (handle_command[3] - 125 < 0) {
           turn_controller.turn_angular_direction = TurnLeft;
@@ -412,69 +417,30 @@ void TrotForwardTask(void *argument)
         }
       }
       else {
-// //        turn_controller.turn_angular_direction = TurnRight;
-//         if (trot_controller.trot_state == PreTrot) {
-//           Trot_FSM(&trot_controller, 0.06, trot_length_1, robot_height);
-//           if (trot_controller.trot_state == Trotting) {
-//             trot_length_1 += 0.1;
-//           }
-//         }
-//         else {
-//           Trot_FSM(&trot_controller, 0.06, trot_length_1, robot_height);
-//           if (t == 0) {
-//             if (stage == 0) {
-//               trot_length_1 += 0.1;
-//               stage = 1;
-//             }
-//             else if (stage == 1) {
-//               trot_length_1 += 0.1;
-//               stage = 2;
-//             }
-//           }
-// 		      if (trot_controller.trot_state == EndTrot) {
-//             trot_length_1 = 0.1;
-//             stage = 0;
-//           }
-//         }
-//         // Turn_FSM(&turn_controller, trot_length, trot_length, 0.03, robot_height);
-
-//         if (trot_controller.trot_state != EndTrot) {
-//           __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
-//           __HAL_TIM_SET_COUNTER(&htim2, 0);
-//           HAL_TIM_Base_Start_IT(&htim2);
-//         }
-
-        // if (mid_value != -1) {
-        //   if (mid_value - 127 < 0) {
-        //     turn_controller.turn_angular_direction = TurnRight;
-        //     short_length = trot_length_1 - coef_camera * abs(mid_value - 127) / 2;
-        //     long_length = trot_length_1 + coef_camera * abs(mid_value - 127) / 2;
-        //   }
-        //   else if (mid_value - 127 > 0) {
-        //     turn_controller.turn_angular_direction = TurnLeft;
-        //     short_length = trot_length_1 - coef_camera * abs(mid_value - 127) / 2;
-        //     long_length = trot_length_1 + coef_camera * abs(mid_value - 127) / 2;
-        //   }
-        //   else {
-        //     short_length = trot_length_1;
-        //     long_length = trot_length_1;
-        //   }
+        // with camera
+        // if (mid_value != -1 && slope != -1) {
+        //   error_x = (mid_value - 127.5) / 127.5;  // error_x < 0: TurnLeft, error_x > 0: TurnRight
+        //   error_slope = (slope - 127.5) / 127.5;  // error_slope < 0: TurnLeft, error_slope > 0: TurnRight
+        //   // correct = coef_x * error_x + coef_slope * error_slope;
+        //   correct = coef_x * error_x;
+        //   left_length = trot_length_1 + correct / 2;
+        //   right_length = trot_length_1 - correct / 2;
         // }
-        // else {
-        //   short_length = trot_length_1;
-        //   long_length = trot_length_1;
-        // }
-        short_length = trot_length_1;
-        long_length = trot_length_1 + 0.02;
-        turn_controller.turn_angular_direction = TurnLeft;
+
+        // no camera
+        left_length = trot_length_1;
+        right_length = trot_length_1;
+
+        // ---------------------------------------------------
+        // turn_controller.turn_angular_direction = TurnLeft;
         if (turn_controller.turn_state == PreTurn) {
-          Turn_FSM(&turn_controller, short_length, long_length, 0.03, robot_height);
+          Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
           if (turn_controller.turn_state == Turning) {
             trot_length_1 += trot_unit;
           }
         }
         else {
-          Turn_FSM(&turn_controller, short_length, long_length, 0.03, robot_height);
+          Turn_FSM(&turn_controller, left_length, right_length, 0.03, robot_height);
           if (t == 0) {
             if (stage == 0) {
               trot_length_1 += trot_unit;

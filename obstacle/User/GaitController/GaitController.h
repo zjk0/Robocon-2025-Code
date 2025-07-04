@@ -214,6 +214,13 @@ extern float right_length;
 
 extern float tilt_length;
 
+extern float squat_l0;
+extern float squat_l1;
+extern float jump_l0;
+extern float jump_l1;
+extern float tilt_l0;
+extern float tilt_l1;
+
 /**
  * ----------------------------------- Functions -----------------------------------
  */

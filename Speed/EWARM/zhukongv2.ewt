@@ -1421,8 +1421,5 @@
         <file>
             <name>$PROJ_DIR$\..\User\LogSystem\LogSystem.c</name>
         </file>
-        <file>
-            <name>$PROJ_DIR$\..\User\NRF\nrf.c</name>
-        </file>
     </group>
 </project>

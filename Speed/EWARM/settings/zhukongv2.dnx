@@ -14,7 +14,7 @@
         <MemConfigValue>F:\EWARM_8321\arm\CONFIG\debugger\ST\STM32F427VI.ddf</MemConfigValue>
     </PlDriver>
     <DebugChecksum>
-        <Checksum>460870708</Checksum>
+        <Checksum>3730671146</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -37,8 +37,8 @@
     <SWOManager>
         <SamplingDivider>8192</SamplingDivider>
         <OverrideClock>0</OverrideClock>
-        <CpuClock>1852138606</CpuClock>
-        <SwoClock>543112820</SwoClock>
+        <CpuClock>1279340114</CpuClock>
+        <SwoClock>541149264</SwoClock>
         <DataLogMode>0</DataLogMode>
         <ItmPortsEnabled>63</ItmPortsEnabled>
         <ItmTermIOPorts>1</ItmTermIOPorts>
@@ -55,7 +55,7 @@
         <MixedMode>1</MixedMode>
     </Disassembly>
     <StLinkDriver>
-        <stlinkserialNo>93740544</stlinkserialNo>
+        <stlinkserialNo>4351534E</stlinkserialNo>
         <stlinkfoundProbes />
         <stlinkResetStyle>0</stlinkResetStyle>
         <stlinkResetStrategy>2</stlinkResetStrategy>

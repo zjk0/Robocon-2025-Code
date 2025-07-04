@@ -52,6 +52,7 @@
 
 #define START_ACTION 2
 #define END_ACTION 1
+#define START_JUMP_1 3
 
 #define INIT_TROT_LENGTH 0.2f
 #define MAX_TROT_LENGTH 0.3f
@@ -774,6 +775,12 @@ void JumpForwardTask(void *argument)
           t = 0;
         }
       }
+      else if (notify_value == START_JUMP_1) {
+        if (jump_forward_controller.jump_state == EndJump) {
+          jump_forward_controller.jump_state = Squat;
+          t = 0;
+        }
+      }
     }
 
     if (jump_forward_controller.jump_state != EndJump) {
@@ -1017,8 +1024,7 @@ void NotifyActionTask(void *argument)
         TaskHandle = TrotForwardHandle;
         xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithOverwrite);
       }
-      else if ((handle_command[0] == TROT_BACK_CMD && handle_command[1] == NO_CMD) ||
-               (handle_command[2] - 125 > 0 && handle_command[1] == NO_CMD)) {
+      else if (handle_command[2] - 125 > 0 && handle_command[1] == NO_CMD) {
         TaskHandle = TrotBackHandle;
         xTaskNotify((TaskHandle_t)TrotBackHandle, START_ACTION, eSetValueWithOverwrite);
       }
@@ -1072,11 +1078,27 @@ void NotifyActionTask(void *argument)
         // TaskHandle = JumpUpHandle;
         // xTaskNotify((TaskHandle_t)JumpUpHandle, START_ACTION, eSetValueWithOverwrite);
         tilt_length += 0.01;
+        tilt_l0 = tilt_length;
+        tilt_l1 = tilt_length;
+        squat_l0 = 0.08;
+        squat_l1 = 0.08;
+        jump_l0 = 0.15;
+        jump_l1 = 0.15;
         TaskHandle = NULL;
       }
       else if (handle_command[0] == JUMP_FORWARD_CMD && handle_command[1] == NO_CMD) {
         TaskHandle = JumpForwardHandle;
         xTaskNotify((TaskHandle_t)JumpForwardHandle, START_ACTION, eSetValueWithOverwrite);
+      }
+      else if (handle_command[0] == TROT_BACK_CMD && handle_command[1] == NO_CMD) {
+        squat_l0 = 0.02;
+        squat_l1 = 0.04;
+        jump_l0 = 0.07;
+        jump_l1 = 0.09;
+        tilt_l0 = 0.1;
+        tilt_l1 = 0.14;
+        TaskHandle = JumpForwardHandle;
+        xTaskNotify((TaskHandle_t)JumpForwardHandle, START_JUMP_1, eSetValueWithOverwrite);
       }
       else if (handle_command[0] == STOP_CMD && handle_command[1] == BECOME_HIGHER) {
         robot_height += 0.01;

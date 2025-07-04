@@ -43,8 +43,6 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\Speed\EWARM\..\User\IMU
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\Speed\EWARM\..\User\NRF
--I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\Speed\EWARM\..\User\Camera
 -I
 F:\EWARM_8321\arm\inc
@@ -88,8 +86,6 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\Speed\User\Handle
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\Speed\User\IMU
--I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\Speed\User\NRF
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\Speed\User\Camera
 -D__CHAR_BITS__=8

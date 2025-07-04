@@ -120,6 +120,13 @@ float right_length = 0.2;
 
 float tilt_length = 0;
 
+float squat_l0 = 0.08;
+float squat_l1 = 0.08;
+float jump_l0 = 0.15;
+float jump_l1 = 0.15;
+float tilt_l0 = 0;
+float tilt_l1 = 0;
+
 /**
  * ----------------------------------- Functions -----------------------------------
  */
@@ -1148,13 +1155,13 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
     float init_jump_length = 0.07;
     float init_tilt_length = 0.07; // ���ڼ�����غ�������λ��
 
-    float squat_length0 = 0.08;
-    float jump_length0 = 0.15;
-    float tilt_length0 = tilt_length; // ���ڼ���ǰ�ȵ�λ�ã��������ȵĲ�̬һֱʱ��ֻ�����
+    float squat_length0 = squat_l0;
+    float jump_length0 = jump_l0;
+    float tilt_length0 = tilt_l0; // ���ڼ���ǰ�ȵ�λ�ã��������ȵĲ�̬һֱʱ��ֻ�����
 
-    float squat_length1 = 0.08;
-    float jump_length1 = 0.15;
-    float tilt_length1 = tilt_length; // ���ڼ�����ȵ�λ��
+    float squat_length1 = squat_l1;
+    float jump_length1 = jump_l1;
+    float tilt_length1 = tilt_l1; // ���ڼ�����ȵ�λ��
 
     float jump_torque = 0;
     float robot_height = 0.2069;
@@ -1345,6 +1352,8 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             jump_forward_controller->jump_state = EndJump;
             t = 0;
             tilt_length = 0;
+            tilt_l0 = 0;
+            tilt_l1 = 0;
         }
     }
     else if (jump_forward_controller->jump_state == EndJump)
