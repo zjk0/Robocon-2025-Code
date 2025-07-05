@@ -122,10 +122,15 @@ float tilt_length = 0;
 
 float squat_l0 = 0.08;
 float squat_l1 = 0.08;
+// float squat_l0 = 0;
+// float squat_l1 = 0;
 float jump_l0 = 0.15;
 float jump_l1 = 0.15;
 float tilt_l0 = 0;
 float tilt_l1 = 0;
+
+int is_jump_stair = 0;
+int is_jump_wall = 0;
 
 /**
  * ----------------------------------- Functions -----------------------------------
@@ -456,7 +461,7 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
             Kp = 35;
         }
         else {
-            Kp = 100;
+            Kp = 35;
         }
 
         SetMotor(angle, Velocity, Torque, Kp, Kp, Kd, PositionMode);
@@ -728,7 +733,7 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
             Kp = 35;
         }
         else {
-            Kp = 100;
+            Kp = 35;
         }
 
         SetMotor(angle, Velocity, Torque, Kp, Kp, Kd, PositionMode);
@@ -1289,7 +1294,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 450, 450, 4, PositionTorqueMode);
+        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionTorqueMode);
 
         for (int i = 0; i < 4; i++)
         {
@@ -1591,7 +1596,7 @@ void Turn_FSM(TurnController *turn_controller, float shorter_gait_length, float 
             Kp = 35;
         }
         else {
-            Kp = 100;
+            Kp = 35;
         }
 
         SetMotor(angle, Velocity, Torque, Kp, Kp, Kd, PositionMode);

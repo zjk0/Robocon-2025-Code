@@ -1082,6 +1082,8 @@ void NotifyActionTask(void *argument)
         tilt_l1 = tilt_length;
         squat_l0 = 0.08;
         squat_l1 = 0.08;
+        // squat_l0 = 0;
+        // squat_l1 = 0;
         jump_l0 = 0.15;
         jump_l1 = 0.15;
         TaskHandle = NULL;

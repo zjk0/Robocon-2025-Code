@@ -50,7 +50,7 @@
 #define TORQUE_DEAD_AREA 0.01f
 #define POSITION_DEAD_AREA 0.01f
 
-#define NORMAL_DELTA_T 25
+#define NORMAL_DELTA_T 20
 #define JUMP_T 40
 
 /**
@@ -220,6 +220,9 @@ extern float jump_l0;
 extern float jump_l1;
 extern float tilt_l0;
 extern float tilt_l1;
+
+extern int is_jump_stair;
+extern int is_jump_wall;
 
 /**
  * ----------------------------------- Functions -----------------------------------
