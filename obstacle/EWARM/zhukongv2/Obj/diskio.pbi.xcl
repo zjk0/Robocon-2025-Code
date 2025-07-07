@@ -1,97 +1,101 @@
-"F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Middlewares\Third_Party\FatFs\src\diskio.c"
+"F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Middlewares\Third_Party\FatFs\src\diskio.c"
 -std=c11
 -ferror-limit=0
 -fbracket-depth=512
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Middlewares\Third_Party\FatFs\src
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Middlewares\Third_Party\FatFs\src
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../Core/Inc
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../Core/Inc
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../Drivers/STM32F4xx_HAL_Driver/Inc
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../Drivers/STM32F4xx_HAL_Driver/Inc
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../Drivers/CMSIS/Device/ST/STM32F4xx/Include
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../Drivers/CMSIS/Device/ST/STM32F4xx/Include
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../Drivers/CMSIS/Include
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../Drivers/CMSIS/Include
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User\CurvePlan
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\CurvePlan
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User\DeepJ60
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\DeepJ60
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User\GaitController
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\GaitController
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User\KinematicSolution
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\KinematicSolution
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User\LogSystem
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\LogSystem
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../FATFS/Target
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../FATFS/Target
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../FATFS/App
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../FATFS/App
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../Middlewares/Third_Party/FatFs/src
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../Middlewares/Third_Party/FatFs/src
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../Middlewares/Third_Party/FreeRTOS/Source/include
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../Middlewares/Third_Party/FreeRTOS/Source/include
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM/../Middlewares/Third_Party/FreeRTOS/Source/portable/IAR/ARM_CM4F
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM/../Middlewares/Third_Party/FreeRTOS/Source/portable/IAR/ARM_CM4F
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User\Handle
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\Handle
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User\IMU
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\IMU
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User\NRF
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\NRF
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\EWARM\..\User\Camera
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\Camera
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\Param
 -I
 F:\EWARM_8321\arm\inc
 -I
 F:\EWARM_8321\arm\inc\c
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Core\Inc
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Core\Inc
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Drivers\STM32F4xx_HAL_Driver\Inc
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Drivers\STM32F4xx_HAL_Driver\Inc
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Drivers\CMSIS\Include
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Drivers\CMSIS\Include
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User\CurvePlan
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\CurvePlan
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User\DeepJ60
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\DeepJ60
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User\GaitController
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\GaitController
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User\KinematicSolution
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\KinematicSolution
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User\LogSystem
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\LogSystem
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\FATFS\Target
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\FATFS\Target
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\FATFS\App
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\FATFS\App
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Middlewares\Third_Party\FatFs\src
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Middlewares\Third_Party\FatFs\src
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Middlewares\Third_Party\FreeRTOS\Source\include
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Middlewares\Third_Party\FreeRTOS\Source\include
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\Middlewares\Third_Party\FreeRTOS\Source\portable\IAR\ARM_CM4F
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User\Handle
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\Handle
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User\IMU
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\IMU
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User\NRF
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\NRF
 -I
-F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\MainMCU\User\Camera
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\Camera
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\Param
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0

@@ -128,9 +128,10 @@ float jump_l0 = 0.15;
 float jump_l1 = 0.15;
 float tilt_l0 = 0;
 float tilt_l1 = 0;
+float jump_Kp = 450;
+float jump_Kd = 4;
 
 int is_jump_stair = 0;
-int is_jump_wall = 0;
 
 /**
  * ----------------------------------- Functions -----------------------------------
@@ -456,12 +457,12 @@ void Trot_FSM(TrotController *trot_controller, float gait_height, float gait_len
         }
 
         float Kp = 0;
-        float Kd = 4;
+        float Kd = trot_param.Kd;
         if ((t >= 0 && t < NORMAL_DELTA_T * 4) || (t >= 1000 - NORMAL_DELTA_T * 2 && t <= 1000 + NORMAL_DELTA_T * 2) || (t >= 2000 - NORMAL_DELTA_T * 4)) {
             Kp = 35;
         }
         else {
-            Kp = 35;
+            Kp = trot_param.Kp;
         }
 
         SetMotor(angle, Velocity, Torque, Kp, Kp, Kd, PositionMode);
@@ -728,12 +729,12 @@ void Rotate_FSM(RotateController *rotate_controller, float gait_height, float ga
         }
 
         float Kp = 0;
-        float Kd = 4;
+        float Kd = rotate_param.Kd;
         if ((t >= 0 && t < NORMAL_DELTA_T * 4) || (t >= 1000 - NORMAL_DELTA_T * 2 && t <= 1000 + NORMAL_DELTA_T * 2) || (t >= 2000 - NORMAL_DELTA_T * 4)) {
             Kp = 35;
         }
         else {
-            Kp = 35;
+            Kp = rotate_param.Kp;
         }
 
         SetMotor(angle, Velocity, Torque, Kp, Kp, Kd, PositionMode);
@@ -1041,7 +1042,7 @@ void SetJumpForwardBezierControlPoints0(JumpController *jump_forward_controller,
     float control_points_x_3[4] = {tilt_length, tilt_length, 0, 0};
     float control_points_y_0[4] = {0, 0, squat_length, squat_length};
     float control_points_y_1[4] = {squat_length, squat_length, squat_length, squat_length};
-    float control_points_y_2[4] = {-jump_length, squat_length, squat_length, squat_length};
+    float control_points_y_2[4] = {-jump_length, squat_length + 0.01, squat_length + 0.01, squat_length};
     float control_points_y_3[4] = {squat_length, squat_length, 0, 0}; // ���ױ��������ߣ���Ҫ�ĸ���
 
     if (jump_forward_controller->jump_state == Recline)
@@ -1195,14 +1196,14 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionMode);
+        SetMotor(angle, Velocity, Torque, jump_Kp, jump_Kp, jump_Kd, PositionMode);
 
         if (t >= 1000)
         {
-            // jump_forward_controller->jump_state = JumpUp;
-            // t = 0;
-            t = 1000 - JUMP_T;
-            // vTaskDelay(pdMS_TO_TICKS(10));
+            // t = 1000 - JUMP_T;
+            jump_forward_controller->jump_state = JumpUp;
+            t = 0;
+            vTaskDelay(pdMS_TO_TICKS(100));
         }
     }
 
@@ -1294,7 +1295,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             }
         }
 
-        SetMotor(angle, Velocity, Torque, 100, 100, 4, PositionTorqueMode);
+        SetMotor(angle, Velocity, Torque, jump_Kp, jump_Kp, jump_Kd, PositionTorqueMode);
 
         for (int i = 0; i < 4; i++)
         {
@@ -1305,7 +1306,7 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(170));
         jump_forward_controller->jump_state = LegUp;
     }
     else if (jump_forward_controller->jump_state == LegUp)
@@ -1326,7 +1327,15 @@ void JumpForward_FSM(JumpController *jump_forward_controller)
 
         if (t >= 1000)
         {
-            jump_forward_controller->jump_state = Land;
+            if (is_jump_stair == 0) {
+                jump_forward_controller->jump_state = Land;
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+            else if (is_jump_stair == 1) {
+                jump_forward_controller->jump_state = StandUp;
+                vTaskDelay(pdMS_TO_TICKS(2000));
+            }
+            // jump_forward_controller->jump_state = Land;
             t = 0;
         }
     }

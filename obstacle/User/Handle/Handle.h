@@ -38,6 +38,12 @@
 #define STOP_CMD 0x00
 #define NO_CMD 0x00
 
+#define MODE_1 0x00
+#define MODE_2 0x01
+#define MODE_3 0x02
+#define MODE_4 0x04
+#define MODE_5 0x08
+
 /**
  * ----------------------------------- Variables -----------------------------------
  */

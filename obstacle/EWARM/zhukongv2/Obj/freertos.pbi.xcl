@@ -47,6 +47,8 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\Camera
 -I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\EWARM\..\User\Param
+-I
 F:\EWARM_8321\arm\inc
 -I
 F:\EWARM_8321\arm\inc\c
@@ -92,6 +94,8 @@ F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\NRF
 -I
 F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\Camera
+-I
+F:\none\Study\Other\Robot\RTS team\Robocon-FourFoot-2025\Code\Robocon-2025-Code\obstacle\User\Param
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0

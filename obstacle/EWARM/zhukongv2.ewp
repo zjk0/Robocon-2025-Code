@@ -371,6 +371,7 @@
           <state>$PROJ_DIR$\..\User\IMU</state>
           <state>$PROJ_DIR$\..\User\NRF</state>
           <state>$PROJ_DIR$\..\User\Camera</state>
+          <state>$PROJ_DIR$\..\User\Param</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1300,6 +1301,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\User\NRF\nrf.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\User\Param\param.c</name>
     </file>
   </group>
 </project>

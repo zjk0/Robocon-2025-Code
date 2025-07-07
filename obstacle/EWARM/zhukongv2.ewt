@@ -1424,5 +1424,8 @@
         <file>
             <name>$PROJ_DIR$\..\User\NRF\nrf.c</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\..\User\Param\param.c</name>
+        </file>
     </group>
 </project>
