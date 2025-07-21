@@ -346,10 +346,11 @@ void TrotForwardTask(void *argument)
   float left_length = 0;
   float right_length = 0;
 
-  float error_x = 0;
-  float error_slope = 0;
+  // float error_left_x = 0;
+  // float error_right_x = 0;
+  // float error_slope = 0;
   float coef_x = 0.15;
-  float coef_slope = 0.1;
+  // float coef_slope = 0.1;
   float correct = 0;
 
   /* Infinite loop */
@@ -417,19 +418,33 @@ void TrotForwardTask(void *argument)
         }
       }
       else {
-        // with camera
-        // if (mid_value != -1 && slope != -1) {
-        //   error_x = (mid_value - 127.5) / 127.5;  // error_x < 0: TurnLeft, error_x > 0: TurnRight
-        //   error_slope = (slope - 127.5) / 127.5;  // error_slope < 0: TurnLeft, error_slope > 0: TurnRight
-        //   // correct = coef_x * error_x + coef_slope * error_slope;
-        //   correct = coef_x * error_x;
-        //   left_length = trot_length_1 + correct / 2;
-        //   right_length = trot_length_1 - correct / 2;
-        // }
+        if (left_x != -1 && right_x != -1) {
+          if (left_x == 255) {
+            correct = coef_x * right_x / 200.0;
+            left_length = trot_length_1 + correct / 2;
+            right_length = trot_length_1 - correct / 2;
+          }
+          else if (right_x == 255) {
+            correct = coef_x * left_x / 200.0;
+            left_length = trot_length_1 - correct / 2;
+            right_length = trot_length_1 + correct / 2;
+          }
+          else if (abs(left_x - right_x) > 50) {
+            correct = coef_x * abs(left_x - right_x) / 200.0;
+            if (left_x > right_x) {
+              left_length = trot_length_1 - correct / 2;
+              right_length = trot_length_1 + correct / 2;
+            }
+            else {
+              left_length = trot_length_1 + correct / 2;
+              right_length = trot_length_1 - correct / 2;
+            }
+          }
+        }
 
         // no camera
-        left_length = trot_length_1;
-        right_length = trot_length_1;
+        // left_length = trot_length_1;
+        // right_length = trot_length_1;
 
         // ---------------------------------------------------
         // turn_controller.turn_angular_direction = TurnLeft;
@@ -1005,7 +1020,8 @@ void ParseHandleTask(void *argument)
         if (
           (last_handle_command[0] == STOP_CMD && handle_command[0] != STOP_CMD && 
           handle_command[0] != JUMP_UP_CMD && handle_command[0] != JUMP_FORWARD_CMD) ||
-          (last_handle_command[2] == 125 && handle_command[2] != 125)) {
+          (last_handle_command[2] == 125 && handle_command[2] != 125) ||
+          (handle_command[1] == 0x01 && last_handle_command[1] == NO_CMD)) {
           
 		      __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
@@ -1032,9 +1048,72 @@ void ParseIMUTask(void *argument)
 {
   /* USER CODE BEGIN ParseIMUTask */
 
+  uint32_t notify_value = 0;
+  float left_length = 0.3;
+  float right_length = 0.3;
+  float turn_height = 0.03;
+  int count_trot = 0;  // trot time
+  int count_turn = 0;  // turn time
+  int count = 0;  // total time
+  int trot_or_turn = 0;  // 0: trot, 1: turn
+
   /* Infinite loop */
   for(;;)
   {
+    if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
+      if (notify_value == START_ACTION) {
+        if (turn_controller.turn_state == EndTurn) {
+          turn_controller.turn_state = PreTurn;
+          t = 0;
+        }
+      }
+
+      if (count > 10000 || notify_value == END_ACTION) {
+        if (turn_controller.turn_state == Turning) {
+          isStop = NEED_TO_STOP;
+        }
+      }
+
+      if (count_trot == 100) {  // trot -> turn
+        left_length = 0.1;
+        right_length = 0.3;
+        trot_or_turn = 1;
+        count_trot = 0;
+      }
+
+      if (count_turn == 80) {  // turn -> trot
+        left_length = 0.3;
+        right_length = 0.3;
+        trot_or_turn = 0;
+        count_turn = 0;
+      }
+
+      if (turn_controller.turn_state != EndTurn) {
+        Turn_FSM(&turn_controller, left_length, right_length, turn_height, robot_height);
+
+        if (turn_controller.turn_state == Turning) {
+          if (t == 0) {
+            if (trot_or_turn == 0) {
+              count_trot++;
+            }
+            else {
+              count_turn++;
+            }
+            count++;
+          }
+        }
+
+        if (turn_controller.turn_state != EndTurn) {
+          __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+          __HAL_TIM_SET_COUNTER(&htim2, 0);
+          HAL_TIM_Base_Start_IT(&htim2);
+        }
+      }
+
+      notify_value = 0;
+    }
+
+
     // for(uint8_t i = 0; i < 23; i++) {
 		// 	HAL_UART_Receive(&huart2, imu_rx_data + i, 1, 10);
 		// }
@@ -1124,6 +1203,10 @@ void NotifyActionTask(void *argument)
           xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
         }
       }
+      else if (handle_command[1] == 0x01 && handle_command[0] == STOP_CMD) {
+        TaskHandle = ParseIMUHandle;
+        xTaskNotify((TaskHandle_t)ParseIMUHandle, START_ACTION, eSetValueWithoutOverwrite);
+      }
 
       pre_t = t;
     }
@@ -1150,16 +1233,16 @@ void NotifyActionTask(void *argument)
           trot_length = MAX_TROT_LENGTH;
         }
       }
-      else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_CMD) {
-        if (isSlope != SLOPE) {
-          isSlope = SLOPE;
-        }
-      }
-      else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_LR_CMD) {
-        if (isSlope != SLOPE_LR) {
-          isSlope = SLOPE_LR;
-        }
-      }
+      // else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_CMD) {
+      //   if (isSlope != SLOPE) {
+      //     isSlope = SLOPE;
+      //   }
+      // }
+      // else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_LR_CMD) {
+      //   if (isSlope != SLOPE_LR) {
+      //     isSlope = SLOPE_LR;
+      //   }
+      // }
       else if (handle_command[0] == STOP_CMD && handle_command[1] == NO_CMD) {
         if (trot_length != INIT_TROT_LENGTH) {
           trot_length = INIT_TROT_LENGTH;

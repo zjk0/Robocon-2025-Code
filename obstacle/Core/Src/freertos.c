@@ -370,7 +370,7 @@ void TrotForwardTask(void *argument)
   {
     if (xTaskNotifyWait(0, 0, &notify_value, 0) == pdTRUE) {
       if (notify_value == START_ACTION) {
-        if (handle_command[0] == TROT_FORWARD_CMD) {
+        if (handle_command[0] == TROT_FORWARD_CMD || handle_command[0] == JUMP_UP_CMD) {
           if (trot_controller.trot_state == EndTrot) {
             trot_controller.trot_state = PreTrot;
             trot_controller.trot_direction = Forward;
@@ -417,14 +417,14 @@ void TrotForwardTask(void *argument)
         }
       }
       if (trot_controller.trot_state != EndTrot) {
+        
         if (robot_height < 0.2096) {
           trot_length = trot_param.length / 0.2096 * robot_height;
-          trot_height = trot_param.height / 0.2096 * robot_height;
         }
         else {
           trot_length = trot_param.length;
-          trot_height = trot_param.height;
         }
+        trot_height = trot_param.height / 0.2096 * robot_height;
         Trot_FSM(&trot_controller, trot_height, trot_length, robot_height);
         // Trot_FSM(&trot_controller, 0.03, (0.0024 * abs(handle_command[2] - 125)), robot_height);
 
@@ -475,7 +475,7 @@ void TrotBackTask(void *argument)
       }
 
       if (trot_controller.trot_state != EndTrot) {
-        if (handle_command[0] == TROT_BACK_CMD) {
+        if (handle_command[0] == TROT_BACK_CMD || handle_command[0] == JUMP_FORWARD_CMD) {
           Trot_FSM(&trot_controller, trot_param.height, trot_param.length, robot_height);
         }
         else {
@@ -973,7 +973,8 @@ void ParseHandleTask(void *argument)
         if (
           (last_handle_command[0] == STOP_CMD && handle_command[0] != STOP_CMD && 
           handle_command[0] != JUMP_UP_CMD && handle_command[0] != JUMP_FORWARD_CMD) ||
-          (last_handle_command[2] == 125 && handle_command[2] != 125)) {
+          (last_handle_command[2] == 125 && handle_command[2] != 125) ||
+          (handle_command[1] == MODE_5 && last_handle_command[0] == STOP_CMD && handle_command[0] != STOP_CMD)) {
           
 		      __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
           __HAL_TIM_SET_COUNTER(&htim2, 0);
@@ -1040,26 +1041,50 @@ void NotifyActionTask(void *argument)
     if (t != pre_t) {
       if (handle_command[1] == MODE_1) {  // 正常行走，旋�?
         if (handle_command[0] == TROT_FORWARD_CMD || handle_command[2] - 125 < 0) {  // 前进
+          if (TaskHandle != TrotForwardHandle) {
+            trot_param.length = 0.3;
+            trot_param.height = 0.03;
+            trot_param.Kp = 100;
+            trot_param.Kd = 4;
+          }
           TaskHandle = TrotForwardHandle;
           xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithoutOverwrite);
         }
-        else if (handle_command[0] == TROT_BACK_CMD || handle_command[2] - 125 > 0) {  // 后�??
+        else if (handle_command[0] == TROT_BACK_CMD || handle_command[2] - 125 > 0) {  // 后退
+          if (TaskHandle != TrotBackHandle) {
+            trot_param.length = 0.3;
+            trot_param.height = 0.03;
+            trot_param.Kp = 100;
+            trot_param.Kd = 4;
+          }
           TaskHandle = TrotBackHandle;
           xTaskNotify((TaskHandle_t)TrotBackHandle, START_ACTION, eSetValueWithOverwrite);
         }
-        else if (handle_command[0] == ROTATE_LEFT_CMD) {  // 左旋�?
+        else if (handle_command[0] == ROTATE_LEFT_CMD) {  // 左旋转
+          if (TaskHandle != RotateLeftHandle) {
+            rotate_param.length = 0.2;
+            rotate_param.height = 0.03;
+            rotate_param.Kp = 100;
+            rotate_param.Kd = 4;
+          }
           TaskHandle = RotateLeftHandle;
           xTaskNotify((TaskHandle_t)RotateLeftHandle, START_ACTION, eSetValueWithOverwrite);
         }
-        else if (handle_command[0] == ROTATE_RIGHT_CMD) {  // 右旋�?
+        else if (handle_command[0] == ROTATE_RIGHT_CMD) {  // 右旋转
+          if (TaskHandle != RotateRightHandle) {
+            rotate_param.length = 0.2;
+            rotate_param.height = 0.03;
+            rotate_param.Kp = 100;
+            rotate_param.Kd = 4;
+          }
           TaskHandle = RotateRightHandle;
           xTaskNotify((TaskHandle_t)RotateRightHandle, START_ACTION, eSetValueWithOverwrite);
         }
-        else if (handle_command[0] == MOVE_LEFT_CMD) {  // 左转�?
+        else if (handle_command[0] == MOVE_LEFT_CMD) {  // 左转弯
           TaskHandle = TurnLeftHandle;
           xTaskNotify((TaskHandle_t)TurnLeftHandle, START_ACTION, eSetValueWithOverwrite);
         }
-        else if (handle_command[0] == MOVE_RIGHT_CMD) {  // 右转�?
+        else if (handle_command[0] == MOVE_RIGHT_CMD) {  // 右转弯
           TaskHandle = TurnRightHandle;
           xTaskNotify((TaskHandle_t)TurnRightHandle, START_ACTION, eSetValueWithOverwrite);
         }
@@ -1069,7 +1094,7 @@ void NotifyActionTask(void *argument)
           }
         }
       }
-      else if (handle_command[1] == MODE_2) {  // 斜坡、横�?
+      else if (handle_command[1] == MODE_2) {  // 斜坡、横移
         if (handle_command[0] == TROT_FORWARD_CMD) {  // 斜坡
           if (isSlope == SLOPE) {  // 前后斜坡
             TaskHandle = WalkSlopeHandle;
@@ -1080,23 +1105,35 @@ void NotifyActionTask(void *argument)
             xTaskNotify((TaskHandle_t)WalkSlope_LRHandle, START_ACTION, eSetValueWithoutOverwrite);
           }
           else {  // 正常
+            trot_param.length = 0.3;
+            trot_param.height = 0.03;
+            trot_param.Kp = 100;
+            trot_param.Kd = 4;
             TaskHandle = TrotForwardHandle;
             xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithoutOverwrite);
           }
         }
         else if (handle_command[2] - 125 < 0) {  // 前进摇杆
+          trot_param.length = 0.3;
+          trot_param.height = 0.03;
+          trot_param.Kp = 100;
+          trot_param.Kd = 4;
           TaskHandle = TrotForwardHandle;
           xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithoutOverwrite);
         }
         else if (handle_command[0] == TROT_BACK_CMD || handle_command[2] - 125 > 0) {  // 后�??
+          trot_param.length = 0.3;
+          trot_param.height = 0.03;
+          trot_param.Kp = 100;
+          trot_param.Kd = 4;
           TaskHandle = TrotBackHandle;
           xTaskNotify((TaskHandle_t)TrotBackHandle, START_ACTION, eSetValueWithOverwrite);
         }
-        else if (handle_command[0] == ROTATE_LEFT_CMD) {  // 左横�?
+        else if (handle_command[0] == ROTATE_LEFT_CMD) {  // 左横移
           TaskHandle = MoveLeftHandle;
           xTaskNotify((TaskHandle_t)MoveLeftHandle, START_ACTION, eSetValueWithOverwrite);
         }
-        else if (handle_command[0] == ROTATE_RIGHT_CMD) {  // 右横�?
+        else if (handle_command[0] == ROTATE_RIGHT_CMD) {  // 右横移
           TaskHandle = MoveRightHandle;
           xTaskNotify((TaskHandle_t)MoveRightHandle, START_ACTION, eSetValueWithOverwrite);
         }
@@ -1108,18 +1145,34 @@ void NotifyActionTask(void *argument)
       }
       else if (handle_command[1] == MODE_3) {  // 跳跃相关
         if (handle_command[0] == TROT_FORWARD_CMD || handle_command[2] - 125 < 0) {  // 前进
+          trot_param.length = 0.3;
+          trot_param.height = 0.03;
+          trot_param.Kp = 100;
+          trot_param.Kd = 4;
           TaskHandle = TrotForwardHandle;
           xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithoutOverwrite);
         }
-        else if (handle_command[0] == TROT_BACK_CMD || handle_command[2] - 125 > 0) {  // 后�??
+        else if (handle_command[0] == TROT_BACK_CMD || handle_command[2] - 125 > 0) {  // 后退
+          trot_param.length = 0.3;
+          trot_param.height = 0.03;
+          trot_param.Kp = 100;
+          trot_param.Kd = 4;
           TaskHandle = TrotBackHandle;
           xTaskNotify((TaskHandle_t)TrotBackHandle, START_ACTION, eSetValueWithOverwrite);
         }
         else if (handle_command[0] == ROTATE_LEFT_CMD) {  // 左旋�?
+          rotate_param.length = 0.2;
+          rotate_param.height = 0.03;
+          rotate_param.Kp = 100;
+          rotate_param.Kd = 4;
           TaskHandle = RotateLeftHandle;
           xTaskNotify((TaskHandle_t)RotateLeftHandle, START_ACTION, eSetValueWithOverwrite);
         }
         else if (handle_command[0] == ROTATE_RIGHT_CMD) {  // 右旋�?
+          rotate_param.length = 0.2;
+          rotate_param.height = 0.03;
+          rotate_param.Kp = 100;
+          rotate_param.Kd = 4;
           TaskHandle = RotateRightHandle;
           xTaskNotify((TaskHandle_t)RotateRightHandle, START_ACTION, eSetValueWithOverwrite);
         }
@@ -1194,7 +1247,7 @@ void NotifyActionTask(void *argument)
           xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithoutOverwrite);
         }
         else if (handle_command[0] == JUMP_FORWARD_CMD) {
-          trot_param.length = 0.3;
+          trot_param.length = 0.1;
           trot_param.height = 0.03;
           trot_param.Kp = 35;
           trot_param.Kd = 4;
@@ -1224,123 +1277,9 @@ void NotifyActionTask(void *argument)
         }
       }
 
-      // ----------------------
-
-      // if ((handle_command[0] == TROT_FORWARD_CMD && (handle_command[1] == NO_CMD || handle_command[1] == TO_FASTEST)) ||
-      //     (handle_command[2] - 125 < 0 && handle_command[1] == NO_CMD)) {
-      //   TaskHandle = TrotForwardHandle;
-      //   xTaskNotify((TaskHandle_t)TrotForwardHandle, START_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[2] - 125 > 0 && handle_command[1] == NO_CMD) {
-      //   TaskHandle = TrotBackHandle;
-      //   xTaskNotify((TaskHandle_t)TrotBackHandle, START_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[0] == ROTATE_LEFT_CMD && handle_command[1] == NO_CMD) {
-      //   TaskHandle = RotateLeftHandle;
-      //   xTaskNotify((TaskHandle_t)RotateLeftHandle, START_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[0] == ROTATE_RIGHT_CMD && handle_command[1] == NO_CMD) {
-      //   TaskHandle = RotateRightHandle;
-      //   xTaskNotify((TaskHandle_t)RotateRightHandle, START_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[0] == MOVE_LEFT_CMD && handle_command[1] == NO_CMD) {
-      //   TaskHandle = MoveLeftHandle;
-      //   xTaskNotify((TaskHandle_t)MoveLeftHandle, START_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[0] == MOVE_RIGHT_CMD && handle_command[1] == NO_CMD) {
-      //   TaskHandle = MoveRightHandle;
-      //   xTaskNotify((TaskHandle_t)MoveRightHandle, START_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[0] == TROT_FORWARD_CMD && handle_command[1] == SLOPE_CMD) {
-      //   TaskHandle = WalkSlopeHandle;
-      //   xTaskNotify((TaskHandle_t)WalkSlopeHandle, START_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[0] == TROT_FORWARD_CMD && handle_command[1] == SLOPE_LR_CMD) {
-      //   TaskHandle = WalkSlope_LRHandle;
-      //   xTaskNotify((TaskHandle_t)WalkSlope_LRHandle, START_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_CMD) {
-      //   xTaskNotify((TaskHandle_t)WalkSlopeHandle, END_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_LR_CMD) {
-      //   xTaskNotify((TaskHandle_t)WalkSlope_LRHandle, END_ACTION, eSetValueWithOverwrite);
-      // }
-      // else if (handle_command[0] == STOP_CMD && handle_command[1] == TO_FASTEST) {
-      //   if (TaskHandle != NULL) {
-      //     xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
-      //   }
-      // }
-      // else if ((handle_command[0] == STOP_CMD && handle_command[1] == NO_CMD) || 
-      //          (handle_command[2] == 125 && handle_command[1] == NO_CMD)) {
-      //   if (TaskHandle != NULL) {
-      //     xTaskNotify((TaskHandle_t)TaskHandle, END_ACTION, eSetValueWithOverwrite);
-      //   }
-      // }
-
       pre_t = t;
     }
 
-    // if (CompareCommand(last_handle_command, handle_command) != 0) {
-    //   if (handle_command[0] == JUMP_UP_CMD && handle_command[1] == NO_CMD) {
-    //     // TaskHandle = JumpUpHandle;
-    //     // xTaskNotify((TaskHandle_t)JumpUpHandle, START_ACTION, eSetValueWithOverwrite);
-    //     tilt_length += 0.01;
-    //     tilt_l0 = tilt_length;
-    //     tilt_l1 = tilt_length;
-    //     squat_l0 = 0.08;
-    //     squat_l1 = 0.08;
-    //     // squat_l0 = 0;
-    //     // squat_l1 = 0;
-    //     jump_l0 = 0.15;
-    //     jump_l1 = 0.15;
-    //     TaskHandle = NULL;
-    //   }
-    //   else if (handle_command[0] == JUMP_FORWARD_CMD && handle_command[1] == NO_CMD) {
-    //     TaskHandle = JumpForwardHandle;
-    //     xTaskNotify((TaskHandle_t)JumpForwardHandle, START_ACTION, eSetValueWithOverwrite);
-    //   }
-    //   else if (handle_command[0] == TROT_BACK_CMD && handle_command[1] == NO_CMD) {
-    //     squat_l0 = 0.02;
-    //     squat_l1 = 0.04;
-    //     jump_l0 = 0.07;
-    //     jump_l1 = 0.09;
-    //     tilt_l0 = 0.1;
-    //     tilt_l1 = 0.14;
-    //     TaskHandle = JumpForwardHandle;
-    //     xTaskNotify((TaskHandle_t)JumpForwardHandle, START_JUMP_1, eSetValueWithOverwrite);
-    //   }
-    //   else if (handle_command[0] == STOP_CMD && handle_command[1] == BECOME_HIGHER) {
-    //     robot_height += 0.01;
-    //     TaskHandle = NULL;
-    //   }
-    //   else if (handle_command[0] == STOP_CMD && handle_command[1] == BECOME_LOWWER) {
-    //     robot_height -= 0.01;
-    //     TaskHandle = NULL;
-    //   }
-    //   else if (handle_command[0] == STOP_CMD && handle_command[1] == TO_FASTEST) {
-    //     if (trot_length != MAX_TROT_LENGTH) {
-    //       trot_length = MAX_TROT_LENGTH;
-    //     }
-    //   }
-    //   else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_CMD) {
-    //     if (isSlope != SLOPE) {
-    //       isSlope = SLOPE;
-    //     }
-    //   }
-    //   else if (handle_command[0] == STOP_CMD && handle_command[1] == SLOPE_LR_CMD) {
-    //     if (isSlope != SLOPE_LR) {
-    //       isSlope = SLOPE_LR;
-    //     }
-    //   }
-    //   else if (handle_command[0] == STOP_CMD && handle_command[1] == NO_CMD) {
-    //     if (trot_length != INIT_TROT_LENGTH) {
-    //       trot_length = INIT_TROT_LENGTH;
-    //     }
-    //     else if (isSlope != NO_SLOPE) {
-    //       isSlope = NO_SLOPE;
-    //     }
-    //   }
-    // }
 
     if (CompareCommand(last_handle_command, handle_command) != 0) {
       if (handle_command[1] == MODE_2) {  // 斜坡切换

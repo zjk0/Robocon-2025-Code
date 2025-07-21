@@ -907,7 +907,7 @@
                     <item>move_controller</item>
                     <item>mid_value</item>
                     <item>slope</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>
